@@ -167,7 +167,7 @@ def runCodeCall : Pred := ⟨"runCodeCall", isTool "mcp__lean-lsp__lean_run_code
 def runsLeanToolingInfo : Pred := ⟨"runsLeanToolingInfo", runs "lean_tooling.py" (hasW "info"),
   [bash "python3 tools/lean_tooling.py info"]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [shellCall, anyCall, anyResult, agentStep, agentText, writesDescription, writesLedger,
    writesMessage, writesPrivate, writesDocument, writesReviewFile, writesPlan, editsNotebook,
    editsPaper, editsLean, editsPython, editsRuleFile, readsRuleFile, writesResultFile,
@@ -178,8 +178,6 @@ def preds : List Pred :=
    rendersPaper, runsShake, gitSwitch, worktreeAdd, worktreeRemove, sonnetReviewer,
    hunkLedgerProse, resultSaysComplete, runsScopedTests, loogleCall, runCodeCall,
    runsLeanToolingInfo]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-! Atoms. -/
 

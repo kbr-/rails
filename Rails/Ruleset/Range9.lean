@@ -136,15 +136,13 @@ def leanInspect : Pred := ⟨"leanInspect",
 def leanMcpCall : Pred := ⟨"leanMcpCall", toolNamed "lean-lsp",
   [.call "m" "mcp__lean-lsp__lean_goal" []]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [anyCall, thinkingStep, toolResult, gitCommit, fixupCommit, autosquashRebase,
    sequenceEditorRebase, todoToolsUsed, interactiveStaging, authorFromTarget, leftoverMessage,
    glabAuthStatus, mrCreate, gitLog, searchCall, mutationBatch, underLauncher, leanCompile,
    leanEdit, testEdit, coverLetterEdit, versionNoteEdit, messageDraftEdit, translationEdit,
    ledgerEdit, privateEdit, reviewDraftEdit, pdfRead, agentRun, cheaperModel, leanDiagnostics,
    leanCodeActions, leanLocalSearch, leanMultiAttempt, leanProfile, leanInspect, leanMcpCall]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-- A message file (a draft, its translation, or a ledger in a private folder). -/
 def isMessageFile (e : Event) : Bool :=

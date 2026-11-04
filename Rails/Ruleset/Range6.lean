@@ -221,7 +221,7 @@ private def isCheckpointCmd (e : Event) : Bool :=
 def checkpointStepCall : Pred := ⟨"checkpointStepCall", isCheckpointCmd,
   [bash "./tools/finish-turn.py t1", bash "git add notebook.html"]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [anyCall, anyResult, failedResult, gitCommit, gitCommitNoEdit, gitRm, gitRebase, gitBranch,
    worktreeAdd, worktreeAddTracked, fastForward, coverLetterEdit, ledgerEdit, bugDocEdit, planEdit,
    testEdit, notebookEdit, claimIndexEdit, notebookOrClaimEdit, claimViewEdit, scratchWrite,
@@ -234,8 +234,6 @@ def preds : List Pred :=
    queueTextHasProblemMust, leadQueueClose, closeSaysMergedInto, patternIndexRead, confluencePush, ffBase,
    mergeMain, notebookRebaseContinue, userRequestFiled, frustratedUser, shellFileWrite, heredocCall,
    scheduleWakeup, agentRun, checkpointStepCall]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-! Relations. -/
 

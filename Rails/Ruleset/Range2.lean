@@ -1,6 +1,7 @@
 import Rails.Rules
 import Rails.Examples
 import Rails.Witness
+import Rails.WellFormed
 
 /-!
 Rules 141 to 280 of `tasks/agents-on-rails/RULES.md`, rule 170 (the sample's) left out: the
@@ -99,12 +100,9 @@ def testEdit : Pred := ⟨"testEdit", isTestEdit, [edit "tests/test_x.py"]⟩
 def pipelineNoPipefail : Pred := ⟨"pipelineNoPipefail", isPipelineNoPipefail,
   [bash "make test | tee log"]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [commit, testRun, mutationRun, realRun, entryAppend, checkpoint, browserRender, toolCall, toolResult,
-   planEdit,
-   notebookEdit, privateEdit, testEdit, pipelineNoPipefail]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide +kernel
+   planEdit, notebookEdit, privateEdit, testEdit, pipelineNoPipefail]
 
 /-- Two reviewer runs of one message. -/
 def pairedReviewer : Rel :=

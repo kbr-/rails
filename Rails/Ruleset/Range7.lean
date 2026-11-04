@@ -281,7 +281,7 @@ def cycleEnd : Pred := ⟨"cycleEnd",
   fun e => invokes "finish-turn.py" (fun _ => true) e || invokes "task_checkpoint.py" (fun _ => true) e,
   [bash "./tools/finish-turn.py t1", bash "python3 tools/task_checkpoint.py --entry e.html"]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [anyCall, resultEvent, refusalEvent, commit, ffBase, computeRun, bareAlgebraRun,
    pythonWithoutKernelReason, pythonWithKernelReason, threadsOne, timeoutBeyondAllowance,
    computeWithTimeout, computeWithExpect, foregroundOverlong, longRunMissingFlags,
@@ -294,8 +294,6 @@ def preds : List Pred :=
    aria2ManyConnections, editsReport, editsMainSkill, editsPersonalSkill, skillSubmoduleCommit,
    loadsMoveSkill, caretMessage, cookieCopy, createsBranch, delegates, memoryWrite,
    editsTasksOrResearch, autosquashRebase, historyRewrite, forcePush, cycleEnd]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-- The mechanical predicates refuse the compliant forms beside their samples. -/
 theorem compliant_forms :

@@ -69,11 +69,9 @@ def migrationEdit : Pred := ⟨"migrationEdit", editsMigration, [edit "app/migra
 def chartRender : Pred := ⟨"chartRender", runs "helm" (word "template"), [bash "helm template r chart"]⟩
 def hookRefusal : Pred := ⟨"hookRefusal", isRefusalEvent, [.refusal "hook" "no"]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [toolCall, commitCall, fixupCall, cachedStatCall, hunkStaging, historyRewrite, branchReset,
    checkRun, typeCheckRun, searching, webLookup, agentRun, migrationEdit, chartRender, hookRefusal]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-- The predicates refuse what they mustn't read: a commit's mention inside quotes, a read-only
 diff, a plain add, a read of a migration. -/

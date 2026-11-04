@@ -1,4 +1,5 @@
 import Rails.Logic
+import Rails.WellFormed
 
 /-!
 The ruleset's vocabulary that several rules share: event predicates with their representatives, the
@@ -26,19 +27,18 @@ def passingResult : Pred := ⟨"passingResult", isPassingResult, [.result "c" "o
 def reviewerRun : Pred := ⟨"reviewerRun", isReviewerRun, [reviewer]⟩
 def promptsUser : Pred :=
   ⟨"promptsUser", isTool "AskUserQuestion", [.call "q" "AskUserQuestion" []]⟩
-
 /-! Relations between steps of one message. -/
 
 def readsWrittenFile : Rel :=
   ⟨"readsWrittenFile", Rails.readsWhatOtherWrites, [(read "f", edit "f")]⟩
 
-/-- The predicates and relations above, each with a representative its test accepts. -/
-def preds : List Pred :=
+/- The predicates and relations above, each with a representative its test accepts, each checked
+in a theorem of its own (`Rails.WellFormed`). -/
+wellFormedPreds preds
   [user, reply, publish, push, editing, reading, requestAdd, attributedCommit, passingResult,
    reviewerRun, promptsUser]
 
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
-theorem rels_wellFormed : [readsWrittenFile].all Rel.wellFormed = true := by decide
+wellFormedRels rels [readsWrittenFile]
 
 /-! Atoms. -/
 

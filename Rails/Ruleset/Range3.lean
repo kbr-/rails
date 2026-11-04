@@ -278,7 +278,7 @@ private def ledgerAndDocument (a b : Step) : Bool :=
 def ledgerWithItsDocument : Rel := ⟨"ledgerWithItsDocument", ledgerAndDocument,
   [(edit "tasks/x/D_EVIDENCE.md", edit "tasks/x/D.md")]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [anyCall, toolResult, agentRun, resumesAgent, loadsPropertyTesting, loadsMrReview, loadsKnowledge,
    gitCommit, gitRebase, gitMerge, gitStage, gitStash, gitTag, readsHistory, formatPatch,
    stagesWholeTree, rewritesHistory, branchCreate, branchDelete, diffStat, rangeDiff, logFormat,
@@ -290,7 +290,6 @@ def preds : List Pred :=
    runsResearchScript, computeViaShell, envPrefixToCompute, controllerFiltered, pkillPattern,
    marksGoalAdvanced, closesFollowUp, editsFormalization, readsFormalizationAgents,
    readsFormalizationReadme, readsComputationRules, editsLedger, editsReviewFile]
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 def rels : List Rel := [ledgerWithItsDocument]
 theorem rels_wellFormed : rels.all Rel.wellFormed = true := by decide

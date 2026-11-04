@@ -20,3 +20,4 @@ import Rails.RuleTextProofs
 import Rails.RuleText
 import Rails.RuleTextFacts
 import Rails.Witness
+import Rails.WellFormed

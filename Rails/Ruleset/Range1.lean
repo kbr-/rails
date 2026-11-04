@@ -1,6 +1,7 @@
 import Rails.Rules
 import Rails.Examples
 import Rails.Witness
+import Rails.WellFormed
 
 /-!
 Rules 1 to 140 of `tasks/agents-on-rails/RULES.md`, the sample's (1, 7, 9, 23, 38, 53, 56, 71, 97,
@@ -191,14 +192,12 @@ def chainedStateChange : Pred :=
   ⟨"chainedStateChange", isChainedStateChange, [bash "git commit -m x && rm f"]⟩
 def hiddenTarget : Pred := ⟨"hiddenTarget", isHiddenTarget, [bash "rm -rf \"$DIR\""]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [commit, install, dryRunResolve, runStateEdit, runStateRead, memoryWrite, swapChange,
    timingStatusDiscarded, verifyCheckout, appendOnlyCheck, checkedPush, gitPush, pushAllOrMirror,
    prePublishPush, mainSwitch, reviewPost, podCreate, podDelete, podStop, stockRead, podRead,
    cookieCopy, cookieDeletion, externalLeanSearch, stableCheck, hookRefusal, anyCall, affinityChange,
    shellLoopRun, chainedStateChange, hiddenTarget]
-
-theorem preds_wellFormed : Range1.preds.all Pred.wellFormed = true := by decide
 
 /-- The tests refuse the near misses: a dry run, a read of a memory file, a quoted push, a
 `git log` of main, a single state change, a literal target. -/

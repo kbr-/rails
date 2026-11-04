@@ -166,7 +166,7 @@ def coverageParagraph : Pred := ⟨"coverageParagraph",
   [.call "e" "Edit" [("file_path", "tasks/x/REVIEW.md"),
     ("new_string", "Coverage. Found by both: a. Misses: none. Beyond the open review: b.")]]⟩
 
-def preds : List Pred :=
+wellFormedPreds preds
   [agentText, anyCall, refusalEvent, planEdit, planRead, reviewFileEdit, clauseTableEdit,
    frameworkPassRecord, theoryRewrap, theoryCheck, theoryCheckLoop, theoryCheckFilesOn,
    theoryCheckAbout, reread, taskNew, statusSet, setWaitsForBlocked, setBlocked, setComplete,
@@ -176,8 +176,6 @@ def preds : List Pred :=
    gitCommit, fixupCommit, autosquash, gitLog, gitShow, searchCall, ledgerAtTip, readerCheck,
    backgroundCall, monitor, agentCall, sonnetReviewer, sendMessage, metEither, loopsApplied,
    capReachedEdit, coverageParagraph]
-
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-! Atoms and links several rules of the range share. -/
 

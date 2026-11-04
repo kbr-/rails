@@ -172,17 +172,22 @@ def defaultSkills : List String :=
   ["engineering-discipline", "engineering-discipline-personal", "software-design-philosophy",
    "software-design-flexibility", "type-driven-design", "algebra-driven-design", "property-testing"]
 
-def preds : List Pred :=
+wellFormedPreds basePreds
   [toolCall, anyResult, hookRefusal, compactionSummary, scriptRun, commit, gitDiff, gitReset, gitRebase,
    rebaseContinue, forcePush, readsApprovals, mrOpen, mrView, mrDescription, postsReviewComment, ssh,
    cgroupLimitRead, readsCpuacctUsage, readsCpuStat, nvidiaSmi, marchNativeBuild, hostCpuCheck,
    disablesAvx512Fp16, aria2Download, hfDownload, aria2FilesListed, interfaceBytesRead, podCreate,
    podStatusRead, jobInspection, leanBuild, leanCheck, leanEdit, notebookEdit, planEdit,
    taskJsonEdit, ledgerEdit, cycleCheckpoint, taskIndexNew, taskStatusSet, taskPaused, taskBlocked,
-   requestResolve, requestEdit, stableCheck, statusTextRun, computeRun, loadsAnySkill] ++
-  (defaultSkills ++ ["lean4"]).map loadsSkill
+   requestResolve, requestEdit, stableCheck, statusTextRun, computeRun, loadsAnySkill]
 
-theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
+/-- One predicate per default skill and `lean4`, computed, so outside `wellFormedPreds`. -/
+def skillPreds : List Pred := (defaultSkills ++ ["lean4"]).map loadsSkill
+theorem skillPreds_wellFormed : skillPreds.all Pred.wellFormed = true := by decide +kernel
+
+def preds : List Pred := basePreds ++ skillPreds
+theorem preds_wellFormed : preds.all Pred.wellFormed = true := by
+  simp only [preds, List.all_append, basePreds_wellFormed, skillPreds_wellFormed, Bool.and_self]
 
 /-! Relations. -/
 
