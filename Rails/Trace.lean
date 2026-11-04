@@ -75,17 +75,19 @@ so the kernel evaluates it. -/
 def shellCommands (cs : List Char) : List (List (List Char)) :=
   go cs none [] [] []
 where
-  word (w : List Char) : List (List Char) := if w.isEmpty then [] else [w]
+  /-- The word built so far, kept reversed so each character is one cons. -/
+  word (w : List Char) : List (List Char) := if w.isEmpty then [] else [w.reverse]
+  /-- `w`, `cmd` and `acc` are kept reversed, each step a cons, and turned round at the end. -/
   go : List Char → Option Char → List Char → List (List Char) → List (List (List Char)) →
       List (List (List Char))
-    | [], _, w, cmd, acc => (acc ++ [cmd ++ word w]).filter (!·.isEmpty)
+    | [], _, w, cmd, acc => (((word w).reverse ++ cmd).reverse :: acc).reverse.filter (!·.isEmpty)
     | c :: cs, some q, w, cmd, acc =>
-      if c == q then go cs none w cmd acc else go cs (some q) (w ++ [c]) cmd acc
+      if c == q then go cs none w cmd acc else go cs (some q) (c :: w) cmd acc
     | c :: cs, none, w, cmd, acc =>
       if c == '\'' || c == '"' then go cs (some c) w cmd acc
-      else if isSep c then go cs none [] [] (acc ++ [cmd ++ word w])
-      else if c == ' ' || c == '\t' then go cs none [] (cmd ++ word w) acc
-      else go cs none (w ++ [c]) cmd acc
+      else if isSep c then go cs none [] [] (((word w).reverse ++ cmd).reverse :: acc)
+      else if c == ' ' || c == '\t' then go cs none [] ((word w).reverse ++ cmd) acc
+      else go cs none (c :: w) cmd acc
 
 /-- The first list ends the second. -/
 def endsWith (suffix s : List Char) : Bool := hasPrefix suffix.reverse s.reverse
