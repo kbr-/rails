@@ -1,8 +1,8 @@
 import Rails.Witness
-import Rails.Rules
+import Rails.Ruleset.All
 
 /-!
-`rails-witness`: every rule's witness search (`Rails.Witness.search`), printing each rule with no
+`rails-witness`: every rule's witness search over the whole ruleset (`Ruleset.allRules`) (`Rails.Witness.search`), printing each rule with no
 kept or no broken verdict over its family, the families' sizes, and the time taken. Exit 1 when a
 rule lacks a witness. `rails-witness --control` adds a constant formula, which must be listed.
 -/
@@ -15,7 +15,8 @@ def constantRule : Rule :=
     formula := ev Ruleset.reply ∨ₗ ¬ₗ ev Ruleset.reply }
 
 def main (args : List String) : IO UInt32 := do
-  let rules := if args.contains "--control" then Rules.all ++ [constantRule] else Rules.all
+  let rules := if args.contains "--control" then Ruleset.allRules ++ [constantRule]
+    else Ruleset.allRules
   let start ← IO.monoMsNow
   let tasks ← rules.mapM fun r => IO.asTask (pure (r, search r.formula, familySize r.formula))
   let mut lacking := 0
