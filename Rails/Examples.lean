@@ -40,6 +40,20 @@ theorem r1_codex_broken : run pushNeedsAuthorization (seq [exec "git push origin
     [(atom grantCoversPush 0, false)] = .broken := by decide
 theorem r1_codex_kept : run pushNeedsAuthorization (seq [.user "push it", exec "git push"])
     [(atom authorizesPush 0, true)] = .kept := by decide
+/-- A command is one the shell runs: a mention inside quotes or as another program's argument
+doesn't count, a command after a separator or with options before its verb does. -/
+theorem quoted_push_no_push : isPush (bash "python3 -c \"print('git push')\"") = false := by decide
+theorem grep_push_no_push : isPush (bash "grep -n 'git push' f") = false := by decide
+theorem chained_push : isPush (bash "make && git push origin b") = true := by decide
+theorem dash_c_push : isPush (bash "git -C /r push origin b") = true := by decide
+theorem checked_push : isPush (bash "tools/checked-push.sh main") = true := by decide
+theorem script_naming_commit : isAttributedCommit
+    (bash "python3 -c \"if 'git commit' in x and 'Co-Authored-By: Claude' in x: pass\"") = false := by
+  decide
+theorem heredoc_commit : isAttributedCommit
+    (bash "git commit -F - <<'EOF'\nfix\n\nCo-Authored-By: Claude\nEOF") = true := by decide
+theorem request_add_via_python : isRequestAdd (bash "python3 tools/task_index.py request add x") = true := by
+  decide
 /-- A Codex `apply_patch` is an edit; its plain shell commands are not. -/
 theorem codex_patch_is_edit : isEdit (exec "apply_patch <<'EOF'\n*** Begin Patch") = true := by decide
 theorem codex_ls_is_no_edit : isEdit (exec "ls -la") = false := by decide

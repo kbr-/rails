@@ -66,18 +66,62 @@ private def commandHas (needle : String) (e : Event) : Bool :=
   | some c => occursIn needle.toList c.toList
   | none => false
 
-def isPush (e : Event) : Bool := commandHas "git push" e || commandHas "checked-push.sh" e
+/-- A character ending a shell command: `;`, `&`, `|`, a newline or `(`. -/
+def isSep (c : Char) : Bool := c == ';' || c == '&' || c == '|' || c == '\n' || c == '('
+
+/-- A shell text's commands, each its words in order: separators outside quotes end a command,
+blanks outside quotes end a word, and a quoted string's characters stay in their word. Structural,
+so the kernel evaluates it. -/
+def shellCommands (cs : List Char) : List (List (List Char)) :=
+  go cs none [] [] []
+where
+  word (w : List Char) : List (List Char) := if w.isEmpty then [] else [w]
+  go : List Char → Option Char → List Char → List (List Char) → List (List (List Char)) →
+      List (List (List Char))
+    | [], _, w, cmd, acc => (acc ++ [cmd ++ word w]).filter (!·.isEmpty)
+    | c :: cs, some q, w, cmd, acc =>
+      if c == q then go cs none w cmd acc else go cs (some q) (w ++ [c]) cmd acc
+    | c :: cs, none, w, cmd, acc =>
+      if c == '\'' || c == '"' then go cs (some c) w cmd acc
+      else if isSep c then go cs none [] [] (acc ++ [cmd ++ word w])
+      else if c == ' ' || c == '\t' then go cs none [] (cmd ++ word w) acc
+      else go cs none (w ++ [c]) cmd acc
+
+/-- The first list ends the second. -/
+def endsWith (suffix s : List Char) : Bool := hasPrefix suffix.reverse s.reverse
+
+/-- A word before a command's program: a variable assignment, `env`, or an interpreter running the
+program as its script. -/
+def isLauncher (w : List Char) : Bool :=
+  w.contains '=' || w == "env".toList || w == "python3".toList || w == "python".toList ||
+    w == "sh".toList || w == "bash".toList
+
+/-- Some command of the call runs a program whose name ends `prog`, its launcher words skipped,
+with `p` holding of its words. -/
+def runs (prog : String) (p : List (List Char) → Bool) (e : Event) : Bool :=
+  match command e with
+  | some c => (shellCommands c.toList).any fun ws => match ws.dropWhile isLauncher with
+    | w :: _ => endsWith prog.toList w && p ws
+    | [] => false
+  | none => false
+
+private def hasWord (s : String) (ws : List (List Char)) : Bool := ws.contains s.toList
+
+/-- A push: `git ... push` (with options such as `-C PATH` between) or the checked-push script. -/
+def isPush (e : Event) : Bool := runs "git" (hasWord "push") e || runs "checked-push.sh" (fun _ => true) e
 
 /-- A commit whose message carries Claude attribution. -/
 def isAttributedCommit (e : Event) : Bool :=
-  commandHas "git commit" e && (commandHas "Co-Authored-By: Claude" e || commandHas "Claude-Session:" e)
+  runs "git" (hasWord "commit") e &&
+    (commandHas "Co-Authored-By: Claude" e || commandHas "Claude-Session:" e)
 
-/-- A file edit: Claude Code's Edit or Write, or a Codex command calling `apply_patch`. -/
-def isEdit (e : Event) : Bool := isTool "Edit" e || isTool "Write" e || commandHas "apply_patch" e
+/-- A file edit: Claude Code's Edit or Write, or a Codex command running `apply_patch`. -/
+def isEdit (e : Event) : Bool := isTool "Edit" e || isTool "Write" e || runs "apply_patch" (fun _ => true) e
 
 def isRead (e : Event) : Bool := isTool "Read" e
 
-def isRequestAdd (e : Event) : Bool := commandHas "task_index.py request add" e
+def isRequestAdd (e : Event) : Bool :=
+  runs "task_index.py" (fun ws => hasWord "request" ws && hasWord "add" ws) e
 
 def isReviewerRun (e : Event) : Bool :=
   isTool "Agent" e && e.field "subagent_type" == some "medium-reviewer"
