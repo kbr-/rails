@@ -214,7 +214,6 @@ reply: the first reply after the record gives it, and one follows. -/
 def frameworkPassFirst : Rule where
   number := 561
   keyword := .must
-  domain := .tasks
   formula :=
     (ev editing ∧ₗ atom editsFramework ⟹ once (ev frameworkPassRecord ∧ₗ link passCoversEdit)) ∧ₗ
     (ev frameworkPassRecord ⟹ eventually (ev reply)) ∧ₗ
@@ -229,7 +228,6 @@ def opensTaskForEdit : Link := ⟨"opensTaskForEdit",
 def taskBeforeLargeChange : Rule where
   number := 562
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom outsideTaskBeyondBoundedFix ⟹ once (ev taskNew ∧ₗ link opensTaskForEdit)
 
 def batchesReread : Link := ⟨"batchesReread",
@@ -239,7 +237,6 @@ def batchesReread : Link := ⟨"batchesReread",
 def rereadBeforePlan : Rule where
   number := 563
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesPath ⟹
     once (ev planRead ∧ₗ link readsWholeTheory) ∧ₗ once (ev agentText ∧ₗ link batchesReread)
 
@@ -247,7 +244,6 @@ def rereadBeforePlan : Rule where
 def rewrapTheory : Rule where
   number := 564
   keyword := .must
-  domain := .tasks
   formula :=
     (ev planEdit ∧ₗ atom editsTheory ⟹ eventually (ev theoryRewrap)) ∧ₗ
     (ev planEdit ∧ₗ atom editsTheory ⟹ ¬ₗ since (ev planEdit ∧ₗ atom editsTheory) (ev theoryRewrap))
@@ -261,7 +257,6 @@ def quotesEachRequirement : Link := ⟨"quotesEachRequirement",
 def checklistEveryEntry : Rule where
   number := 565
   keyword := .must
-  domain := .tasks
   formula := ev reread ⟹
     once (ev agentText ∧ₗ link checksEntriesAgainstChecklist) ∧ₗ
     once (ev planEdit ∧ₗ link quotesEachRequirement)
@@ -277,7 +272,6 @@ def licensesThisDeparture : Link := ⟨"licensesThisDeparture",
 def ticketDepartureRequired : Rule where
   number := 566
   keyword := .must
-  domain := .tasks
   formula :=
     (ev requestAdd ∧ₗ atom asksTicketDeparture ⟹ ev requiredRequest) ∧ₗ
     (ev editing ∧ₗ atom departsFromTicketProposal ⟹ once (ev user ∧ₗ link licensesThisDeparture))
@@ -289,7 +283,6 @@ def readsEntriesByObject : Link := ⟨"readsEntriesByObject",
 def sharedObjectCheck : Rule where
   number := 567
   keyword := .must
-  domain := .tasks
   formula := ev reread ⟹ once (ev agentText ∧ₗ link readsEntriesByObject)
 
 /-- Rule 568: `theory_check.py` at each pass's start (before its first theory edit since the last
@@ -297,7 +290,6 @@ reread) and before gaps are brought (after the pass's last theory edit). -/
 def theoryCheckEachPass : Rule where
   number := 568
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reread ⟹ since (ev theoryCheck) (ev reread)) ∧ₗ
     (ev planEdit ∧ₗ atom editsTheory ⟹ since (ev theoryCheck) (ev reread)) ∧ₗ
@@ -307,7 +299,6 @@ def theoryCheckEachPass : Rule where
 def theoryLoopWatched : Rule where
   number := 569
   keyword := .must
-  domain := .tasks
   formula := ev theoryCheckLoop ⟹ ev backgroundCall ∧ₗ eventually (ev monitor)
 
 def taskSpansBranches : Atom := ⟨"taskSpansBranches",
@@ -321,7 +312,6 @@ branch's file. -/
 def filesOnBranches : Rule where
   number := 570
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reread ∧ₗ atom taskSpansBranches ⟹ since (ev theoryCheckFilesOn) (ev reread)) ∧ₗ
     (ev editing ∧ₗ atom portsFile ⟹ once ((ev reading ∨ₗ ev gitShow) ∧ₗ link readsLandingState))
@@ -344,7 +334,6 @@ stale text fixed, and the pass repeated until nothing is new. -/
 def everyGapOnePass : Rule where
   number := 571
   keyword := .mustNot
-  domain := .tasks
   formula :=
     never (ev reply ∧ₗ atom stopsAtFirstGap ∧ₗ ¬ₗ atom gapVoidsPass) ∧ₗ
     (ev reply ∧ₗ atom bringsTheoryGaps ⟹
@@ -365,7 +354,6 @@ def checksOwnOutput : Link := ⟨"checksOwnOutput",
 def checkOwnOutput : Rule where
   number := 573
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom recordsDecision ⟹
     atom updatesDependents ∧ₗ once (ev agentText ∧ₗ link checksOwnOutput)
 
@@ -382,7 +370,6 @@ theorem rels_wellFormed : rels.all Rel.wellFormed = true := by decide
 def userNeedIsRequest : Rule where
   number := 574
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom recordsUserNeed ⟹ sameMessage planWithRequest
 
 def reportsPassDone : Atom := ⟨"reportsPassDone", "Does this reply report a finished theory pass?", .reply⟩
@@ -391,7 +378,6 @@ def reportsPassDone : Atom := ⟨"reportsPassDone", "Does this reply report a fi
 def passEndsWithReread : Rule where
   number := 575
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom reportsPassDone ⟹ since (ev reread) (ev planEdit)
 
 def recordsUnchanged : Atom := ⟨"recordsUnchanged",
@@ -401,7 +387,6 @@ def recordsUnchanged : Atom := ⟨"recordsUnchanged",
 def unchangedNeedsRead : Rule where
   number := 576
   keyword := .must
-  domain := .tasks
   formula := ev reread ∧ₗ atom recordsUnchanged ⟹ since (ev planRead ∧ₗ link readsWholeTheory) (ev reread)
 
 def carriesEveryClause : Link := ⟨"carriesEveryClause",
@@ -411,7 +396,6 @@ def carriesEveryClause : Link := ⟨"carriesEveryClause",
 def carryEachClause : Rule where
   number := 577
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesPath ⟹ once (ev agentText ∧ₗ link carriesEveryClause)
 
 def pathOfLongTheory : Atom := ⟨"pathOfLongTheory",
@@ -421,7 +405,6 @@ def pathOfLongTheory : Atom := ⟨"pathOfLongTheory",
 def clauseTableForLongTheory : Rule where
   number := 578
   keyword := .must
-  domain := .tasks
   formula :=
     (ev planEdit ∧ₗ atom pathOfLongTheory ⟹ anytime (ev clauseTableEdit)) ∧ₗ
     (ev clauseTableEdit ⟹ eventually (ev clauseTableRun))
@@ -430,7 +413,6 @@ def clauseTableForLongTheory : Rule where
 def clauseTableStops : Rule where
   number := 579
   keyword := .must
-  domain := .tasks
   formula := ev clauseTableEdit ⟹ ¬ₗ once (ev editing ∧ₗ atom implementationEdit)
 
 def addsCases : Atom := ⟨"addsCases", "Does this edit add acceptance cases?", .edit⟩
@@ -445,7 +427,6 @@ and a reworded case's rows reopened. -/
 def caseIds : Rule where
   number := 580
   keyword := .must
-  domain := .tasks
   formula :=
     (ev clauseTableEdit ∧ₗ atom addsCases ⟹ eventually (ev clauseTableNumber)) ∧ₗ
     (ev clauseTableEdit ⟹ ¬ₗ since (ev clauseTableEdit ∧ₗ atom addsCases) (ev clauseTableNumber)) ∧ₗ
@@ -461,7 +442,6 @@ def answersFormsOfAnchor : Link := ⟨"answersFormsOfAnchor",
 def answerTagsAndMembers : Rule where
   number := 581
   keyword := .must
-  domain := .tasks
   formula := ev clauseTableEdit ∧ₗ atom addsTagOrMember ⟹
     anytime (ev clauseTableEdit ∧ₗ link answersFormsOfAnchor)
 
@@ -476,7 +456,6 @@ def readsJoinedRowsTogether : Link := ⟨"readsJoinedRowsTogether",
 def tagFormPairs : Rule where
   number := 582
   keyword := .must
-  domain := .tasks
   formula := ev clauseTableEdit ∧ₗ atom answersSharedTagRule ⟹
     atom listsEveryTagForm ∧ₗ anytime (ev agentText ∧ₗ link readsJoinedRowsTogether)
 
@@ -488,7 +467,6 @@ def namesFailingCasePerRule : Link := ⟨"namesFailingCasePerRule",
 def rowPartByPart : Rule where
   number := 583
   keyword := .must
-  domain := .tasks
   formula := ev clauseTableEdit ∧ₗ atom fillsRow ⟹ once (ev agentText ∧ₗ link namesFailingCasePerRule)
 
 def writesNewDecision : Atom := ⟨"writesNewDecision", "Does this edit write a new decision?", .edit⟩
@@ -499,7 +477,6 @@ def writesCasesForNewDecision : Atom := ⟨"writesCasesForNewDecision",
 def casesWithDecision : Rule where
   number := 584
   keyword := .must
-  domain := .tasks
   formula :=
     (ev planEdit ∧ₗ atom writesNewDecision ⟹ atom writesCasesForNewDecision) ∧ₗ
     (ev planEdit ∧ₗ atom writesCasesForNewDecision ⟹ once (ev clauseTableInit))
@@ -519,7 +496,6 @@ first and in full; the review takes them in full and the other rows in one sampl
 def riskyIncrementsFirst : Rule where
   number := 585
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom firstPathReview ⟹
     once (ev editing ∧ₗ link recordsRiskyIncrements) ∧ₗ once (ev agentText ∧ₗ link auditsRiskyRowsFully) ∧ₗ
     atom auditsRiskyFullOthersSampled
@@ -533,7 +509,6 @@ def listsStepNeeds : Link := ⟨"listsStepNeeds",
 def stepNeeds : Rule where
   number := 586
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesPath ⟹
     ¬ₗ atom needDeliveredLater ∧ₗ once (ev agentText ∧ₗ link listsStepNeeds)
 
@@ -544,7 +519,6 @@ def pathItemsNotNested : Atom := ⟨"pathItemsNotNested",
 def nestedPathItems : Rule where
   number := 587
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom pathItemsNotNested)
 
 def stepLacksMembers : Atom := ⟨"stepLacksMembers",
@@ -554,7 +528,6 @@ def stepLacksMembers : Atom := ⟨"stepLacksMembers",
 def membersUnderStep : Rule where
   number := 588
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom stepLacksMembers)
 
 def stepHoldsSeveralArtifacts : Atom := ⟨"stepHoldsSeveralArtifacts",
@@ -564,7 +537,6 @@ def stepHoldsSeveralArtifacts : Atom := ⟨"stepHoldsSeveralArtifacts",
 def oneArtifactPerStep : Rule where
   number := 589
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom stepHoldsSeveralArtifacts)
 
 def longStepUnsplit : Atom := ⟨"longStepUnsplit",
@@ -574,7 +546,6 @@ def longStepUnsplit : Atom := ⟨"longStepUnsplit",
 def stepBounds : Rule where
   number := 590
   keyword := .should
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom longStepUnsplit ⟹ atom justified
 
 def pathMakesDecision : Atom := ⟨"pathMakesDecision",
@@ -586,7 +557,6 @@ def pathCitesNewEntry : Atom := ⟨"pathCitesNewEntry",
 def noDecisionInPath : Rule where
   number := 591
   keyword := .mustNot
-  domain := .tasks
   formula :=
     never (ev planEdit ∧ₗ atom pathMakesDecision) ∧ₗ
     (ev planEdit ∧ₗ atom pathCitesNewEntry ⟹ since (ev reread) (ev planEdit ∧ₗ atom editsTheory))
@@ -599,7 +569,6 @@ def checksStepReferences : Link := ⟨"checksStepReferences",
 def referencesAfterMove : Rule where
   number := 592
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom movesOrRenamesStep ⟹ eventually (ev agentText ∧ₗ link checksStepReferences)
 
 def checksPathYourself : Link := ⟨"checksPathYourself",
@@ -609,7 +578,6 @@ def checksPathYourself : Link := ⟨"checksPathYourself",
 def writerChecksPath : Rule where
   number := 593
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reviewerRun ∧ₗ atom reviewsPath ⟹
       since (ev agentText ∧ₗ link checksPathYourself) (ev planEdit ∧ₗ atom writesPath)) ∧ₗ
@@ -622,7 +590,6 @@ def asksMembersAndForms : Link := ⟨"asksMembersAndForms",
 def changedClausesRead : Rule where
   number := 594
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom reviewsPath ⟹
     since (ev agentText ∧ₗ link asksMembersAndForms) (ev planEdit ∧ₗ atom writesPath)
 
@@ -636,7 +603,6 @@ def statesLoopCost : Atom := ⟨"statesLoopCost",
 def loopHasGoal : Rule where
   number := 595
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom proposesLoop ⟹ atom givesGoalPrompt ∧ₗ atom statesLoopCost
 
 def goalMissesExit : Atom := ⟨"goalMissesExit",
@@ -646,7 +612,6 @@ def goalMissesExit : Atom := ⟨"goalMissesExit",
 def everyExitInCondition : Rule where
   number := 596
   keyword := .must
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom goalMissesExit)
 
 def invokesRoundCap : Atom := ⟨"invokesRoundCap",
@@ -659,7 +624,6 @@ def goalHasCap : Atom := ⟨"goalHasCap",
 def noInventedCap : Rule where
   number := 597
   keyword := .mustNot
-  domain := .tasks
   formula := ev reply ∧ₗ atom invokesRoundCap ⟹
     since (ev user ∧ₗ atom goalHasCap) (ev user ∧ₗ atom setsGoal)
 
@@ -674,7 +638,6 @@ def otherWorkApart : Atom := ⟨"otherWorkApart",
 def reportInConditionWords : Rule where
   number := 598
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom reportsGoalStatus ⟹ atom firstSentenceStatesCondition ∧ₗ atom otherWorkApart
 
 def stepCountAsGoalStatus : Atom := ⟨"stepCountAsGoalStatus",
@@ -684,7 +647,6 @@ def stepCountAsGoalStatus : Atom := ⟨"stepCountAsGoalStatus",
 def noStepCountStatus : Rule where
   number := 599
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom stepCountAsGoalStatus)
 
 def judgeRefusesHeldCondition : Atom := ⟨"judgeRefusesHeldCondition",
@@ -700,7 +662,6 @@ alone. -/
 def judgeRefusal : Rule where
   number := 600
   keyword := .must
-  domain := .tasks
   formula :=
     (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition ∧ₗ
         ¬ₗ once (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition) ⟹
@@ -722,7 +683,6 @@ def decidesIdea : Link := ⟨"decidesIdea",
 def ideaStaysOpen : Rule where
   number := 601
   keyword := .must
-  domain := .tasks
   formula :=
     (ev user ∧ₗ atom offersIdea ⟹ eventually (ev planEdit ∧ₗ link recordsIdeaAsOpenQuestion)) ∧ₗ
     (ev planEdit ∧ₗ atom recordsIdeaAsDecision ⟹ once (ev user ∧ₗ link decidesIdea))
@@ -734,7 +694,6 @@ def capSaysSuccessNeedNotHold : Atom := ⟨"capSaysSuccessNeedNotHold",
 def twoEndStates : Rule where
   number := 602
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom givesGoalPrompt ⟹ ev metEither ∧ₗ atom capSaysSuccessNeedNotHold
 
 def capNamesHeading : Atom := ⟨"capNamesHeading",
@@ -748,7 +707,6 @@ def reportsCapReached : Atom := ⟨"reportsCapReached", "Does this reply report 
 def capArtifact : Rule where
   number := 603
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reply ∧ₗ atom givesGoalPrompt ⟹ atom capNamesHeading) ∧ₗ
     (ev reply ∧ₗ atom reportsCapReached ⟹ once (ev capReachedEdit)) ∧ₗ
@@ -761,7 +719,6 @@ def listsRoundRuns : Atom := ⟨"listsRoundRuns",
 def roundRunsListed : Rule where
   number := 604
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom givesGoalPrompt ⟹ atom listsRoundRuns
 
 def namesRunInputs : Atom := ⟨"namesRunInputs",
@@ -776,7 +733,6 @@ def orderNamesOutput : Atom := ⟨"orderNamesOutput",
 def runDependencies : Rule where
   number := 606
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reply ∧ₗ atom givesGoalPrompt ⟹ atom namesRunInputs) ∧ₗ
     never (ev agentText ∧ₗ atom serializesIndependentRuns) ∧ₗ
@@ -791,7 +747,6 @@ def recordsCoverageOfRun : Link := ⟨"recordsCoverageOfRun",
 def boundedTrackedRuns : Rule where
   number := 607
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom loopRound ⟹
     atom briefBoundsInput ∧ₗ anytime (ev editing ∧ₗ link recordsCoverageOfRun)
 
@@ -807,7 +762,6 @@ notes' fixes, which a recheck reads. -/
 def cleanEnd : Rule where
   number := 608
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reply ∧ₗ atom declaresCleanEnd ⟹
       since (ev passingResult ∧ₗ link roundWithNothingAboveBar) (ev editing ∧ₗ atom changesReviewedBeyondNotes)) ∧ₗ
@@ -820,7 +774,6 @@ def statesCapSizing : Atom := ⟨"statesCapSizing",
 def capSized : Rule where
   number := 609
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom givesGoalPrompt ⟹ atom statesCapSizing
 
 def conditionHoldsProcedure : Atom := ⟨"conditionHoldsProcedure",
@@ -830,7 +783,6 @@ def conditionHoldsProcedure : Atom := ⟨"conditionHoldsProcedure",
 def noProcedureInCondition : Rule where
   number := 610
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom conditionHoldsProcedure)
 
 def roundDepartsFromCondition : Atom := ⟨"roundDepartsFromCondition",
@@ -842,7 +794,6 @@ def announcesDeparture : Link := ⟨"announcesDeparture",
 def departureAnnounced : Rule where
   number := 611
   keyword := .must
-  domain := .tasks
   formula := ev anyCall ∧ₗ atom roundDepartsFromCondition ⟹ once (ev reply ∧ₗ link announcesDeparture)
 
 def briefHandsWholeRecord : Atom := ⟨"briefHandsWholeRecord",
@@ -852,7 +803,6 @@ def briefHandsWholeRecord : Atom := ⟨"briefHandsWholeRecord",
 def excerptBrief : Rule where
   number := 612
   keyword := .must
-  domain := .tasks
   formula := never (ev reviewerRun ∧ₗ atom briefHandsWholeRecord)
 
 def roundTooSmall : Atom := ⟨"roundTooSmall",
@@ -862,7 +812,6 @@ def roundTooSmall : Atom := ⟨"roundTooSmall",
 def foldSmallRound : Rule where
   number := 613
   keyword := .should
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom roundTooSmall ⟹ atom justified
 
 def runsLoopReview : Atom := ⟨"runsLoopReview",
@@ -872,7 +821,6 @@ def runsLoopReview : Atom := ⟨"runsLoopReview",
 def sonnetReviews : Rule where
   number := 614
   keyword := .must
-  domain := .tasks
   formula := ev agentCall ∧ₗ atom runsLoopReview ⟹ ev sonnetReviewer
 
 /-! Rules 615 to 622, the review loop. -/
@@ -888,7 +836,6 @@ def resumesOpenReviewer : Link := ⟨"resumesOpenReviewer",
 def reconciliation : Rule where
   number := 615
   keyword := .must
-  domain := .tasks
   formula :=
     never (ev reviewFileEdit ∧ₗ atom reconciliationOffHeading) ∧ₗ
     (ev reviewFileEdit ∧ₗ atom writesReconciliation ⟹
@@ -902,7 +849,6 @@ one). -/
 def assessFindings : Rule where
   number := 616
   keyword := .must
-  domain := .tasks
   formula := ev reviewFileEdit ∧ₗ atom writesReconciliation ⟹
     link assessesEveryFinding ∨ₗ eventually (ev reviewFileEdit ∧ₗ link assessesEveryFinding)
 
@@ -913,7 +859,6 @@ def classifiesMisses : Atom := ⟨"classifiesMisses",
 def coverageParagraphRule : Rule where
   number := 617
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reviewFileEdit ∧ₗ atom writesReconciliation ⟹ anytime (ev coverageParagraph)) ∧ₗ
     (ev coverageParagraph ⟹ atom classifiesMisses)
@@ -927,7 +872,6 @@ def dropsOpenReview : Atom := ⟨"dropsOpenReview",
 def keepOpenReview : Rule where
   number := 618
   keyword := .mustNot
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom roundWithoutOpenReview ⟹ once (ev user ∧ₗ atom dropsOpenReview)
 
 def startsNewRound : Atom := ⟨"startsNewRound", "Does this reviewer run start a new review round?", .call⟩
@@ -936,7 +880,6 @@ def startsNewRound : Atom := ⟨"startsNewRound", "Does this reviewer run start 
 def recheckBetweenRounds : Rule where
   number := 619
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom startsNewRound ∧ₗ once (ev editing ∧ₗ atom fixesReviewFinding) ⟹
     since (ev sendMessage ∧ₗ link rechecksFixes) (ev editing ∧ₗ atom fixesReviewFinding)
 
@@ -951,7 +894,6 @@ def freshReviewAfterFix : Link := ⟨"freshReviewAfterFix",
 def finalFailureFixed : Rule where
   number := 620
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reviewFileEdit ∧ₗ atom recordsFinalReviewFailure ⟹
       eventually (ev editing ∧ₗ atom fixesReviewFinding) ∧ₗ
@@ -968,7 +910,6 @@ def freshReviewOfNoteFix : Link := ⟨"freshReviewOfNoteFix",
 def noteFixRecheck : Rule where
   number := 621
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom fixesCleanNoteOnly ⟹
     eventually (ev sendMessage ∧ₗ link rechecksFixes) ∧ₗ
     ¬ₗ eventually (ev reviewerRun ∧ₗ link freshReviewOfNoteFix)
@@ -978,7 +919,6 @@ def noteFixRecheck : Rule where
 def ledgersCurrent : Rule where
   number := 622
   keyword := .should
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom requestsPush ⟹
     (once (ev ledgerAtTip) ∧ₗ once (ev readerCheck)) ∨ₗ atom justified
 
@@ -988,7 +928,6 @@ def ledgersCurrent : Rule where
 def theoryFirstEachCycle : Rule where
   number := 623
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom implementationEdit ⟹
     since (ev planEdit ∧ₗ atom editsTheory) (ev taskCheckpoint)
 
@@ -1001,7 +940,6 @@ def updatesPathFor : Link := ⟨"updatesPathFor",
 def pathAndStatus : Rule where
   number := 624
   keyword := .must
-  domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom findingChangesPlan ⟹ eventually (ev planEdit ∧ₗ link updatesPathFor)) ∧ₗ
     (ev taskCheckpoint ⟹ since (ev statusSet) (ev taskCheckpoint))
@@ -1013,7 +951,6 @@ def aboutObjectsOfEdit : Link := ⟨"aboutObjectsOfEdit",
 def readEntriesAbout : Rule where
   number := 625
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom implementationEdit ⟹ once (ev theoryCheckAbout ∧ₗ link aboutObjectsOfEdit)
 
 def runsPerSubstep : Atom := ⟨"runsPerSubstep",
@@ -1023,7 +960,6 @@ def runsPerSubstep : Atom := ⟨"runsPerSubstep",
 def batchSubsteps : Rule where
   number := 626
   keyword := .should
-  domain := .tasks
   formula := ev anyCall ∧ₗ atom runsPerSubstep ⟹ atom justified
 
 def findsDefect : Atom := ⟨"findsDefect", "Does this text report a defect just found?", .any⟩
@@ -1035,7 +971,6 @@ before the next implementation edit. -/
 def defectEntryAtOnce : Rule where
   number := 627
   keyword := .must
-  domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom findsDefect ⟹ eventually (ev planEdit ∧ₗ link recordsDefect)) ∧ₗ
     (ev editing ∧ₗ atom implementationEdit ⟹
@@ -1049,7 +984,6 @@ def testsThisFix : Link := ⟨"testsThisFix",
 def mrFixesBatch : Rule where
   number := 628
   keyword := .must
-  domain := .tasks
   formula :=
     (ev gitCommit ∧ₗ atom fixesMrFinding ⟹ ev fixupCommit) ∧ₗ
     (ev fixupCommit ⟹ once (ev passingResult ∧ₗ link testsThisFix)) ∧ₗ
@@ -1062,7 +996,6 @@ def fixupLinesChangedLater : Atom := ⟨"fixupLinesChangedLater",
 def editStopFix : Rule where
   number := 629
   keyword := .must
-  domain := .tasks
   formula := never (ev fixupCommit ∧ₗ atom fixupLinesChangedLater)
 
 def reportsTheoryStable : Link := ⟨"reportsTheoryStable",
@@ -1072,7 +1005,6 @@ def reportsTheoryStable : Link := ⟨"reportsTheoryStable",
 def readyTheory : Rule where
   number := 630
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom implementationEdit ⟹ once (ev passingResult ∧ₗ link reportsTheoryStable)
 
 def addsEntryOfOtherKind : Atom := ⟨"addsEntryOfOtherKind",
@@ -1082,7 +1014,6 @@ def addsEntryOfOtherKind : Atom := ⟨"addsEntryOfOtherKind",
 def executionEntries : Rule where
   number := 631
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom addsEntryOfOtherKind ∧ₗ once (ev editing ∧ₗ atom implementationEdit))
 
 def recordsBuildShape : Atom := ⟨"recordsBuildShape",
@@ -1094,7 +1025,6 @@ def commitsBuiltDecision : Atom := ⟨"commitsBuiltDecision",
 def buildShapeInCommit : Rule where
   number := 632
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom recordsBuildShape) ∧ₗ never (ev gitCommit ∧ₗ atom commitsBuiltDecision)
 
 def addsSeveralEntriesForIncrement : Atom := ⟨"addsSeveralEntriesForIncrement",
@@ -1106,7 +1036,6 @@ def readsIncrementPart : Link := ⟨"readsIncrementPart",
 def entriesTogether : Rule where
   number := 633
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom addsSeveralEntriesForIncrement ⟹ once (ev planRead ∧ₗ link readsIncrementPart)
 
 def waitsForUser : Atom := ⟨"waitsForUser", "Does this reply stop work to wait for the user?", .reply⟩
@@ -1117,7 +1046,6 @@ def entryNamesMissingDecisions : Atom := ⟨"entryNamesMissingDecisions",
 def finishGoalKeepsWorking : Rule where
   number := 634
   keyword := .must
-  domain := .tasks
   formula :=
     never (ev reply ∧ₗ atom waitsForUser ∧ₗ atom underFinishGoal) ∧ₗ
     (ev entryAppend ∧ₗ atom underFinishGoal ⟹ atom entryNamesMissingDecisions)
@@ -1131,7 +1059,6 @@ def retellsEntry : Atom := ⟨"retellsEntry",
 def evidenceWithoutProse : Rule where
   number := 635
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom writesEvidenceProse) ∧ₗ never (ev gitCommit ∧ₗ atom retellsEntry)
 
 def leavesStaleStatus : Atom := ⟨"leavesStaleStatus",
@@ -1143,14 +1070,12 @@ def changesStatusNeedlessly : Atom := ⟨"changesStatusNeedlessly",
 def statusText : Rule where
   number := 636
   keyword := .must
-  domain := .tasks
   formula := never (ev taskCheckpoint ∧ₗ atom leavesStaleStatus) ∧ₗ never (ev editing ∧ₗ atom changesStatusNeedlessly)
 
 /-- Rule 637: `cycle_numbers.py --target` before each entry. -/
 def cycleNumbersFirst : Rule where
   number := 637
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ⟹ since (ev cycleNumbers) (ev entryAppend)
 
 def entryHasProcess : Atom := ⟨"entryHasProcess",
@@ -1160,7 +1085,6 @@ def entryHasProcess : Atom := ⟨"entryHasProcess",
 def processParagraph : Rule where
   number := 638
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ⟹ atom entryHasProcess
 
 def correctsAgent : Atom := ⟨"correctsAgent",
@@ -1172,7 +1096,6 @@ def namesCheckPerCorrection : Atom := ⟨"namesCheckPerCorrection",
 def correctionCheck : Rule where
   number := 639
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ∧ₗ since (ev user ∧ₗ atom correctsAgent) (ev entryAppend) ⟹
     atom namesCheckPerCorrection
 
@@ -1191,7 +1114,6 @@ before the cycle's checkpoint); a build queued only with an outside `Not now:`. 
 def boundedFixNow : Rule where
   number := 640
   keyword := .must
-  domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom identifiesBoundedFix ⟹
       eventually (ev gitCommit ∧ₗ link commitsFixApart) ∨ₗ eventually (ev taskCheckpoint ∧ₗ link commitsFixApart)) ∧ₗ
@@ -1209,7 +1131,6 @@ report builds it, and an edit follows. -/
 def recurrenceBuildsNext : Rule where
   number := 641
   keyword := .must
-  domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom mistakeRecursWhileQueued ⟹ eventually (ev editing)) ∧ₗ
     (ev editing ⟹
@@ -1222,7 +1143,6 @@ def tradesQualityForSpeed : Atom := ⟨"tradesQualityForSpeed",
 def qualityFirst : Rule where
   number := 642
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom tradesQualityForSpeed)
 
 def processInventsChange : Atom := ⟨"processInventsChange",
@@ -1234,7 +1154,6 @@ def auditsForProcess : Atom := ⟨"auditsForProcess",
 def noInventedProcess : Rule where
   number := 643
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev entryAppend ∧ₗ atom processInventsChange) ∧ₗ never (ev anyCall ∧ₗ atom auditsForProcess)
 
 def preventionFollowsProcess : Atom := ⟨"preventionFollowsProcess",
@@ -1244,7 +1163,6 @@ def preventionFollowsProcess : Atom := ⟨"preventionFollowsProcess",
 def preventionParagraph : Rule where
   number := 644
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ⟹ atom preventionFollowsProcess
 
 def preventionHomeUnnamed : Atom := ⟨"preventionHomeUnnamed",
@@ -1256,14 +1174,12 @@ def homeIsTaskFile : Atom := ⟨"homeIsTaskFile",
 def homeByPath : Rule where
   number := 645
   keyword := .must
-  domain := .tasks
   formula := never ((ev entryAppend ∨ₗ ev reviewFileEdit) ∧ₗ atom preventionHomeUnnamed)
 
 /-- Rule 646: no task file as a Prevention or Meta home. -/
 def noTaskFileHome : Rule where
   number := 646
   keyword := .mustNot
-  domain := .tasks
   formula := never ((ev entryAppend ∨ₗ ev reviewFileEdit) ∧ₗ atom homeIsTaskFile)
 
 def checkpointsByHand : Atom := ⟨"checkpointsByHand",
@@ -1273,7 +1189,6 @@ def checkpointsByHand : Atom := ⟨"checkpointsByHand",
 def checkpointTool : Rule where
   number := 647
   keyword := .must
-  domain := .tasks
   formula := never (ev gitCommit ∧ₗ atom checkpointsByHand)
 
 def carriesStandInReview : Atom := ⟨"carriesStandInReview",
@@ -1285,7 +1200,6 @@ def answersStandInReview : Atom := ⟨"answersStandInReview",
 def answerStandIn : Rule where
   number := 648
   keyword := .must
-  domain := .tasks
   formula := ev taskCheckpoint ∧ₗ since (ev passingResult ∧ₗ atom carriesStandInReview) (ev taskCheckpoint) ⟹
     atom answersStandInReview
 
@@ -1296,14 +1210,12 @@ def breaksGitRules : Atom := ⟨"breaksGitRules",
 def gitUnderSkill : Rule where
   number := 649
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev gitAny ∧ₗ atom breaksGitRules)
 
 /-- Rule 650: the plan, entry and task record committed locally with the work. -/
 def commitRecords : Rule where
   number := 650
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ⟹ eventually (ev gitCommit ∨ₗ ev taskCheckpoint)
 
 def fixesProse : Atom := ⟨"fixesProse", "Does this edit fix prose a review found false?", .edit⟩
@@ -1316,7 +1228,6 @@ def explainsGrowth : Link := ⟨"explainsGrowth", "Does this text say why the an
 def proseFixShrinks : Rule where
   number := 651
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom fixesProse ⟹
     atom removesFalseStatement ∧ₗ (atom growsProse ⟹ anytime (ev agentText ∧ₗ link explainsGrowth))
 
@@ -1329,7 +1240,6 @@ def searchesForRuleToExtend : Link := ⟨"searchesForRuleToExtend",
 def extendExistingLoop : Rule where
   number := 652
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom proposesNewLoopOrRule ⟹
     once ((ev reading ∨ₗ ev searchCall) ∧ₗ link searchesForRuleToExtend)
 
@@ -1337,7 +1247,6 @@ def extendExistingLoop : Rule where
 def loopsAppliedLine : Rule where
   number := 653
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom givesGoalPrompt ⟹ ev loopsApplied
 
 def startsRoundRecord : Atom := ⟨"startsRoundRecord",
@@ -1349,7 +1258,6 @@ def recordsThisRound : Link := ⟨"recordsThisRound",
 def roundsRecorded : Rule where
   number := 654
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reviewerRun ∧ₗ atom loopRound ⟹ eventually (ev reviewFileEdit ∧ₗ link recordsThisRound)) ∧ₗ
     (ev reviewFileEdit ∧ₗ atom startsRoundRecord ⟹ once (ev recordSkeleton))
@@ -1361,7 +1269,6 @@ def findingWithoutClass : Atom := ⟨"findingWithoutClass",
 def findingClass : Rule where
   number := 655
   keyword := .must
-  domain := .tasks
   formula := never (ev reviewFileEdit ∧ₗ atom findingWithoutClass)
 
 def classedRoundLacksPreventionMeta : Atom := ⟨"classedRoundLacksPreventionMeta",
@@ -1371,7 +1278,6 @@ def classedRoundLacksPreventionMeta : Atom := ⟨"classedRoundLacksPreventionMet
 def classedRoundPrevention : Rule where
   number := 656
   keyword := .must
-  domain := .tasks
   formula := never (ev reviewFileEdit ∧ₗ atom classedRoundLacksPreventionMeta)
 
 def recurringClassUnmarked : Atom := ⟨"recurringClassUnmarked",
@@ -1383,7 +1289,6 @@ def recurrenceWithoutStrengthened : Atom := ⟨"recurrenceWithoutStrengthened",
 def recurrenceMarked : Rule where
   number := 657
   keyword := .must
-  domain := .tasks
   formula :=
     never (ev reviewFileEdit ∧ₗ atom recurringClassUnmarked) ∧ₗ
     never (ev reviewFileEdit ∧ₗ atom recurrenceWithoutStrengthened)
@@ -1395,7 +1300,6 @@ def findingWithoutOrigin : Atom := ⟨"findingWithoutOrigin",
 def findingOrigin : Rule where
   number := 658
   keyword := .must
-  domain := .tasks
   formula := never (ev reviewFileEdit ∧ₗ atom findingWithoutOrigin)
 
 /-! Rules 659 to 670, the queue and outside repositories. -/
@@ -1410,7 +1314,6 @@ build with `Problem:` and `Must:`. -/
 def queueUndoneWork : Rule where
   number := 659
   keyword := .must
-  domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom leavesWorkUndone ⟹ eventually (ev queueAdd ∧ₗ link queuesThatWork)) ∧ₗ
     (ev anyCall ∧ₗ ¬ₗ ev queueAdd ⟹ ¬ₗ since (ev agentText ∧ₗ atom leavesWorkUndone) (ev queueAdd)) ∧ₗ
@@ -1423,7 +1326,6 @@ def queuesLargeBuildWhole : Atom := ⟨"queuesLargeBuildWhole",
 def smallestPartFirst : Rule where
   number := 660
   keyword := .should
-  domain := .tasks
   formula := ev queueAddBuild ∧ₗ atom queuesLargeBuildWhole ⟹ atom justified
 
 def leavesUnplacedWork : Atom := ⟨"leavesUnplacedWork",
@@ -1433,7 +1335,6 @@ def leavesUnplacedWork : Atom := ⟨"leavesUnplacedWork",
 def placedWork : Rule where
   number := 662
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev entryAppend ∧ₗ atom leavesUnplacedWork)
 
 def queuesBlocker : Atom := ⟨"queuesBlocker",
@@ -1445,7 +1346,6 @@ def findsTaskBlocker : Atom := ⟨"findsTaskBlocker",
 def blockerIsTask : Rule where
   number := 663
   keyword := .must
-  domain := .tasks
   formula :=
     never (ev queueAdd ∧ₗ atom queuesBlocker) ∧ₗ
     (ev agentText ∧ₗ atom findsTaskBlocker ⟹ eventually (ev taskNew) ∧ₗ eventually (ev setWaitsForBlocked))
@@ -1457,7 +1357,6 @@ def requestBlocksTask : Atom := ⟨"requestBlocksTask",
 def blockedOnUser : Rule where
   number := 664
   keyword := .must
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom requestBlocksTask ⟹ anytime (ev setBlocked)
 
 def autonomousCycle : Atom := ⟨"autonomousCycle",
@@ -1471,7 +1370,6 @@ def passesOverUnblockedTask : Atom := ⟨"passesOverUnblockedTask",
 def autonomousOrder : Rule where
   number := 665
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ∧ₗ atom autonomousCycle ⟹
     atom statesWhyWorkTaken ∧ₗ ¬ₗ atom passesOverUnblockedTask
 
@@ -1484,7 +1382,6 @@ def hasPickedTagAndQuote : Atom := ⟨"hasPickedTagAndQuote",
 def userPickTagged : Rule where
   number := 666
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ∧ₗ atom developsUserPick ⟹ atom hasPickedTagAndQuote
 
 def closesWaitingItem : Atom := ⟨"closesWaitingItem",
@@ -1498,7 +1395,6 @@ def followUpWaiting : Atom := ⟨"followUpWaiting",
 def waitingItemQueued : Rule where
   number := 667
   keyword := .must
-  domain := .tasks
   formula :=
     never (ev queueClose ∧ₗ atom closesWaitingItem) ∧ₗ
     (ev entryAppend ∧ₗ atom itemWaitsOnUser ⟹ atom followUpWaiting)
@@ -1510,7 +1406,6 @@ def idlesOnWaitingItem : Atom := ⟨"idlesOnWaitingItem",
 def nextUnblocked : Rule where
   number := 668
   keyword := .must
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom idlesOnWaitingItem)
 
 def externalEditBreaksConventions : Atom := ⟨"externalEditBreaksConventions",
@@ -1520,7 +1415,6 @@ def externalEditBreaksConventions : Atom := ⟨"externalEditBreaksConventions",
 def repositoryConventions : Rule where
   number := 669
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom externalEditBreaksConventions)
 
 def externalCommit : Atom := ⟨"externalCommit",
@@ -1538,7 +1432,6 @@ earlier titles fixed by the MR's preparation (before its push is requested). -/
 def scopePrefixTitles : Rule where
   number := 670
   keyword := .must
-  domain := .softwareEngineering
   formula :=
     (ev gitCommit ∧ₗ atom externalCommit ⟹
       once (ev gitLog ∧ₗ link readsTrunkTitles) ∧ₗ ¬ₗ atom titleBreaksScopePrefix) ∧ₗ
@@ -1559,7 +1452,6 @@ def mentionsDecision : Link := ⟨"mentionsDecision",
 def decideMinorDetails : Rule where
   number := 671
   keyword := .must
-  domain := .tasks
   formula :=
     never ((ev requestAdd ∨ₗ ev reply) ∧ₗ atom asksMinorDetail) ∧ₗ
     (ev agentText ∧ₗ atom decidesMinorDetail ⟹
@@ -1574,7 +1466,6 @@ def makesRecommendedFix : Atom := ⟨"makesRecommendedFix",
 def makeRecommendedFix : Rule where
   number := 672
   keyword := .must
-  domain := .tasks
   formula := ev user ⟹
     ¬ₗ since (ev reply ∧ₗ atom recommendsFixLeftUnmade) (ev editing ∧ₗ atom makesRecommendedFix)
 
@@ -1585,7 +1476,6 @@ def bringsNonUserChoice : Atom := ⟨"bringsNonUserChoice",
 def onlyUsersChoices : Rule where
   number := 673
   keyword := .must
-  domain := .tasks
   formula := never ((ev requestAdd ∨ₗ ev reply) ∧ₗ atom bringsNonUserChoice)
 
 def asksOnlyBecauseReviewerRaised : Atom := ⟨"asksOnlyBecauseReviewerRaised",
@@ -1595,7 +1485,6 @@ def asksOnlyBecauseReviewerRaised : Atom := ⟨"asksOnlyBecauseReviewerRaised",
 def reviewerQuestionNotUsers : Rule where
   number := 674
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev requestAdd ∧ₗ atom asksOnlyBecauseReviewerRaised)
 
 def asksUserQuestion : Atom := ⟨"asksUserQuestion",
@@ -1610,7 +1499,6 @@ could settle it. -/
 def questionIsRequest : Rule where
   number := 675
   keyword := .must
-  domain := .tasks
   formula :=
     (ev reply ∧ₗ atom asksUserQuestion ⟹ once (ev requestAdd ∧ₗ link requestHoldsQuestion)) ∧ₗ
     (ev requestAdd ∧ₗ atom agentCouldSettle ⟹ ev usersBecause)
@@ -1622,7 +1510,6 @@ def endsTurnOnQuestion : Atom := ⟨"endsTurnOnQuestion",
 def workAroundQuestion : Rule where
   number := 676
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom endsTurnOnQuestion ⟹ atom nothingUnblocked
 
 /-! Rules 678 to 694, requests for someone else's action. -/
@@ -1638,7 +1525,6 @@ def earlyForSavingOfWork : Atom := ⟨"earlyForSavingOfWork",
 def othersStepIsRequest : Rule where
   number := 678
   keyword := .must
-  domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom needsOthersAction ⟹ eventually (ev requestToOthers)) ∧ₗ
     (ev requestToOthers ⟹ atom ourPartReady ∨ₗ atom earlyForSavingOfWork)
@@ -1647,7 +1533,6 @@ def othersStepIsRequest : Rule where
 def earlyOnlyForSaving : Rule where
   number := 679
   keyword := .should
-  domain := .tasks
   formula := ev requestToOthers ∧ₗ ¬ₗ atom ourPartReady ⟹ atom earlyForSavingOfWork ∨ₗ atom justified
 
 def bodySettlesEachStep : Atom := ⟨"bodySettlesEachStep",
@@ -1657,7 +1542,6 @@ def bodySettlesEachStep : Atom := ⟨"bodySettlesEachStep",
 def settleEachStep : Rule where
   number := 680
   keyword := .must
-  domain := .tasks
   formula := ev requestToOthers ⟹ atom bodySettlesEachStep ∧ₗ once (ev anyCall ∧ₗ link checksOurAccess)
 
 def asksForHeldOrUncheckedAccess : Atom := ⟨"asksForHeldOrUncheckedAccess",
@@ -1667,7 +1551,6 @@ def asksForHeldOrUncheckedAccess : Atom := ⟨"asksForHeldOrUncheckedAccess",
 def noRequestForHeldAccess : Rule where
   number := 681
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev requestToOthers ∧ₗ atom asksForHeldOrUncheckedAccess)
 
 def holderUnknown : Atom := ⟨"holderUnknown", "Does this request leave a step's holder unknown?", .call⟩
@@ -1681,7 +1564,6 @@ addressed. -/
 def holderKnown : Rule where
   number := 682
   keyword := .mustNot
-  domain := .tasks
   formula := ev requestToOthers ⟹
     (atom holderUnknown ⟹ once (ev anyCall ∧ₗ link readsHolderSources)) ∧ₗ atom addressesClosestHolder
 
@@ -1692,7 +1574,6 @@ def splitsWhereOneHolds : Atom := ⟨"splitsWhereOneHolds",
 def oneHolder : Rule where
   number := 683
   keyword := .must
-  domain := .tasks
   formula := never (ev requestToOthers ∧ₗ atom splitsWhereOneHolds)
 
 def saysWhyAlternativesNotTaken : Atom := ⟨"saysWhyAlternativesNotTaken",
@@ -1704,7 +1585,6 @@ def readsTodaysPath : Link := ⟨"readsTodaysPath",
 def todaysPath : Rule where
   number := 684
   keyword := .must
-  domain := .tasks
   formula := ev requestToOthers ⟹ once (ev anyCall ∧ₗ link readsTodaysPath) ∧ₗ atom saysWhyAlternativesNotTaken
 
 def duplicatesAccessStep : Atom := ⟨"duplicatesAccessStep",
@@ -1714,7 +1594,6 @@ def duplicatesAccessStep : Atom := ⟨"duplicatesAccessStep",
 def mergeSameAccess : Rule where
   number := 685
   keyword := .must
-  domain := .tasks
   formula := never (ev requestToOthers ∧ₗ atom duplicatesAccessStep)
 
 def reliesOnDocProcedure : Atom := ⟨"reliesOnDocProcedure",
@@ -1726,7 +1605,6 @@ def checksProcedureAgainstCode : Link := ⟨"checksProcedureAgainstCode",
 def procedureCurrent : Rule where
   number := 686
   keyword := .must
-  domain := .tasks
   formula := ev requestToOthers ∧ₗ atom reliesOnDocProcedure ⟹
     once (ev anyCall ∧ₗ link checksProcedureAgainstCode)
 
@@ -1737,7 +1615,6 @@ def foldsFollowUps : Atom := ⟨"foldsFollowUps",
 def oneAnswerDoes : Rule where
   number := 687
   keyword := .must
-  domain := .tasks
   formula := ev requestToOthers ⟹ atom foldsFollowUps
 
 def handsOverCommand : Atom := ⟨"handsOverCommand", "Does this request hand over a command to run?", .call⟩
@@ -1750,7 +1627,6 @@ def runsCommandOnStandIn : Link := ⟨"runsCommandOnStandIn",
 def standInFirst : Rule where
   number := 688
   keyword := .must
-  domain := .tasks
   formula := ev requestToOthers ∧ₗ atom handsOverCommand ⟹
     once (ev anyCall ∧ₗ link runsCommandOnStandIn) ∧ₗ atom statesTested
 
@@ -1761,7 +1637,6 @@ def handsAmbiguousCommand : Atom := ⟨"handsAmbiguousCommand",
 def noAmbiguousCommand : Rule where
   number := 689
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev requestToOthers ∧ₗ atom handsAmbiguousCommand)
 
 def asksOthersAction : Atom := ⟨"asksOthersAction",
@@ -1773,7 +1648,6 @@ def bodyHasStepLabels : Atom := ⟨"bodyHasStepLabels",
 def requestFormat : Rule where
   number := 690
   keyword := .must
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom asksOthersAction ⟹ ev requestToOthers ∧ₗ atom bodyHasStepLabels
 
 def includesOursAloneStep : Atom := ⟨"includesOursAloneStep",
@@ -1783,7 +1657,6 @@ def includesOursAloneStep : Atom := ⟨"includesOursAloneStep",
 def oursInPath : Rule where
   number := 691
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev requestToOthers ∧ₗ atom includesOursAloneStep)
 
 def offersRequestForForwarding : Atom := ⟨"offersRequestForForwarding",
@@ -1795,7 +1668,6 @@ def readiesThatRequest : Link := ⟨"readiesThatRequest",
 def readyBeforeForwarding : Rule where
   number := 692
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom offersRequestForForwarding ⟹ once (ev requestReady ∧ₗ link readiesThatRequest)
 
 def judgeRefusesRequest : Atom := ⟨"judgeRefusesRequest",
@@ -1806,7 +1678,6 @@ def judgeRefusesRequest : Atom := ⟨"judgeRefusesRequest",
 def judgeRequests : Rule where
   number := 693
   keyword := .must
-  domain := .tasks
   formula :=
     (ev requestAdd ⟹ eventually (ev requestJudge)) ∧ₗ
     (ev passingResult ∧ₗ atom judgeRefusesRequest ⟹ eventually (ev requestEditBodyFile))
@@ -1819,7 +1690,6 @@ def judgesMentionedRequest : Link := ⟨"judgesMentionedRequest",
 def mentionAfterJudge : Rule where
   number := 694
   keyword := .mustNot
-  domain := .tasks
   formula := ev reply ∧ₗ atom mentionsRequest ⟹ once (ev requestJudge ∧ₗ link judgesMentionedRequest)
 
 /-! Rules 695 to 700, stopping and the artifact. -/
@@ -1834,7 +1704,6 @@ blocked. -/
 def finalPass : Rule where
   number := 695
   keyword := .must
-  domain := .tasks
   formula := ev setComplete ∨ₗ ev setBlocked ⟹
     once (ev anyCall ∧ₗ link readsWholeBranch) ∧ₗ ¬ₗ atom openQuestionsLeft
 
@@ -1852,7 +1721,6 @@ and report. -/
 def stopDone : Rule where
   number := 696
   keyword := .must
-  domain := .tasks
   formula := ev setComplete ⟹
     atom artifactCompleteNothingOutstanding ∧ₗ anytime (ev entryAppend ∧ₗ link closingEntry) ∧ₗ
     anytime (ev editing ∧ₗ link removesTaskParagraph) ∧ₗ eventually (ev gitCommit ∨ₗ ev taskCheckpoint) ∧ₗ
@@ -1867,7 +1735,6 @@ def reportsBlockers : Link := ⟨"reportsBlockers",
 def stopBlocked : Rule where
   number := 697
   keyword := .must
-  domain := .tasks
   formula := ev setBlocked ⟹
     atom everythingMovableDone ∧ₗ anytime (ev entryAppend ∧ₗ link closingEntry) ∧ₗ
     eventually (ev reply ∧ₗ link reportsBlockers)
@@ -1879,7 +1746,6 @@ def stopsTaskEarly : Atom := ⟨"stopsTaskEarly",
 def keepCycling : Rule where
   number := 698
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom stopsTaskEarly)
 
 def unblockedStepRemains : Atom := ⟨"unblockedStepRemains",
@@ -1892,7 +1758,6 @@ open. -/
 def nextStepSameTurn : Rule where
   number := 699
   keyword := .must
-  domain := .tasks
   formula :=
     (ev user ⟹ ¬ₗ since (ev taskCheckpoint ∧ₗ atom unblockedStepRemains) (ev editing)) ∧ₗ
     never (ev reply ∧ₗ atom listsOwnWorkAsOpen)
@@ -1904,7 +1769,6 @@ def namesArtifactKind : Link := ⟨"namesArtifactKind",
 def artifactKindNamed : Rule where
   number := 700
   keyword := .must
-  domain := .tasks
   formula := ev setComplete ⟹ once (ev planEdit ∧ₗ link namesArtifactKind)
 
 /-! The range's rules, and its MAY rules as theorems. -/

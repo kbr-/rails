@@ -12,7 +12,7 @@ open Rails Rails.Witness Rails.Rules Formula
 
 /-- A constant formula as a control: `ev p ∨ₗ ¬ₗ ev p` holds at every position. -/
 def constantRule : Rule :=
-  { number := 0, keyword := .must, domain := .discipline,
+  { number := 0, keyword := .must,
     formula := ev Ruleset.reply ∨ₗ ¬ₗ ev Ruleset.reply }
 
 def main (args : List String) : IO UInt32 := do

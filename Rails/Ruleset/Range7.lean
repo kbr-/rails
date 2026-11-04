@@ -742,7 +742,6 @@ background session edits its own worktree, and the branch's own rules hold. -/
 def worktreeDiscipline : Rule where
   number := 841
   keyword := .must
-  domain := .tasks
   formula := (ev commit ∧ₗ atom commitInWorktree ⟹ eventually (ev ffBase)) ∧ₗ
     (ev commit ⟹ ¬ₗ since (ev commit ∧ₗ atom commitInWorktree) (ev ffBase)) ∧ₗ
     never (ev editing ∧ₗ atom editsSharedCheckout) ∧ₗ never (ev anyCall ∧ₗ atom breaksBranchTaskRules)
@@ -751,21 +750,18 @@ def worktreeDiscipline : Rule where
 def heavyLoopsCompiled : Rule where
   number := 842
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom heavyLoopInPython)
 
 /-- Rule 843: exact linear algebra in a kernel calls a library, never hand-written elimination. -/
 def linearAlgebraLibraries : Rule where
   number := 843
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom handWrittenElimination)
 
 /-- Rule 845: a computer algebra script runs through the launcher. -/
 def algebraThroughLauncher : Rule where
   number := 845
   keyword := .must
-  domain := .mathematics
   formula := never (ev bareAlgebraRun)
 
 /-- Rule 846: heavy loops in C or C++ with OpenMP; a Python-only computation shown to run in
@@ -773,7 +769,6 @@ seconds first. -/
 def heavyLoopsInC : Rule where
   number := 846
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom heavyLoopNotCompiledParallel) ∧ₗ
     (ev computeRun ∧ₗ atom pythonOnlyComputation ⟹ once (ev resultEvent ∧ₗ link showsSecondsRuntime))
 
@@ -781,28 +776,24 @@ def heavyLoopsInC : Rule where
 def vectorizeAndChunk : Rule where
   number := 847
   keyword := .should
-  domain := .mathematics
   formula := ev editing ∧ₗ atom missesVectorization ⟹ atom justified
 
 /-- Rule 848: every computation incremental. -/
 def incrementalComputation : Rule where
   number := 848
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom notIncremental)
 
 /-- Rule 849: a parameter series in one incremental pass, shared prefixes once. -/
 def seriesInOnePass : Rule where
   number := 849
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom seriesNotIncremental)
 
 /-- Rule 850: a long run's stages listed before it, and nothing settled recomputed. -/
 def stagesBeforeLaunch : Rule where
   number := 850
   keyword := .must
-  domain := .mathematics
   formula := (ev computeRun ∧ₗ atom longRun ⟹ once (ev reply ∧ₗ link listsStagesOfRun)) ∧ₗ
     never (ev computeRun ∧ₗ atom runsSettledParameters)
 
@@ -811,7 +802,6 @@ cycle's end between the report and the edit), and the line goes on. -/
 def slowCallsForKernel : Rule where
   number := 851
   keyword := .must
-  domain := .mathematics
   formula := (ev reply ∧ₗ atom reportsSlowNeededComputation ⟹
       eventually (ev editing ∧ₗ link buildsFasterImplementation ∧ₗ
         since (ev reply ∧ₗ atom reportsSlowNeededComputation) (ev cycleEnd))) ∧ₗ
@@ -821,28 +811,24 @@ def slowCallsForKernel : Rule where
 def kernelReason : Rule where
   number := 852
   keyword := .must
-  domain := .mathematics
   formula := never (ev pythonWithoutKernelReason)
 
 /-- Rule 853: a series and its validation cases in one invocation. -/
 def seriesInOneInvocation : Rule where
   number := 853
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ once (ev computeRun ∧ₗ link sameSeriesOtherInvocation))
 
 /-- Rule 854: no Python loops three deep over non-literal ranges. -/
 def noTripleLoops : Rule where
   number := 854
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom tripleNestedPythonLoop)
 
 /-- Rule 855: workers times threads within the budget; `--threads 1` for a budget of workers. -/
 def threadBudget : Rule where
   number := 855
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom oversubscribesCpus) ∧ₗ
     (ev computeRun ∧ₗ atom runsBudgetManyWorkers ⟹ ev threadsOne)
 
@@ -850,14 +836,12 @@ def threadBudget : Rule where
 def prefixedAlgebraNames : Rule where
   number := 856
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom algebraNameCollides)
 
 /-- Rule 857: PARI/GP stack defaults on their own lines; thread settings checked first. -/
 def pariSettings : Rule where
   number := 857
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom pariStackSharesLine) ∧ₗ
     (ev computeRun ∧ₗ atom parallelAlgebraRun ⟹ once (ev anyCall ∧ₗ link checksThreadSettings))
 
@@ -866,7 +850,6 @@ measured run, `--timeout` never a margin. -/
 def runAllowance : Rule where
   number := 858
   keyword := .must
-  domain := .mathematics
   formula := never (ev timeoutBeyondAllowance) ∧ₗ never (ev computeWithTimeout ∧ₗ atom timeoutIsMargin) ∧ₗ
     (ev computeWithExpect ⟹ atom expectFromCount ∨ₗ once (ev resultEvent ∧ₗ link measuresRunForExpect))
 
@@ -874,28 +857,24 @@ def runAllowance : Rule where
 def noLongForeground : Rule where
   number := 859
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev foregroundOverlong)
 
 /-- Rule 860: a run over ten minutes carries `--expect`, `--serial-reason` and `--sized-by`. -/
 def longRunFlags : Rule where
   number := 860
   keyword := .must
-  domain := .mathematics
   formula := never (ev longRunMissingFlags)
 
 /-- Rule 861: no run over 30 minutes without the user's quoted approval. -/
 def halfHourNeedsApproval : Rule where
   number := 861
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev overHalfHourUnapproved) ∧ₗ (ev userApprovedRun ⟹ once (ev user ∧ₗ link approvesLongRun))
 
 /-- Rule 862: an enumeration's size and time stated before it runs, cases beyond the budget cut. -/
 def enumerationSized : Rule where
   number := 862
   keyword := .must
-  domain := .mathematics
   formula := (ev computeRun ∧ₗ atom exhaustiveEnumeration ⟹ once (ev reply ∧ₗ link statesEnumerationSize)) ∧ₗ
     never (ev computeRun ∧ₗ atom enumerationBeyondBudget)
 
@@ -903,14 +882,12 @@ def enumerationSized : Rule where
 def estimateFromMeasurement : Rule where
   number := 863
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom estimatesLargestCase ⟹ once (ev resultEvent ∧ₗ link measuresSmallerCase)
 
 /-- Rule 864: a long run applies the reductions, shared work and parallel paths at hand. -/
 def reductionsBeforeLongRun : Rule where
   number := 864
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom longRunWithoutReductions)
 
 /-- Rule 865: a superseded run stopped once its replacement is validated; a computation ends when
@@ -918,7 +895,6 @@ its question is decided. -/
 def stopSupersededRuns : Rule where
   number := 865
   keyword := .must
-  domain := .mathematics
   formula := (ev resultEvent ∧ₗ atom validatesReplacement ⟹ eventually (ev stopRun ∧ₗ link stopsSupersededRun)) ∧ₗ
     never (ev computeRun ∧ₗ atom runsPastDecision)
 
@@ -926,14 +902,12 @@ def stopSupersededRuns : Rule where
 def smallestInformativeSize : Rule where
   number := 866
   keyword := .should
-  domain := .mathematics
   formula := ev computeRun ∧ₗ atom testNotSmallestSize ⟹ atom justified
 
 /-- Rule 867: a wait ends on its event; a run's length is stated before launch. -/
 def waitsOnEvents : Rule where
   number := 867
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom waitsByFixedSleep) ∧ₗ
     (ev computeRun ∧ₗ atom detectionRun ⟹ once (ev reply ∧ₗ link statesRunLength))
 
@@ -941,14 +915,12 @@ def waitsOnEvents : Rule where
 def trainingBySlope : Rule where
   number := 868
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom presetTrainingSteps)
 
 /-- Rule 869: a speed measurement names its decision first and runs on the work's device. -/
 def speedMeasurementPurpose : Rule where
   number := 869
   keyword := .must
-  domain := .mathematics
   formula := (ev computeRun ∧ₗ atom speedMeasurement ⟹ once (ev reply ∧ₗ link namesMeasuredDecision)) ∧ₗ
     never (ev computeRun ∧ₗ atom measuresOnOtherDevice)
 
@@ -957,7 +929,6 @@ hand-built path. -/
 def publishedBaseline : Rule where
   number := 870
   keyword := .must
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom speedWithoutPublishedFigure) ∧ₗ
     (ev editing ∧ₗ atom tunesHandBuiltPath ⟹ once (ev computeRun ∧ₗ link runsPublishedBaseline))
 
@@ -966,7 +937,6 @@ the largest part. -/
 def profileTheGap : Rule where
   number := 871
   keyword := .must
-  domain := .mathematics
   formula := (ev resultEvent ∧ₗ atom showsSeveralFoldGap ⟹ eventually (ev computeRun ∧ₗ link profilesGapByPart)) ∧ₗ
     never (ev reply ∧ₗ atom readingOmitsGap) ∧ₗ never (ev editing ∧ₗ atom skipsLargestProfilePart)
 
@@ -974,14 +944,12 @@ def profileTheGap : Rule where
 def timeTheMeasure : Rule where
   number := 872
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom measurementUntimedCost)
 
 /-- Rule 873: no long foreground run while the user waits; a run lasts what its question needs. -/
 def backgroundWhileWaiting : Rule where
   number := 873
   keyword := .must
-  domain := .mathematics
   formula := never (ev foregroundCall ∧ₗ atom longWhileUserWaits) ∧ₗ
     never (ev computeRun ∧ₗ atom runsLongerThanQuestion)
 
@@ -989,7 +957,6 @@ def backgroundWhileWaiting : Rule where
 def remoteUnderTimeout : Rule where
   number := 874
   keyword := .must
-  domain := .mathematics
   formula := never (ev sshWithoutTimeout) ∧ₗ
     (ev sshRun ∧ₗ atom leavesRemoteProcesses ⟹ eventually (ev anyCall ∧ₗ link endsLeftProcesses))
 
@@ -997,7 +964,6 @@ def remoteUnderTimeout : Rule where
 def monitorNext : Rule where
   number := 875
   keyword := .must
-  domain := .mathematics
   formula := (ev anyCall ∧ₗ ¬ₗ ev armsWatchRun ⟹
       ¬ₗ since (ev backgroundRun ∧ₗ atom mayExceedMinute) (ev anyCall)) ∧ₗ
     (ev backgroundRun ∧ₗ atom mayExceedMinute ⟹ eventually (ev armsWatchRun))
@@ -1006,21 +972,18 @@ def monitorNext : Rule where
 def remoteWatcher : Rule where
   number := 876
   keyword := .must
-  domain := .mathematics
   formula := ev anyCall ∧ₗ atom startsRemoteRun ⟹ eventually (ev sshRun ∧ₗ link armsRemoteWatcher)
 
 /-- Rule 877: work proceeds while a long run goes. -/
 def workBesideRuns : Rule where
   number := 877
   keyword := .must
-  domain := .mathematics
   formula := ev backgroundRun ∧ₗ atom longRun ⟹ eventually (ev anyCall ∧ₗ link proceedsBesideRun)
 
 /-- Rule 878: a run still going after five minutes is inspected. -/
 def fiveMinuteDecision : Rule where
   number := 878
   keyword := .must
-  domain := .mathematics
   formula := ev backgroundRun ∧ₗ atom longRun ⟹
     eventually ((ev anyCall ∨ₗ ev resultEvent) ∧ₗ link inspectsOrEndsRun)
 
@@ -1028,28 +991,24 @@ def fiveMinuteDecision : Rule where
 def sizeBeforeScaling : Rule where
   number := 879
   keyword := .must
-  domain := .mathematics
   formula := ev computeRun ∧ₗ atom scalesPastControl ⟹ once (ev computeRun ∧ₗ link sizesExpensiveStep)
 
 /-- Rule 880: long runs observable: no filter on the launcher, progress flushed, cases written. -/
 def observableRuns : Rule where
   number := 880
   keyword := .must
-  domain := .mathematics
   formula := never (ev computePiped) ∧ₗ never (ev editing ∧ₗ atom delaysCaseWrites)
 
 /-- Rule 881: results zstd-3, readable files uncompressed. -/
 def zstdResults : Rule where
   number := 881
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom misplacesCompression)
 
 /-- Rule 882: images JPEG at quality 80, never PNG. -/
 def jpegImages : Rule where
   number := 882
   keyword := .must
-  domain := .mathematics
   formula := never (ev writesPngFile ∨ₗ (ev editing ∧ₗ atom savesNonJpegImage))
 
 def commitsUnpackedPaths : Atom := ⟨"commitsUnpackedPaths",
@@ -1060,7 +1019,6 @@ staged and the links updated. -/
 def packBeforeCommit : Rule where
   number := 883
   keyword := .must
-  domain := .mathematics
   formula := (ev commit ∧ₗ atom commitsOthersRawOutput ⟹ once (ev evidencePack)) ∧ₗ
     never (ev commit ∧ₗ atom commitsUnpackedPaths)
 
@@ -1068,35 +1026,30 @@ def packBeforeCommit : Rule where
 def scriptsTakeOut : Rule where
   number := 884
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom dataScriptWithoutOut)
 
 /-- Rule 885: a run without `--out` saved with `save-run-output.py`. -/
 def saveRunsWithoutOut : Rule where
   number := 885
   keyword := .must
-  domain := .mathematics
   formula := ev computeRun ∧ₗ atom importantRunWithoutOut ⟹ eventually (ev saveRunOutput ∧ₗ link savesThatRun)
 
 /-- Rule 886: a run's output referenced in the notebook with its provenance. -/
 def referenceOutputs : Rule where
   number := 886
   keyword := .must
-  domain := .mathematics
   formula := ev computeRun ∧ₗ atom importantRun ⟹ eventually (ev editsNotebook ∧ₗ link referencesOutputWithProvenance)
 
 /-- Rule 887: distinct run paths, no accepted result overwritten. -/
 def distinctRunPaths : Rule where
   number := 887
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeRun ∧ₗ atom overwritesAcceptedResult)
 
 /-- Rule 888: structured formats, streamed or chunked, unless a reason is given. -/
 def structuredStreamed : Rule where
   number := 888
   keyword := .should
-  domain := .mathematics
   formula := ev editing ∧ₗ atom unstructuredOrUnstreamed ⟹ atom justified
 
 /-- Rule 889: shared data's path, size and hash recorded before its commit, unless a reason is
@@ -1104,56 +1057,48 @@ given. -/
 def provenanceManifest : Rule where
   number := 889
   keyword := .should
-  domain := .mathematics
   formula := ev commit ∧ₗ atom commitsSharedData ⟹ once (ev recordProvenance) ∨ₗ atom justified
 
 /-- Rule 890: a stopped timing session exported to HTML and archived. -/
 def exportAndArchive : Rule where
   number := 890
   keyword := .must
-  domain := .mathematics
   formula := ev timingReportStop ⟹ ev htmlOutGiven ∧ₗ eventually (ev archiveSession)
 
 /-- Rule 891: no invented timing category or backfilled time. -/
 def noInventedTiming : Rule where
   number := 891
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom inventsTiming)
 
 /-- Rule 892: an archive's canonical report committed with it. -/
 def commitCanonicalReport : Rule where
   number := 892
   keyword := .must
-  domain := .mathematics
   formula := ev archiveSession ∧ₗ atom capturedEqualsOut ⟹ eventually (ev commit ∧ₗ link commitsCanonicalReport)
 
 /-- Rule 893: exclusive intervals, no overlapping worker times added. -/
 def exclusiveIntervals : Rule where
   number := 893
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom overlapsWorkerTimes)
 
 /-- Rule 894: mixed time disclosed, no split invented afterwards. -/
 def discloseMixedTime : Rule where
   number := 894
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom hidesMixedTime) ∧ₗ never (ev editing ∧ₗ atom inventsSplitAfterwards)
 
 /-- Rule 895: the work phase marked before planning or drafting. -/
 def phaseBeforeDrafting : Rule where
   number := 895
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom plansOrDraftsInTimedTurn ⟹ once (ev phaseMarker ∧ₗ link marksWorkPhase)
 
 /-- Rule 896: no phase marker in a call carrying new code. -/
 def markerApartFromCode : Rule where
   number := 896
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev phaseMarker ∧ₗ atom carriesNewCode)
 
 /-- Rule 897: an awaited source batch's call sets the interpreting phase; a follow-up is marked
@@ -1161,7 +1106,6 @@ apart. -/
 def phaseAfterSources : Rule where
   number := 897
   keyword := .must
-  domain := .mathematics
   formula := (ev anyCall ∧ₗ atom awaitedSourceBatch ⟹ ev phaseMarker) ∧ₗ
     never (ev phaseMarker ∧ₗ atom combinesSourceFollowUp)
 
@@ -1169,7 +1113,6 @@ def phaseAfterSources : Rule where
 def leanInCategory : Rule where
   number := 898
   keyword := .must
-  domain := .mathematics
   formula := never (ev leanCheckOutsideCategory)
 
 def startNeedsModelLabel : Atom := ⟨"startNeedsModelLabel",
@@ -1180,7 +1123,6 @@ label. -/
 def honestModelLabel : Rule where
   number := 899
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev timingStart ∧ₗ atom guessedModelLabel) ∧ₗ
     never (ev timingStartWithModel ∧ₗ atom codexSession) ∧ₗ
     never (ev timingStart ∧ₗ ¬ₗ ev timingStartWithModel ∧ₗ atom startNeedsModelLabel)
@@ -1189,14 +1131,12 @@ def honestModelLabel : Rule where
 def jobReportsPeak : Rule where
   number := 900
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom jobSummaryOmitsPeak)
 
 /-- Rule 901: the rented-machine skill loaded before anything on a rented machine. -/
 def rentedSkillFirst : Rule where
   number := 901
   keyword := .must
-  domain := .softwareEngineering
   formula := ev anyCall ∧ₗ atom actsOnRentedMachine ⟹ once (ev loadsRentedSkill)
 
 /-- Rule 902: a Pod or a Serverless batch by the run's shape, a batch's rate quoted from a read,
@@ -1204,7 +1144,6 @@ unless a reason is given. -/
 def podOrServerless : Rule where
   number := 902
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev anyCall ∧ₗ atom wrongRentalForm ⟹ atom justified) ∧ₗ
     (ev reply ∧ₗ atom quotesServerlessRate ⟹ once (ev resultEvent ∧ₗ link readsRate) ∨ₗ atom justified)
 
@@ -1212,14 +1151,12 @@ def podOrServerless : Rule where
 def podPortAndMount : Rule where
   number := 903
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev createsPod ∧ₗ atom podLacksSshPort) ∧ₗ (ev createsPod ⟹ eventually (ev podMount))
 
 /-- Rule 904: a rented machine's GPUs and CPUs kept busy. -/
 def rentedFullyBusy : Rule where
   number := 904
   keyword := .must
-  domain := .softwareEngineering
   formula := never (atom rentedMachineUnderused)
 
 /-- Rule 905: idle CPUs with nothing queued get a useful job or the statement none exists; no
@@ -1227,7 +1164,6 @@ make-work. -/
 def answerIdleCapacity : Rule where
   number := 905
   keyword := .must
-  domain := .softwareEngineering
   formula := (atom idleWithNothingQueued ⟹ eventually ((ev podAdd ∨ₗ ev reply) ∧ₗ link answersIdleCapacity)) ∧ₗ
     never (ev podAdd ∧ₗ atom makeWork)
 
@@ -1235,14 +1171,12 @@ def answerIdleCapacity : Rule where
 def startJobsEarly : Rule where
   number := 906
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev podAdd ∧ₗ atom holdsJobNeedlessly)
 
 /-- Rule 907: the call after a failed job's report reads it. -/
 def readFailedJobs : Rule where
   number := 907
   keyword := .must
-  domain := .softwareEngineering
   formula := ev anyCall ∧ₗ ¬ₗ atom readsFailedJob ⟹
     ¬ₗ since (ev resultEvent ∧ₗ atom reportsJobFailure) (ev anyCall)
 
@@ -1251,7 +1185,6 @@ for a standing grant. -/
 def runAsIfAway : Rule where
   number := 908
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom asksWhatRunsOnRented) ∧ₗ
     (ev refusalEvent ∧ₗ atom refusalBlocksRentedWork ⟹ eventually (ev reply ∧ₗ link asksStandingGrant))
 
@@ -1260,7 +1193,6 @@ result showing it is a stop. -/
 def stopUselessJobs : Rule where
   number := 909
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev resultEvent ∧ₗ atom showsJobMeasuresNothing ⟹ eventually (ev stopRun ∧ₗ link stopsThatRun)) ∧ₗ
     (ev anyCall ∧ₗ ¬ₗ ev stopRun ⟹ ¬ₗ since (ev resultEvent ∧ₗ atom showsJobMeasuresNothing) (ev anyCall))
 
@@ -1268,7 +1200,6 @@ def stopUselessJobs : Rule where
 def keepQuietWord : Rule where
   number := 910
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev watchFilterDropsQuiet) ∧ₗ
     (ev resultEvent ∧ₗ atom reportsQuietJob ⟹ eventually (ev anyCall ∧ₗ link inspectsQuietJob))
 
@@ -1277,7 +1208,6 @@ expiry: the next call is the arming. -/
 def armPodWatch : Rule where
   number := 911
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev anyCall ∧ₗ atom startsUsingRented ⟹ eventually (ev armsPodWatch)) ∧ₗ
     (ev resultEvent ∧ₗ atom monitorExpired ⟹ eventually (ev armsPodWatch)) ∧ₗ
     (ev anyCall ∧ₗ ¬ₗ ev armsPodWatch ⟹
@@ -1288,7 +1218,6 @@ def armPodWatch : Rule where
 def fillFreeSlots : Rule where
   number := 912
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev resultEvent ∧ₗ atom reportsFreeSlot ⟹ eventually (ev podAdd)) ∧ₗ
     never (ev reply ∧ₗ atom endsTurnWithWorkLeft)
 
@@ -1296,91 +1225,78 @@ def fillFreeSlots : Rule where
 def podAddNoShell : Rule where
   number := 913
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev podAddWithShell)
 
 /-- Rule 914: next jobs queued as soon as thought of, unless a reason is given. -/
 def queueEarly : Rule where
   number := 914
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom thinksOfNextJob ⟹ eventually (ev podQueueChange) ∨ₗ atom justified
 
 /-- Rule 915: no wait on queue.lock. -/
 def noQueueLockWait : Rule where
   number := 915
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev mentionsQueueLock ∧ₗ atom waitsOnLock)
 
 /-- Rule 916: a queue change is written to pod_jobs.txt. -/
 def recordQueue : Rule where
   number := 916
   keyword := .must
-  domain := .softwareEngineering
   formula := ev podQueueChange ⟹ eventually (ev editsPodJobs)
 
 /-- Rule 917: after a restart, watchers re-armed and the data checked. -/
 def rearmAfterRestart : Rule where
   number := 917
   keyword := .must
-  domain := .softwareEngineering
   formula := atom afterRestart ⟹ eventually (ev armsPodWatch) ∧ₗ eventually (ev anyCall ∧ₗ link checksRentedData)
 
 /-- Rule 918: a changed machine address updated in the MCP entries. -/
 def updateMcpEntries : Rule where
   number := 918
   keyword := .must
-  domain := .softwareEngineering
   formula := ev resultEvent ∧ₗ atom rentedAddressChanged ⟹ eventually (ev editsMcpConfig)
 
 /-- Rule 919: a failing RunPod sign-in restored. -/
 def keepSignIn : Rule where
   number := 919
   keyword := .must
-  domain := .softwareEngineering
   formula := ev resultEvent ∧ₗ atom signInExpired ⟹ eventually (ev anyCall ∧ₗ link restoresSignIn)
 
 /-- Rule 920: venvs, checkpoints and results on /workspace. -/
 def keepOnWorkspace : Rule where
   number := 920
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev anyCall ∧ₗ atom usesContainerDisk)
 
 /-- Rule 921: data read hard copied to /dev/shm, unless a reason is given. -/
 def copyToShm : Rule where
   number := 921
   keyword := .should
-  domain := .softwareEngineering
   formula := ev anyCall ∧ₗ atom readsHardFromDisk ⟹ atom justified
 
 /-- Rule 922: rsync to /workspace with -rlpt, never -a. -/
 def rsyncFlags : Rule where
   number := 922
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev rsyncWorkspaceWrongFlags)
 
 /-- Rule 923: a read called cold only beside a faster warm repeat. -/
 def coldReadEvidence : Rule where
   number := 923
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom callsReadColdUnchecked)
 
 /-- Rule 924: several aria2c processes rather than many connections, unless a reason is given. -/
 def aria2Processes : Rule where
   number := 924
   keyword := .should
-  domain := .softwareEngineering
   formula := ev aria2ManyConnections ⟹ atom justified
 
 /-- Rule 925: ideas originated, and the ones listed developed. -/
 def originateIdeas : Rule where
   number := 925
   keyword := .must
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom waitsForUserIdeas) ∧ₗ
     (ev reply ∧ₗ atom listsOwnIdea ⟹ eventually (ev reply ∧ₗ link developsListedIdea))
 
@@ -1390,7 +1306,6 @@ after it. -/
 def skillsFollowReport : Rule where
   number := 927
   keyword := .must
-  domain := .discipline
   formula := (ev editsReport ∧ₗ atom changesPattern ⟹
       eventually (ev editsMainSkill) ∧ₗ eventually (ev editsPersonalSkill) ∧ₗ
         eventually (ev skillSubmoduleCommit)) ∧ₗ
@@ -1404,28 +1319,24 @@ def skillsFollowReport : Rule where
 def moveSkill : Rule where
   number := 928
   keyword := .must
-  domain := .discipline
   formula := ev anyCall ∧ₗ atom movesChanges ⟹ once (ev loadsMoveSkill)
 
 /-- Rule 929: pure logic in Lean, proved; impure logic in Lean where it runs. -/
 def logicInLean : Rule where
   number := 929
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom pureLogicOutsideLean)
 
 /-- Rule 930: another language only where demanded, kept thin, unless a reason is given. -/
 def otherLanguagesThin : Rule where
   number := 930
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom nonLeanUndemanded ⟹ atom justified
 
 /-- Rule 931: the reply to a `^` names the habit, and nothing is built before it. -/
 def caretAnswer : Rule where
   number := 931
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ ¬ₗ atom namesHabitBehindMistake ⟹ ¬ₗ since (ev caretMessage) (ev reply)) ∧ₗ
     (ev editing ⟹ ¬ₗ since (ev caretMessage) (ev reply ∧ₗ atom namesHabitBehindMistake))
 
@@ -1433,14 +1344,12 @@ def caretAnswer : Rule where
 def habitUnprompted : Rule where
   number := 932
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom mistakeWithoutHabit)
 
 /-- Rule 933: the site's cookie names read before the copy, else every cookie taken. -/
 def cookieNamesFirst : Rule where
   number := 933
   keyword := .must
-  domain := .softwareEngineering
   formula := ev cookieCopy ⟹ once (ev reading ∧ₗ link readsSiteCookieCode) ∨ₗ atom takesAllHostCookies
 
 /-- Rule 934: reads through firefox_get.py, a header script only for what it can't do, unless a
@@ -1448,14 +1357,12 @@ reason is given. -/
 def firefoxGetForReads : Rule where
   number := 934
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom cookieHeaderForReadable ⟹ atom justified
 
 /-- Rule 935: the level of description fixed, observation apart from representation. -/
 def fixLevelOfDescription : Rule where
   number := 935
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom descriptionLevelUnfixed)
 
 /-- Rule 936: cheap exhaustive checks before deep ones, coarse failures checked for feasibility,
@@ -1463,7 +1370,6 @@ unless a reason is given. -/
 def cheapChecksFirst : Rule where
   number := 936
   keyword := .should
-  domain := .discipline
   formula := (ev computeRun ∧ₗ atom deepCheck ⟹ once (ev computeRun ∧ₗ link cheapExhaustiveFirst) ∨ₗ atom justified) ∧ₗ
     (ev reply ∧ₗ atom acceptsCoarseFailure ⟹ atom justified)
 
@@ -1471,49 +1377,42 @@ def cheapChecksFirst : Rule where
 def easyToStateDesign : Rule where
   number := 937
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom keepsHardToStateDesign ⟹ atom justified
 
 /-- Rule 938: work for a merge request committed on a branch created for it. -/
 def branchForMr : Rule where
   number := 938
   keyword := .must
-  domain := .discipline
   formula := ev commit ∧ₗ atom mrWork ⟹ once (ev createsBranch)
 
 /-- Rule 939: our own project on main when the user directs it, unless a reason is given. -/
 def mainWhenDirected : Rule where
   number := 939
   keyword := .should
-  domain := .discipline
   formula := ev anyCall ∧ₗ atom sideBranchAgainstDirection ⟹ atom justified
 
 /-- Rule 940: read-only commands run, not relayed, unless a reason is given. -/
 def runReadOnlyYourself : Rule where
   number := 940
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom relaysReadOnlyCommand ⟹ atom justified
 
 /-- Rule 941: an offer of read access taken, unless a reason is given. -/
 def takeAccessOffers : Rule where
   number := 941
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom declinesAccessOffer ⟹ atom justified
 
 /-- Rule 942: a recurring symptom checked against what was root-caused, unless a reason is given. -/
 def matchRootCaused : Rule where
   number := 942
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom rediagnosesSymptom ⟹ once (ev anyCall ∧ₗ link searchesRootCaused) ∨ₗ atom justified
 
 /-- Rule 943: a search for what does the job before building, named in the deciding sentence. -/
 def searchBeforeBuilding : Rule where
   number := 943
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom buildsNewTool ⟹ once (ev anyCall ∧ₗ link searchesForExistingJob)) ∧ₗ
     never (ev reply ∧ₗ atom buildDecisionOmitsSearch)
 
@@ -1521,7 +1420,6 @@ def searchBeforeBuilding : Rule where
 def preciseRepro : Rule where
   number := 944
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom bugReportWithoutRepro)
 
 /-- Rule 945: a delegation's brief front-loads identifiers and the deliverable, unless a reason is
@@ -1529,7 +1427,6 @@ given. -/
 def frontLoadBrief : Rule where
   number := 945
   keyword := .should
-  domain := .discipline
   formula := ev delegates ∧ₗ atom briefLacksIdentifiers ⟹ atom justified
 
 /-- Rule 946: each request part checked against its target before building; nothing built for a
@@ -1537,7 +1434,6 @@ purposeless part, and the reply says what the target does instead. -/
 def checkPartsAgainstTarget : Rule where
   number := 946
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom buildsRequestPart ⟹ once (ev anyCall ∧ₗ link checksPartAgainstTarget)) ∧ₗ
     never (ev editing ∧ₗ atom buildsPurposelessPart) ∧ₗ never (ev reply ∧ₗ atom skipsPartSilently)
 
@@ -1545,70 +1441,60 @@ def checkPartsAgainstTarget : Rule where
 def explainJargon : Rule where
   number := 947
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom unexplainedJargon)
 
 /-- Rule 948: asked what a design choice gains, the agent says. -/
 def stateChoiceGains : Rule where
   number := 948
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom asksWhatChoiceGains ⟹ eventually (ev reply ∧ₗ link statesGain)
 
 /-- Rule 949: second-order consequences surfaced unasked. -/
 def surfaceConsequences : Rule where
   number := 949
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom hidesSecondOrderEffects)
 
 /-- Rule 950: each design part costed; a per-call path reads a result kept current elsewhere. -/
 def costDesignParts : Rule where
   number := 950
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom designPartUncosted) ∧ₗ never (ev editing ∧ₗ atom perCallRecomputes)
 
 /-- Rule 951: one design item at a time. -/
 def oneItemAtATime : Rule where
   number := 951
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom movesOnWithItemOpen)
 
 /-- Rule 952: an approved plan executed without asking per step. -/
 def executeApprovedPlan : Rule where
   number := 952
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom asksPerStepOnApprovedPlan)
 
 /-- Rule 953: product copy written for the end user. -/
 def endUserCopy : Rule where
   number := 953
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom userTextUnhelpful)
 
 /-- Rule 954: answering the latest message completes no artifact. -/
 def answerIsNoCompletion : Rule where
   number := 954
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom treatsAnswerAsCompletion)
 
 /-- Rule 955: a run doing the wrong thing, or superseded, is stopped. -/
 def stopWrongRuns : Rule where
   number := 955
   keyword := .must
-  domain := .discipline
   formula := ev resultEvent ∧ₗ atom showsRunWrong ⟹ eventually (ev stopRun ∧ₗ link stopsThatRun)
 
 /-- Rule 956: a handed-over artifact answers its reviewer's first questions from measurement. -/
 def answerReviewerQuestions : Rule where
   number := 956
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom handsOverArtifact ⟹
     atom answersReviewerQuestions ∧ₗ once (ev resultEvent ∧ₗ link measuresArtifact)
 
@@ -1616,28 +1502,24 @@ def answerReviewerQuestions : Rule where
 def artifactFromRule : Rule where
   number := 957
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom makesRuleDefinedArtifact ⟹ once (ev reading ∧ₗ link readsDefiningRule)
 
 /-- Rule 958: a prose-only rule given a generator or check, unless a reason is given. -/
 def rulesGetChecks : Rule where
   number := 958
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom proseRuleWithoutCheck ⟹ atom justified
 
 /-- Rule 959: the turn acts on the user's whole next state. -/
 def actOnWholeState : Rule where
   number := 959
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom ignoresUsersNextState)
 
 /-- Rule 960: durable knowledge summarized first, written when separately asked. -/
 def twoStepDurableWrites : Rule where
   number := 960
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom writesDurableKnowledge ⟹
     once (ev reply ∧ₗ link summarizesLearned) ∧ₗ once (ev user ∧ₗ link asksToPersist)
 
@@ -1645,21 +1527,18 @@ def twoStepDurableWrites : Rule where
 def currentStateDocs : Rule where
   number := 961
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom describesPastState)
 
 /-- Rule 962: the interface contract drafted before its implementation. -/
 def contractFirst : Rule where
   number := 962
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom implementsInterface ⟹ once (ev editing ∧ₗ link draftsContract)
 
 /-- Rule 963: no historical narration in committed docs. -/
 def noHistoricalNarration : Rule where
   number := 963
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom historicalNarration)
 
 /-- Rule 964: no commit hash in a lasting record, nor hashes or untimed counts in drafts under
@@ -1667,7 +1546,6 @@ def noHistoricalNarration : Rule where
 def noHashesInRecords : Rule where
   number := 964
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom recordsCommitHash) ∧ₗ
     never (ev editsTasksOrResearch ∧ₗ atom hashOrUntimedCount)
 
@@ -1675,14 +1553,12 @@ def noHashesInRecords : Rule where
 def resolvableReferences : Rule where
   number := 965
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom unresolvableReference)
 
 /-- Rule 966: a correction becomes a standing rule, never project memory. -/
 def correctionsBecomeRules : Rule where
   number := 966
   keyword := .must
-  domain := .discipline
   formula := (ev user ∧ₗ atom correctsAgentOrStatesPreference ⟹ eventually (ev editing ∧ₗ link writesStandingRule)) ∧ₗ
     never (ev memoryWrite)
 
@@ -1691,7 +1567,6 @@ covers. -/
 def extendOwningRule : Rule where
   number := 967
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom addsRule ⟹ once (ev reading ∧ₗ link readsOwningRule)) ∧ₗ
     never (ev editing ∧ₗ atom addsCoveredRule)
 
@@ -1699,14 +1574,12 @@ def extendOwningRule : Rule where
 def oneCopyOfRules : Rule where
   number := 968
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom duplicatesRule)
 
 /-- Rule 969: a correction of the work answered about how it was made, sound work left standing. -/
 def answerHowWorkWasMade : Rule where
   number := 969
   keyword := .must
-  domain := .discipline
   formula := (ev user ∧ₗ atom correctsAnalysis ⟹ eventually (ev reply ∧ₗ link answersHowMade)) ∧ₗ
     never (ev editing ∧ₗ atom undoesSoundWork)
 
@@ -1715,7 +1588,6 @@ first edit after the reply raising it. -/
 def recordIdeas : Rule where
   number := 970
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom raisesIdea ⟹
     eventually (ev editing ∧ₗ link recordsIdea ∧ₗ since (ev reply ∧ₗ atom raisesIdea) (ev editing))
 
@@ -1723,28 +1595,24 @@ def recordIdeas : Rule where
 def compressProse : Rule where
   number := 971
   keyword := .must
-  domain := .discipline
   formula := never ((ev reply ∨ₗ ev editing) ∧ₗ atom padsOrLosesProse)
 
 /-- Rule 972: each sentence for its reader's next action. -/
 def sentencesForAction : Rule where
   number := 972
   keyword := .must
-  domain := .discipline
   formula := never ((ev reply ∨ₗ ev editing) ∧ₗ atom sentenceNotForNextAction)
 
 /-- Rule 973: a description states what holds at the tip. -/
 def descriptionAtTip : Rule where
   number := 973
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom descriptionNarratesCheck)
 
 /-- Rule 974: commits along logical lines, each audited against its message first. -/
 def logicalCommits : Rule where
   number := 974
   keyword := .must
-  domain := .discipline
   formula := never (ev commit ∧ₗ atom commitMixesConcerns) ∧ₗ
     (ev commit ⟹ once (ev anyCall ∧ₗ link auditsCommitBothWays))
 
@@ -1752,14 +1620,12 @@ def logicalCommits : Rule where
 def lowerLayerOwnCommit : Rule where
   number := 975
   keyword := .must
-  domain := .discipline
   formula := never (ev commit ∧ₗ atom lowerLayerRidesUnused)
 
 /-- Rule 976: a merge request's history folded with autosquash before its review. -/
 def foldHistoryForReview : Rule where
   number := 976
   keyword := .must
-  domain := .discipline
   formula := (ev publish ∧ₗ atom opensMrReview ⟹ once (ev autosquashRebase)) ∧ₗ
     never (ev publish ∧ₗ atom mrHistoryUnfolded)
 
@@ -1767,28 +1633,24 @@ def foldHistoryForReview : Rule where
 def appendFixes : Rule where
   number := 977
   keyword := .should
-  domain := .discipline
   formula := ev historyRewrite ∧ₗ atom rewritesNonMrHistory ⟹ atom justified
 
 /-- Rule 978: a document sent stays as sent. -/
 def sentStaysSent : Rule where
   number := 978
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom changesSentDocument)
 
 /-- Rule 979: pushed history with small damage left alone, unless a reason is given. -/
 def leavePushedHistory : Rule where
   number := 979
   keyword := .should
-  domain := .discipline
   formula := ev forcePush ∧ₗ atom smallDamageOnly ⟹ atom justified
 
 /-- Rule 980: no per-deployment literal accepted in a design. -/
 def deploymentAgnostic : Rule where
   number := 980
   keyword := .must
-  domain := .discipline
   formula := never ((ev reply ∨ₗ ev editing) ∧ₗ atom deploymentSpecificDesign)
 
 def rules : List Rule :=

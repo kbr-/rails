@@ -553,14 +553,12 @@ def unlessJustified (p : Pred) (a : Atom) : Formula := ev p ∧ₗ atom a ⟹ at
 def descriptionNeedsLedger : Rule where
   number := 1261
   keyword := .mustNot
-  domain := .tasks
   formula := ev writesDescription ⟹ once (ev writesLedger ∧ₗ link ledgerOfDescription)
 
 /-- Rule 1262: a message is drafted in `<NAME>_MESSAGE.md`, its ledger in `private/`. -/
 def messageFileNaming : Rule where
   number := 1262
   keyword := .must
-  domain := .tasks
   formula := never (ev writesDocument ∧ₗ atom draftsColleagueMessage ∧ₗ ¬ₗ ev writesMessage) ∧ₗ
     never (ev writesLedger ∧ₗ atom ledgerOfMessage ∧ₗ ¬ₗ ev writesPrivate)
 
@@ -568,7 +566,6 @@ def messageFileNaming : Rule where
 def documentReferences : Rule where
   number := 1263
   keyword := .must
-  domain := .discipline
   formula := never (ev writesDocument ∧ₗ
     (atom leavesAbbreviationUnexpanded ∨ₗ atom vagueReference ∨ₗ atom namesPeople))
 
@@ -576,7 +573,6 @@ def documentReferences : Rule where
 def reviewRoundsInReviewFile : Rule where
   number := 1264
   keyword := .must
-  domain := .tasks
   formula := never (ev writesDocument ∧ₗ atom recordsReviewRound ∧ₗ ¬ₗ ev writesReviewFile) ∧ₗ
     judged writesReviewFile roundWithoutNamedHeading
 
@@ -584,21 +580,18 @@ def reviewRoundsInReviewFile : Rule where
 def noNeedlessNumberInFix : Rule where
   number := 1265
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom isFix ∧ₗ atom statesUnneededNumber)
 
 /-- Rule 1266: the target's own suite time under a label ending `-own`. -/
 def ownSuiteLabel : Rule where
   number := 1266
   keyword := .must
-  domain := .tasks
   formula := judged runsCheckpoint ownSuiteTimeUnlabelled
 
 /-- Rule 1267: Python 3.12 or later. -/
 def recentPython : Rule where
   number := 1267
   keyword := .must
-  domain := .softwareEngineering
   formula := judged shellCall runsOldPython
 
 /-- Rule 1268: every Markdown file written is rewrapped by the tool, a code comment's paragraph by
@@ -606,7 +599,6 @@ def recentPython : Rule where
 def rewrapWithTool : Rule where
   number := 1268
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev writesDocument ⟹ eventually (ev runsRewrap)) ∧ₗ
     (ev editing ∧ₗ atom writesCommentParagraph ⟹ eventually (ev runsCommentRewrap)) ∧ₗ
     judged editing rewrapsByHand
@@ -615,7 +607,6 @@ def rewrapWithTool : Rule where
 def proseReplacedByTool : Rule where
   number := 1269
   keyword := .must
-  domain := .softwareEngineering
   formula := judged editing replacesProsePassage ∧ₗ never (ev shellInPlaceEdit)
 
 /-- Rule 1270: entries appended with `notebook-append.py`, reviewer excerpts built with
@@ -623,7 +614,6 @@ def proseReplacedByTool : Rule where
 def notebookTools : Rule where
   number := 1270
   keyword := .must
-  domain := .mathematics
   formula := judged editsNotebook appendsEntryByHand ∧ₗ
     (ev reviewerRun ∧ₗ atom briefQuotesNotebook ⟹ once (ev runsNotebookExcerpt))
 
@@ -631,98 +621,84 @@ def notebookTools : Rule where
 def mathJaxForMath : Rule where
   number := 1271
   keyword := .must
-  domain := .mathematics
   formula := judged editsNotebook mathOutsideMathJax
 
 /-- Rule 1272: each article with anchor, title, date and status. -/
 def articleHeader : Rule where
   number := 1272
   keyword := .must
-  domain := .mathematics
   formula := judged editsNotebook articleMissingHeader
 
 /-- Rule 1273: entry-meta within 300 characters, a short status line. -/
 def shortEntryMeta : Rule where
   number := 1273
   keyword := .must
-  domain := .mathematics
   formula := judged editsNotebook entryMetaTooLong
 
 /-- Rule 1274: no cycle numbers; anchors, route IDs and task IDs instead. -/
 def noCycleNumbers : Rule where
   number := 1274
   keyword := .mustNot
-  domain := .mathematics
   formula := judged editsNotebook numbersCycles ∧ₗ judged editsNotebook entryLacksIdentifier
 
 /-- Rule 1275: descriptive names, never codes. -/
 def descriptiveNames : Rule where
   number := 1275
   keyword := .must
-  domain := .discipline
   formula := judged editing namesWithCode
 
 /-- Rule 1276: only the goal's status values. -/
 def knownStatusValues : Rule where
   number := 1276
   keyword := .must
-  domain := .tasks
   formula := judged editsNotebook unknownStatus
 
 /-- Rule 1277: a standing per-entry duty declared with `data-entry-paragraphs`. -/
 def dutyDeclared : Rule where
   number := 1277
   keyword := .must
-  domain := .mathematics
   formula := judged editsNotebook dutyWithoutAttribute
 
 /-- Rule 1278: commit-message lines within 100 characters, wrapped, paragraphs separated. -/
 def commitMessageShape : Rule where
   number := 1278
   keyword := .must
-  domain := .softwareEngineering
   formula := judged commits commitMessageMalformed
 
 /-- Rule 1279: from the repository root, with no machine, user or absolute path. -/
 def portablePaths : Rule where
   number := 1279
   keyword := .must
-  domain := .softwareEngineering
   formula := judged editing writesMachinePath ∧ₗ judged shellCall runsOutsideRepoRoot
 
 /-- Rule 1280: no symlink inside managed scratch. -/
 def noScratchSymlink : Rule where
   number := 1280
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev symlinkIntoScratch)
 
 /-- Rule 1281: Codex's temporary work in its owned scratch directory. -/
 def codexScratch : Rule where
   number := 1281
   keyword := .must
-  domain := .softwareEngineering
   formula := judged codexExec tempOutsideCodexScratch
 
 /-- Rule 1282: live mode and relative revision URLs kept; only the minimal site artifact published. -/
 def pagesArtifact : Rule where
   number := 1282
   keyword := .must
-  domain := .softwareEngineering
   formula := judged editing breaksPagesLiveMode ∧ₗ judged publish publishesBeyondSiteArtifact
 
 /-- Rule 1283: a framework change's tested scope stated accurately, its tests on small fixtures. -/
 def accurateTestedScope : Rule where
   number := 1283
   keyword := .must
-  domain := .softwareEngineering
   formula := judged commits overstatesTestedScope ∧ₗ judged editing testUsesLargeFixture
 
 /-- Rule 1284: no mistake repeated after the user corrected it, or a rule persisted against it. -/
 def noRepeatedMistake : Rule where
   number := 1284
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev agentStep ∧ₗ
     (once (ev user ∧ₗ link correctsThisMistake) ∨ₗ atom repeatsRuledMistake))
 
@@ -730,21 +706,18 @@ def noRepeatedMistake : Rule where
 def zstdPayloads : Rule where
   number := 1285
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesResultFile payloadNotZstd ∧ₗ judged editing rewritesArchive
 
 /-- Rule 1286: outputs over 32 MiB in ordered zstd parts. -/
 def largeOutputParts : Rule where
   number := 1286
   keyword := .must
-  domain := .softwareEngineering
   formula := judged shellCall archivesLargeOutputWhole
 
 /-- Rule 1287: `--tail-bytes N` to see a non-computation run's output. -/
 def tailBytes : Rule where
   number := 1287
   keyword := .must
-  domain := .softwareEngineering
   formula := judged runsCompute wantsOutputWithoutTailBytes
 
 /-- Rule 1288: the defined phase categories, the work phase restored after browsing: the first call
@@ -753,7 +726,6 @@ browse. -/
 def phaseCategories : Rule where
   number := 1288
   keyword := .must
-  domain := .discipline
   formula := judged runsComputePhase unknownPhase ∧ₗ
     (ev anyCall ∧ₗ ¬ₗ ev browses ∧ₗ ¬ₗ ev runsComputePhase ⟹
       ¬ₗ since (ev browses) (ev runsComputePhase))
@@ -762,21 +734,18 @@ def phaseCategories : Rule where
 def venvThroughLauncher : Rule where
   number := 1289
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev runsVenvPythonBare)
 
 /-- Rule 1290: another repository's workload from its directory, `compute.sh` by its path. -/
 def otherRepositoryWorkload : Rule where
   number := 1290
   keyword := .must
-  domain := .softwareEngineering
   formula := judged runsCompute workloadInWrongDirectory
 
 /-- Rule 1291: Hub downloads with `hf download`, the rate-limit caveat only as measured. -/
 def hubDownloads : Rule where
   number := 1291
   keyword := .should
-  domain := .softwareEngineering
   formula := ev shellCall ∧ₗ atom downloadsHubOtherwise ∨ₗ ev reply ∧ₗ atom reportsUnmeasuredRateLimit ⟹
     atom justified
 
@@ -784,14 +753,12 @@ def hubDownloads : Rule where
 def terseReplies : Rule where
   number := 1292
   keyword := .should
-  domain := .discipline
   formula := unlessJustified reply bloatedReply
 
 /-- Rule 1294: a failure localized against a known-good reference environment. -/
 def compareWithReference : Rule where
   number := 1294
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom localizesFailure ⟹ once (ev shellCall ∧ₗ link comparesWithReference) ∨ₗ
     atom justified
 
@@ -799,49 +766,42 @@ def compareWithReference : Rule where
 def bottomUpExplanation : Rule where
   number := 1295
   keyword := .should
-  domain := .discipline
   formula := unlessJustified reply usesConceptBeforeDefining
 
 /-- Rule 1296: a sibling copied only for what no rule states. -/
 def siblingOnlyWhereUnruled : Rule where
   number := 1296
   keyword := .should
-  domain := .discipline
   formula := unlessJustified editing copiesSiblingForRuledPart
 
 /-- Rule 1298: rules as direct instructions. -/
 def directRules : Rule where
   number := 1298
   keyword := .must
-  domain := .discipline
   formula := judged editsRuleFile ruleWithAnecdote
 
 /-- Rule 1299: flat structure unless nesting or numbering serves a purpose. -/
 def flatStructure : Rule where
   number := 1299
   keyword := .should
-  domain := .discipline
   formula := unlessJustified writesDocument needlessNesting
 
 /-- Rule 1300: commands paste-ready, in fenced blocks, one per line. -/
 def pasteReadyCommands : Rule where
   number := 1300
   keyword := .must
-  domain := .discipline
   formula := never ((ev reply ∨ₗ ev writesDocument) ∧ₗ atom commandNotPasteReady)
 
 /-- Rule 1301: modules from the first line where splitting makes sense. -/
 def modulesFromStart : Rule where
   number := 1301
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified editing monolithicModule
 
 /-- Rule 1302: only used imports; the unused-import analyser after a Lean edit. -/
 def onlyUsedImports : Rule where
   number := 1302
   keyword := .must
-  domain := .softwareEngineering
   formula := judged editing importsUnused ∧ₗ
     (ev editsLean ⟹ eventually (ev runsShake) ∨ₗ atom justified)
 
@@ -849,21 +809,18 @@ def onlyUsedImports : Rule where
 def underscoredPythonNames : Rule where
   number := 1303
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev writesHyphenatedPython)
 
 /-- Rule 1305: non-goals stated when scoping a change. -/
 def statedNonGoals : Rule where
   number := 1305
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom scopesChange ⟹ atom statesNonGoals ∨ₗ atom justified
 
 /-- Rule 1306: pending external asks batched into one request. -/
 def batchedExternalAsks : Rule where
   number := 1306
   keyword := .should
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom asksOutsideParty ⟹
     ¬ₗ once (ev requestAdd ∧ₗ link pendingAskSameParty) ∨ₗ atom justified
 
@@ -871,14 +828,12 @@ def batchedExternalAsks : Rule where
 def noCheckWithoutDiff : Rule where
   number := 1307
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev anyCall ∧ₗ atom runsCheckOrLinter ∧ₗ once (ev anyCall ∧ₗ link checkedActionHasNoDiff))
 
 /-- Rule 1308: a risky manual procedure gets a runbook and a test. -/
 def runbookForRiskyProcedure : Rule where
   number := 1308
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom proposesRiskyProcedure ⟹
     eventually (ev editing ∧ₗ link runbookForProcedure) ∧ₗ eventually (ev editing ∧ₗ link testOfProcedure) ∨ₗ
     atom justified
@@ -887,7 +842,6 @@ def runbookForRiskyProcedure : Rule where
 def ownJudgementFirst : Rule where
   number := 1309
   keyword := .should
-  domain := .discipline
   formula := ev reading ∧ₗ atom readsUsersOpinionOnChange ⟹
     once (ev reply ∧ₗ link formsOwnJudgement) ∨ₗ atom justified
 
@@ -895,21 +849,18 @@ def ownJudgementFirst : Rule where
 def pasteRawOutput : Rule where
   number := 1310
   keyword := .should
-  domain := .discipline
   formula := unlessJustified reply paraphrasesShortOutput
 
 /-- Rule 1311: who sees a UI element settled before it is placed. -/
 def uiAudienceFirst : Rule where
   number := 1311
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom placesUiElement ⟹ once ((ev reply ∨ₗ ev user) ∧ₗ link settlesUiAudience)
 
 /-- Rule 1312: a scheduled job tested by triggering it directly. -/
 def triggerScheduledJob : Rule where
   number := 1312
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsScheduledJobTested ⟹
     once (ev shellCall ∧ₗ link triggersJobDirectly) ∨ₗ atom justified
 
@@ -917,14 +868,12 @@ def triggerScheduledJob : Rule where
 def relevantLeanReferences : Rule where
   number := 1313
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified reading readsIrrelevantLeanReference
 
 /-- Rule 1314: `tools/lean_tooling.py info` locates the pinned helpers. -/
 def leanToolingInfo : Rule where
   number := 1314
   keyword := .should
-  domain := .softwareEngineering
   formula := ev shellCall ∧ₗ atom searchesLeanHelpersByHand ⟹ once (ev runsLeanToolingInfo) ∨ₗ
     atom justified
 
@@ -932,7 +881,6 @@ def leanToolingInfo : Rule where
 def loogleRootChecked : Rule where
   number := 1315
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom interpretsLoogleCoverage ⟹
     once (ev loogleCall) ∧ₗ once (ev anyCall ∧ₗ link checksLoogleRoot) ∨ₗ atom justified
 
@@ -940,231 +888,198 @@ def loogleRootChecked : Rule where
 def runCodeImports : Rule where
   number := 1316
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified runCodeCall importsMisaligned
 
 /-- Rule 1317: frequently exercised interfaces first. -/
 def frequentInterfacesFirst : Rule where
   number := 1317
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified reply ranksByFileCounts
 
 /-- Rule 1318: new domain syntax only when worth its cost. -/
 def syntaxWorthItsCost : Rule where
   number := 1318
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified editing addsCostlySyntax
 
 /-- Rule 1319: fixed composition for known parts, an extensible operation for joining cases. -/
 def fittingComposition : Rule where
   number := 1319
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified editing mismatchedComposition
 
 /-- Rule 1320: inference, diagnostics and type arguments as interface. -/
 def typeSurfaceAsInterface : Rule where
   number := 1320
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified editing breaksTypeSurface
 
 /-- Rule 1321: universe levels respected in Lean types. -/
 def universeLevels : Rule where
   number := 1321
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified editsLean ignoresUniverseLevels
 
 /-- Rule 1322: the cover letter named `<TOPIC>_MR.md` after its plan document. -/
 def coverLetterName : Rule where
   number := 1322
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDocument coverLetterMisnamed
 
 /-- Rule 1323: the cover letter's H1 names the feature or fix. -/
 def coverLetterTitle : Rule where
   number := 1323
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDescription coverLetterBadTitle
 
 /-- Rule 1324: a flat commit list. -/
 def flatCommitList : Rule where
   number := 1324
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDescription commitListMalformed
 
 /-- Rule 1325: no single-item sub-list under a commit entry. -/
 def noSingleItemSublist : Rule where
   number := 1325
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := judged writesDescription singleItemSublist
 
 /-- Rule 1326: no em dash in a cover letter. -/
 def noEmDash : Rule where
   number := 1326
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev writesEmDashInDescription)
 
 /-- Rule 1327: a version note starts `v<N>:` with one flat list. -/
 def versionNoteShape : Rule where
   number := 1327
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDescription versionNoteMalformed
 
 /-- Rule 1328: version-note bullets in present tense, "As requested:" for verbatim requests. -/
 def versionNoteTense : Rule where
   number := 1328
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDescription versionNoteWrongTense
 
 /-- Rule 1329: version-note names in backticks, MRs and tickets linked, no hashes. -/
 def versionNoteFormatting : Rule where
   number := 1329
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDescription versionNoteUnformatted
 
 /-- Rule 1330: no Polish diacritics in chat messages, save quoted labels. -/
 def noPolishDiacritics : Rule where
   number := 1330
   keyword := .mustNot
-  domain := .discipline
   formula := judged writesDiacriticsInMessage diacriticsOutsideLabels
 
 /-- Rule 1331: a question mark only on a real question. -/
 def realQuestionMarks : Rule where
   number := 1331
   keyword := .must
-  domain := .discipline
   formula := judged writesMessage questionMarkOnNonQuestion
 
 /-- Rule 1332: no Markdown in chat messages. -/
 def noChatMarkdown : Rule where
   number := 1332
   keyword := .mustNot
-  domain := .discipline
   formula := judged writesMessage usesChatMarkdown
 
 /-- Rule 1333: blank lines between a chat message's parts. -/
 def separatedChatParts : Rule where
   number := 1333
   keyword := .must
-  domain := .discipline
   formula := judged writesMessage partsNotSeparated
 
 /-- Rule 1334: `--` kept to a minimum in chat messages. -/
 def fewDoubleDashes : Rule where
   number := 1334
   keyword := .should
-  domain := .discipline
   formula := unlessJustified writesMessage overusesDoubleDash
 
 /-- Rule 1335: commands, URLs and identifiers verbatim. -/
 def verbatimIdentifiers : Rule where
   number := 1335
   keyword := .must
-  domain := .discipline
   formula := judged writesMessage identifiersNotVerbatim
 
 /-- Rule 1336: instructions to colleagues as a second-person walk-through. -/
 def walkthroughInstructions : Rule where
   number := 1336
   keyword := .must
-  domain := .discipline
   formula := judged writesMessage instructionsNotWalkthrough
 
 /-- Rule 1337: the team's English terms and shortenings kept. -/
 def teamTerms : Rule where
   number := 1337
   keyword := .should
-  domain := .discipline
   formula := unlessJustified writesMessage translatesTeamTerms
 
 /-- Rule 1338: notation defined before use, local notation near it. -/
 def notationDefined : Rule where
   number := 1338
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper notationUndefinedAtUse
 
 /-- Rule 1339: established terminology, new names only where they help. -/
 def establishedTerminology : Rule where
   number := 1339
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper coinsNeedlessName
 
 /-- Rule 1340: no internal labels in the mathematical vocabulary. -/
 def noInternalLabels : Rule where
   number := 1340
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper internalLabelsInMath
 
 /-- Rule 1341: numbered references where the destination could become unclear. -/
 def numberedReferences : Rule where
   number := 1341
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper vagueCrossReference
 
 /-- Rule 1342: subtitles only for anchoring results. -/
 def fewSubtitles : Rule where
   number := 1342
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper subtitlesMinorResult
 
 /-- Rule 1343: displayed formulas as parts of sentences. -/
 def displaysInSentences : Rule where
   number := 1343
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper displayNotInSentence
 
 /-- Rule 1344: no development history in the paper. -/
 def noHistoryInPaper : Rule where
   number := 1344
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper historyInPaper
 
 /-- Rule 1345: a symbol table only, and always, for parameter-heavy arguments. -/
 def symbolTableWhereHeavy : Rule where
   number := 1345
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper symbolTableMisplaced
 
 /-- Rule 1346: a definition kept with its conditions; no floating figure between them. -/
 def definitionWithConditions : Rule where
   number := 1346
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper definitionSplit
 
 /-- Rule 1347: identifiers intact across pages, attributions with their authors. -/
 def intactIdentifiers : Rule where
   number := 1347
   keyword := .must
-  domain := .mathematics
   formula := judged editsPaper identifierBrokenAcrossPages
 
 /-- Rule 1348: no running head naming a later section; the rendered result checked. -/
 def runningHeads : Rule where
   number := 1348
   keyword := .mustNot
-  domain := .mathematics
   formula := judged editsPaper runningHeadNamesLaterSection ∧ₗ
     (ev editsPaper ⟹ eventually (ev rendersPaper))
 
@@ -1172,21 +1087,18 @@ def runningHeads : Rule where
 def pageLayout : Rule where
   number := 1349
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper strandedLayout
 
 /-- Rule 1350: graph figures in the stated style. -/
 def graphFigureStyle : Rule where
   number := 1350
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper graphFigureOffStyle
 
 /-- Rule 1351: figures inspected at reading size, with enough key. -/
 def figuresInspected : Rule where
   number := 1351
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper figureLacksKey ∧ₗ
     (ev editsPaper ∧ₗ atom addsFigure ⟹
       eventually (ev reading ∧ₗ link inspectsFigureAtReadingSize) ∨ₗ atom justified)
@@ -1195,63 +1107,54 @@ def figuresInspected : Rule where
 def noChatConventionsInPaper : Rule where
   number := 1352
   keyword := .mustNot
-  domain := .mathematics
   formula := judged editsPaper chatConventionsInPaper
 
 /-- Rule 1353: on wrong prose, ask for the fix that removes or narrows it. -/
 def removeWrongProse : Rule where
   number := 1353
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified writesReviewFile asksToAddProse
 
 /-- Rule 1354: the problem first, then the ask, in its own paragraph. -/
 def problemThenAsk : Rule where
   number := 1354
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesReviewFile commentLacksProblemFirst
 
 /-- Rule 1355: say so when our own runbook, design or code led to the defect. -/
 def ownCauseStated : Rule where
   number := 1355
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesReviewFile hidesOwnCause
 
 /-- Rule 1356: each comment stands alone. -/
 def standaloneComments : Rule where
   number := 1356
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesReviewFile commentNotStandalone
 
 /-- Rule 1357: each comment anchored to its line. -/
 def anchoredComments : Rule where
   number := 1357
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesReviewFile commentUnanchored
 
 /-- Rule 1358: comments in English for any reader in the company. -/
 def companyReadableComments : Rule where
   number := 1358
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesReviewFile commentNotForCompany
 
 /-- Rule 1359: the command or the fix given. -/
 def commentGivesFix : Rule where
   number := 1359
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified writesReviewFile commentWithoutFix
 
 /-- Rule 1360: an attached command tested on the nearest stand-in first. -/
 def attachedCommandTested : Rule where
   number := 1360
   keyword := .must
-  domain := .softwareEngineering
   formula := ev writesReviewFile ∧ₗ atom attachesCommand ⟹
     once (ev shellCall ∧ₗ link testsCommandOnStandIn)
 
@@ -1259,14 +1162,12 @@ def attachedCommandTested : Rule where
 def reviewInOneFile : Rule where
   number := 1361
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDocument reviewNotInOneFile
 
 /-- Rule 1362: posted as one review, each comment then confirmed on its line. -/
 def postedAsOneReview : Rule where
   number := 1362
   keyword := .must
-  domain := .softwareEngineering
   formula := ev publish ∧ₗ atom postsReviewComments ⟹
     atom postsAsOneReview ∧ₗ eventually (ev shellCall ∧ₗ link confirmsCommentsLanded)
 
@@ -1274,7 +1175,6 @@ def postedAsOneReview : Rule where
 def postingRecorded : Rule where
   number := 1363
   keyword := .must
-  domain := .softwareEngineering
   formula := ev publish ∧ₗ atom postsReviewComments ⟹
     eventually (ev writesReviewFile ∧ₗ link recordsPostingTime) ∧ₗ
     eventually (ev writesPlan ∧ₗ link updatesPlanForPosting)
@@ -1283,14 +1183,12 @@ def postingRecorded : Rule where
 def noTaskCheckBypass : Rule where
   number := 1364
   keyword := .mustNot
-  domain := .tasks
   formula := judged commitNoVerify commitTouchesTasks
 
 /-- Rule 1365: living sections link no closed task, hold none in Where we stand, keep budget. -/
 def livingSectionsCurrent : Rule where
   number := 1365
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editsNotebook ∧ₗ
     (atom linksCompleteTask ∨ₗ atom keepsCompleteTaskInStand ∨ₗ atom exceedsLivingBudget))
 
@@ -1298,21 +1196,18 @@ def livingSectionsCurrent : Rule where
 def scopedTestRuns : Rule where
   number := 1366
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified runsScopedTests scopedTestsUnneeded
 
 /-- Rule 1367: tests through `compute.sh`, the whole suite with `--threads 1`. -/
 def testsThroughLauncher : Rule where
   number := 1367
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev bareTestRun) ∧ₗ judged runsCompute wholeSuiteWithoutLauncher
 
 /-- Rule 1368: a slow-tool warning's cause fixed. -/
 def slowToolFixed : Rule where
   number := 1368
   keyword := .should
-  domain := .softwareEngineering
   formula := ev anyResult ∧ₗ atom reportsToolOverBudget ⟹
     eventually (ev editing ∧ₗ link fixesSlowCause) ∨ₗ atom justified
 
@@ -1320,98 +1215,84 @@ def slowToolFixed : Rule where
 def notebookServer : Rule where
   number := 1369
   keyword := .must
-  domain := .mathematics
   formula := judged shellCall servesNotebookOtherwise
 
 /-- Rule 1370: wrapped-Markdown conflicts through `tools/merge_md_words.py`. -/
 def markdownMergeTool : Rule where
   number := 1370
   keyword := .must
-  domain := .softwareEngineering
   formula := judged editing resolvesMdConflictByHand
 
 /-- Rule 1371: C kernels linked with the stated flags. -/
 def kernelLinkFlags : Rule where
   number := 1371
   keyword := .must
-  domain := .mathematics
   formula := judged compilesC omitsStatedLinkFlags
 
 /-- Rule 1372: no `--disk-cache` above aria2c's limit. -/
 def aria2cCacheLimit : Rule where
   number := 1372
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := judged aria2cDiskCache diskCacheOverLimit
 
 /-- Rule 1373: `aria2c -c` to resume. -/
 def aria2cResume : Rule where
   number := 1373
   keyword := .should
-  domain := .softwareEngineering
   formula := ev runsAria2c ∧ₗ atom resumesDownload ⟹ ev aria2cContinue ∨ₗ atom justified
 
 /-- Rule 1374: framework commands outside the hooks timed with `tools/tool_runtime.py`. -/
 def toolRuntimeTiming : Rule where
   number := 1374
   keyword := .must
-  domain := .softwareEngineering
   formula := judged shellCall untimedIndirectCall
 
 /-- Rule 1375: running jobs inspected with `tools/job_metrics.py`. -/
 def jobMetricsInspection : Rule where
   number := 1375
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified shellCall inspectsJobOtherwise
 
 /-- Rule 1376: setup rerun when the controls are inactive. -/
 def setupAfterReboot : Rule where
   number := 1376
   keyword := .must
-  domain := .softwareEngineering
   formula := ev anyResult ∧ₗ atom reportsControlsInactive ⟹ eventually (ev runsSetup)
 
 /-- Rule 1377: setup run from the project directory. -/
 def setupFromProject : Rule where
   number := 1377
   keyword := .must
-  domain := .softwareEngineering
   formula := judged runsSetup setupOutsideProject
 
 /-- Rule 1378: Codex's long runs through its background bridge. -/
 def codexBackgroundBridge : Rule where
   number := 1378
   keyword := .must
-  domain := .softwareEngineering
   formula := judged codexExec longRunWithoutBridge
 
 /-- Rule 1379: a Pod's `/dev/shm` within 352 GB. -/
 def shmBudget : Rule where
   number := 1379
   keyword := .must
-  domain := .softwareEngineering
   formula := judged shellCall shmOverBudget
 
 /-- Rule 1380: no reliance on a container dropping the host page cache. -/
 def noPageCacheReliance : Rule where
   number := 1380
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never ((ev reply ∨ₗ ev shellCall) ∧ₗ atom reliesOnPageCacheDrop)
 
 /-- Rule 1381: the cookie file at its path, owner-readable only. -/
 def cookieFile : Rule where
   number := 1381
   keyword := .must
-  domain := .softwareEngineering
   formula := judged shellCall cookieFileMisplaced
 
 /-- Rule 1382: a rule file reread end to end before a rule is changed. -/
 def rereadRuleFile : Rule where
   number := 1382
   keyword := .should
-  domain := .discipline
   formula := ev editsRuleFile ∧ₗ atom addsOrChangesRule ⟹ once (ev readsRuleFile ∧ₗ link readsWholeEditedFile) ∨ₗ
     atom justified
 
@@ -1419,49 +1300,42 @@ def rereadRuleFile : Rule where
 def scriptNames : Rule where
   number := 1383
   keyword := .should
-  domain := .softwareEngineering
   formula := unlessJustified editsPython scriptNamedGenerically
 
 /-- Rule 1386: no "lovely". -/
 def noLovely : Rule where
   number := 1386
   keyword := .mustNot
-  domain := .discipline
   formula := judged writesMessage usesLovely
 
 /-- Rule 1387: the paper's content referred to neutrally. -/
 def neutralPaperReference : Rule where
   number := 1387
   keyword := .should
-  domain := .discipline
   formula := unlessJustified writesMessage refersToPaperNonNeutrally
 
 /-- Rule 1388: connected prose in a plain, patient register. -/
 def connectedProse : Rule where
   number := 1388
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper proseNotConnected
 
 /-- Rule 1389: no reassurance, simulated intimacy or praise. -/
 def noReassurance : Rule where
   number := 1389
   keyword := .mustNot
-  domain := .mathematics
   formula := judged editsPaper reassuresOrPraisesReader
 
 /-- Rule 1390: no announced teaching choices. -/
 def noTeachingAnnouncements : Rule where
   number := 1390
   keyword := .mustNot
-  domain := .mathematics
   formula := judged editsPaper announcesTeachingChoice
 
 /-- Rule 1391: the author's humor kept, never forced, announced or quota-filled. -/
 def authorsHumor : Rule where
   number := 1391
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper losesAuthorsHumor ∧ₗ
     never (ev editsPaper ∧ₗ (atom forcesJoke ∨ₗ atom fillsHumorQuota))
 
@@ -1469,28 +1343,24 @@ def authorsHumor : Rule where
 def noDecorativeHooks : Rule where
   number := 1392
   keyword := .shouldNot
-  domain := .mathematics
   formula := unlessJustified editsPaper addsDecorativeHook
 
 /-- Rule 1393: captions add mathematical context. -/
 def contextualCaptions : Rule where
   number := 1393
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper captionRecitesPicture
 
 /-- Rule 1394: no nearby global symbol as a summation index. -/
 def freshSummationIndex : Rule where
   number := 1394
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper reusesGlobalSymbolAsIndex
 
 /-- Rule 1395: considered typography. -/
 def consideredTypography : Rule where
   number := 1395
   keyword := .should
-  domain := .mathematics
   formula := unlessJustified editsPaper neglectsTypography
 
 /-- Rule 1396: a merge request checked out in its own worktree, removed after; the user's checkout
@@ -1498,7 +1368,6 @@ never switched. -/
 def reviewWorktree : Rule where
   number := 1396
   keyword := .must
-  domain := .softwareEngineering
   formula := judged gitSwitch switchesUsersCheckout ∧ₗ
     (ev worktreeAdd ∧ₗ atom checksOutMergeRequest ⟹ eventually (ev worktreeRemove))
 
@@ -1506,7 +1375,6 @@ def reviewWorktree : Rule where
 def hunkLedgerReviewer : Rule where
   number := 1397
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewerRun ∧ₗ atom runsHunkLedgerPhase ⟹
     ev sonnetReviewer ∧ₗ ¬ₗ atom briefHoldsTaskRecords ∧ₗ ¬ₗ atom briefTakesCommitsOutOfOrder ∧ₗ
     ¬ₗ once (ev reviewerRun ∧ₗ link sameHunkLedgerPhase)
@@ -1515,14 +1383,12 @@ def hunkLedgerReviewer : Rule where
 def ownLedgerRows : Rule where
   number := 1398
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesDocument ledgerRowOutOfOrder ∧ₗ judged reviewerRun delegatesLedgerRows
 
 /-- Rule 1399: a quick question settled before the next unit. -/
 def quickQuestionsSettled : Rule where
   number := 1399
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev writesDocument ∧ₗ atom startsNextLedgerUnit ∧ₗ
     since (ev agentText ∧ₗ link raisesQuickQuestion) (ev anyCall ∧ₗ link settlesQuickQuestion))
 
@@ -1530,7 +1396,6 @@ def quickQuestionsSettled : Rule where
 def knowledgeBeforeNextUnit : Rule where
   number := 1400
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev writesDocument ∧ₗ atom startsNextLedgerUnit ∧ₗ
       since (ev agentText ∧ₗ link findsKnowledgeForLaterUnits) (ev writesDocument ∧ₗ link recordsKnowledge)) ∧ₗ
     (ev writesDocument ∧ₗ atom marksUnitRevisit ⟹ eventually (ev reading ∧ₗ link rereadsRevisitUnit))
@@ -1539,14 +1404,12 @@ def knowledgeBeforeNextUnit : Rule where
 def proseListChecked : Rule where
   number := 1401
   keyword := .must
-  domain := .softwareEngineering
   formula := ev hunkLedgerProse ⟹ eventually (ev writesDocument ∧ₗ link answersListedClaims)
 
 /-- Rule 1402: hunk-ledger findings join the draft only after its check prints "Complete". -/
 def findingsAfterComplete : Rule where
   number := 1402
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev writesDocument ∧ₗ atom addsHunkFindings ⟹
     once (ev resultSaysComplete ∧ₗ link resultOfHunkLedgerCheck)
 
@@ -1554,7 +1417,6 @@ def findingsAfterComplete : Rule where
 def rereviewFindingsMarked : Rule where
   number := 1403
   keyword := .must
-  domain := .softwareEngineering
   formula := judged writesReviewFile rereviewFindingUnmarked
 
 def rules : List Rule :=

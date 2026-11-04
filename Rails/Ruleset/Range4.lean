@@ -805,7 +805,6 @@ def checklistsDecision : Link := ⟨"checklistsDecision",
 def numericalCheckMatchesClaim : Rule where
   number := 421
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom writesNumericalCheck ⟹
     atom matchesConventions ∧ₗ atom checkCanFalsify
 
@@ -813,14 +812,12 @@ def numericalCheckMatchesClaim : Rule where
 def instanceKindStated : Rule where
   number := 422
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reportsInstanceResult ⟹ atom statesInstanceKind
 
 /-- Rule 423: before coding a check, in the same cycle, its nonvacuity plan. -/
 def nonvacuityBeforeCoding : Rule where
   number := 423
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom writesNumericalCheck ⟹
     inCycle (ev reply ∧ₗ link statesSmallestParameters) ∧ₗ inCycle (ev reply ∧ₗ link countsPredictions) ∧ₗ
     inCycle (ev reply ∧ₗ link comparesUnconditionalBounds) ∧ₗ inCycle (ev reply ∧ₗ link verifiesHypotheses)
@@ -829,14 +826,12 @@ def nonvacuityBeforeCoding : Rule where
 def nonvacuityCountRecorded : Rule where
   number := 424
   keyword := .must
-  domain := .mathematics
   formula := ev notebookEdit ∧ₗ atom registersFiniteCheck ⟹ atom hasNonvacuityCount
 
 /-- Rule 425: no reading of failures below the nonvacuous threshold; outcomes by size. -/
 def noSubThresholdReading : Rule where
   number := 425
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom interpretsSubThresholdFailure) ∧ₗ
     (ev reply ∧ₗ atom reportsFiniteOutcomes ⟹ atom bySubInstanceSize)
 
@@ -844,7 +839,6 @@ def noSubThresholdReading : Rule where
 def boundOnExtremals : Rule where
   number := 426
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reportsBoundTested ⟹
     once (ev scriptRun ∧ₗ link testsExtremalExamples) ∧ₗ atom comparesWithGoalNeed
 
@@ -852,7 +846,6 @@ def boundOnExtremals : Rule where
 def ownQuantityComputed : Rule where
   number := 427
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom writesNumericalCheck ⟹
     atom computesOwnQuantity ∧ₗ atom docstringStatesStatement ∧ₗ atom generatesValidInputs
 
@@ -860,14 +853,12 @@ def ownQuantityComputed : Rule where
 def newRunsDistinguished : Rule where
   number := 428
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom citesRunResults ⟹ atom saysNewOrArchived
 
 /-- Rule 429: a kernel's prime is no characteristic hypothesis; small characteristics need proof. -/
 def primeIsNoHypothesis : Rule where
   number := 429
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom treatsPrimeAsHypothesis) ∧ₗ
     (ev reply ∧ₗ atom claimsSmallCharacteristic ⟹ atom citesPerCharacteristicProof)
 
@@ -875,7 +866,6 @@ def primeIsNoHypothesis : Rule where
 def certificateScopeStated : Rule where
   number := 430
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reportsLiftedCertificate ⟹
     atom statesCertificateScope ∧ₗ ¬ₗ atom namesUncomputedPrimes
 
@@ -883,7 +873,6 @@ def certificateScopeStated : Rule where
 def exactPcDegree : Rule where
   number := 431
   keyword := .mustNot
-  domain := .mathematics
   formula := ev editing ∧ₗ atom measuresPcDegree ⟹
     ¬ₗ atom usesTruncatedBasis ∧ₗ atom usesExactClosure ∧ₗ atom checksMonotonicity
 
@@ -891,7 +880,6 @@ def exactPcDegree : Rule where
 def kernelValidatedFirst : Rule where
   number := 432
   keyword := .must
-  domain := .mathematics
   formula := ev scriptRun ∧ₗ atom runsKernelAtScale ⟹
     once (ev scriptRun ∧ₗ link validatesAgainstReference) ∧ₗ
     once (ev scriptRun ∧ₗ link checksRanksWithSecondLibrary)
@@ -900,35 +888,30 @@ def kernelValidatedFirst : Rule where
 def foreignTypesDeclared : Rule where
   number := 433
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom callsForeignFunction ⟹ atom declaresArgumentTypes
 
 /-- Rule 434: computer algebra output relied on is error-free with its completion counts. -/
 def casOutputChecked : Rule where
   number := 434
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reliesOnCasOutput ⟹ once (ev anyResult ∧ₗ link casOutputComplete)
 
 /-- Rule 435: a quoted number comes from saved output read by a script. -/
 def numbersFromSavedOutput : Rule where
   number := 435
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom quotesNumber ⟹ once (ev scriptRun ∧ₗ link readsSavedOutputOfNumber)
 
 /-- Rule 436: a checking total is one run's one line. -/
 def totalInOneRun : Rule where
   number := 436
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom statesCheckingTotal ⟹ once (ev anyResult ∧ₗ link printsTotalAsOneLine)
 
 /-- Rule 437: a distinct count printed as a count of distinct keys. -/
 def distinctKeysCounted : Rule where
   number := 437
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom statesDistinctCount ⟹ once (ev anyResult ∧ₗ link printsDistinctKeyCount)
 
 /-! Rules 438 to 459: resource evidence and rented machines. -/
@@ -937,14 +920,12 @@ def distinctKeysCounted : Rule where
 def countersUnknownNotZero : Rule where
   number := 438
   keyword := .must
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom treatsMissingCounterAsZero) ∧ₗ never (ev reply ∧ₗ atom sumsRamSwapPeaks)
 
 /-- Rule 439: resource signals prove no cause, and overlapping durations don't partition time. -/
 def signalsAreNoCause : Rule where
   number := 439
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom treatsSignalAsCause) ∧ₗ
     never (ev reply ∧ₗ atom addsOverlappingDurations)
 
@@ -952,28 +933,24 @@ def signalsAreNoCause : Rule where
 def longRunCauseInspected : Rule where
   number := 440
   keyword := .mustNot
-  domain := .mathematics
   formula := ev reply ∧ₗ atom statesLongRunCause ⟹ once (ev jobInspection ∧ₗ link inspectsThatRun)
 
 /-- Rule 441: no bypassed access failure while tracing. -/
 def noTraceBypass : Rule where
   number := 441
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev toolCall ∧ₗ atom bypassesTraceAccessFailure)
 
 /-- Rule 442: a slow-tool warning is investigated and its cause reported. -/
 def slowToolInvestigated : Rule where
   number := 442
   keyword := .must
-  domain := .mathematics
   formula := ev anyResult ∧ₗ atom slowToolWarning ⟹ eventually (ev reply ∧ₗ link reportsSlowToolCause)
 
 /-- Rule 443: a rented container's limits read from cgroups within a minute of the first ssh. -/
 def deliveredLimitsRead : Rule where
   number := 443
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev ssh ∧ₗ atom sshToRentedMachine ∧ₗ ¬ₗ once (ev ssh ∧ₗ atom sshToRentedMachine) ⟹
       within 60000 (ev cgroupLimitRead ∧ₗ link readsSshContainerLimits)) ∧ₗ
     never (ev reply ∧ₗ atom judgesCapacityFromNproc)
@@ -982,7 +959,6 @@ def deliveredLimitsRead : Rule where
 def quotaProvedUnderLoad : Rule where
   number := 444
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsCpuQuota ⟹
     once (ev toolCall ∧ₗ link spinsMoreThreadsThanQuota) ∧ₗ once (ev readsCpuacctUsage) ∧ₗ
     once (ev readsCpuStat)
@@ -992,7 +968,6 @@ reads it after the create, and no other call or reply comes between. -/
 def createResponseRead : Rule where
   number := 445
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom treatsPricePageAsPromise) ∧ₗ
     (ev podCreate ⟹ eventually (ev reply ∧ₗ atom readsBackCreateResponse)) ∧ₗ
     (ev toolCall ∨ₗ (ev reply ∧ₗ ¬ₗ atom readsBackCreateResponse) ⟹
@@ -1002,7 +977,6 @@ def createResponseRead : Rule where
 def measureAloneBeforeBlame : Rule where
   number := 446
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev reply ∧ₗ atom blamesMachineCapacity ⟹
       once (ev toolCall ∧ₗ link measuresAlone) ∧ₗ once (ev toolCall ∧ₗ link testsSuspectedLimit)) ∧ₗ
     never (ev toolCall ∧ₗ atom changesSeveralThings)
@@ -1011,7 +985,6 @@ def measureAloneBeforeBlame : Rule where
 def progressByOutput : Rule where
   number := 447
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom judgesProgressByCpu) ∧ₗ
     (ev reply ∧ₗ atom reportsJobProgress ⟹ atom citesOutputAgeAndCounter) ∧ₗ
     never (ev reply ∧ₗ atom callsSilentJobWorking)
@@ -1020,7 +993,6 @@ def progressByOutput : Rule where
 def realUseRead : Rule where
   number := 448
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom statesResourceUse ⟹
     once (ev nvidiaSmi) ∧ₗ once (ev readsCpuacctUsage ∧ₗ once (ev readsCpuacctUsage))
 
@@ -1028,7 +1000,6 @@ def realUseRead : Rule where
 def placeByMemory : Rule where
   number := 449
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev toolCall ∧ₗ atom launchesRentedJob ⟹
       once (ev toolCall ∧ₗ link readsEarlierPeakMemory) ∧ₗ once (ev toolCall ∧ₗ link readsFreeMemory) ∧ₗ
       atom pinsToHoldingCard) ∧ₗ
@@ -1038,7 +1009,6 @@ def placeByMemory : Rule where
 def stateFromPodStatus : Rule where
   number := 450
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom statesRentedJobState ⟹
     since (ev podStatusRead ∧ₗ link readsThatJobStatus) (ev reply)
 
@@ -1046,7 +1016,6 @@ def stateFromPodStatus : Rule where
 def hostBeforeNativeBuild : Rule where
   number := 451
   keyword := .must
-  domain := .softwareEngineering
   formula := ev marchNativeBuild ⟹
     once (ev hostCpuCheck) ∧ₗ (atom compilesLeanHOnFp16Host ⟹ ev disablesAvx512Fp16)
 
@@ -1054,7 +1023,6 @@ def hostBeforeNativeBuild : Rule where
 def downloadProgressRead : Rule where
   number := 452
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom statesDownloadProgress ⟹
     once (ev aria2FilesListed) ∧ₗ once (ev interfaceBytesRead) ∧ₗ ¬ₗ atom judgesByDu
 
@@ -1062,7 +1030,6 @@ def downloadProgressRead : Rule where
 def hfDownloadCompletes : Rule where
   number := 453
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev aria2Download ⟹ eventually (ev hfDownload ∧ₗ link coversSameDirectory)) ∧ₗ
     (ev hfDownload ∧ₗ once (ev aria2Download) ⟹ eventually (ev reply ∧ₗ link reportsWhatItPrinted))
 
@@ -1070,21 +1037,18 @@ def hfDownloadCompletes : Rule where
 def oneWriterPerFile : Rule where
   number := 454
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev toolCall ∧ₗ atom secondWriterOfFile)
 
 /-- Rule 455: a Hub download names each file. -/
 def hubFilesNamed : Rule where
   number := 455
   keyword := .must
-  domain := .softwareEngineering
   formula := ev aria2Download ∧ₗ atom downloadsFromHub ⟹ atom namesEachOutputFile
 
 /-- Rule 456: an inventory covers the harness's contracts; a primitive is tested before declared absent. -/
 def inventoryCoversHarness : Rule where
   number := 456
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom givesCapabilityInventory ⟹ atom coversHarnessContracts) ∧ₗ
     (ev reply ∧ₗ atom declaresPrimitiveAbsent ⟹ once (ev toolCall ∧ₗ link testsExistingPrimitive))
 
@@ -1092,21 +1056,18 @@ def inventoryCoversHarness : Rule where
 def resultsPromoted : Rule where
   number := 457
   keyword := .mustNot
-  domain := .mathematics
   formula := never ((ev commit ∨ₗ ev cycleCheckpoint) ∧ₗ atom leavesOnlyCopyInIgnored)
 
 /-- Rule 458: no truncated saved output, no output-size cutoff. -/
 def noOutputTruncation : Rule where
   number := 458
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev toolCall ∧ₗ atom truncatesSavedOutput)
 
 /-- Rule 459: while an unstoppable job runs, each reply says what it holds and how to stop it. -/
 def unstoppableJobReported : Rule where
   number := 459
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom unstoppableJobRunning ⟹
     (atom namesJobHoldings ∧ₗ atom givesStopCommand) ∨ₗ atom justified
 
@@ -1116,7 +1077,6 @@ def unstoppableJobReported : Rule where
 def statementBeforeProof : Rule where
   number := 460
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom treatsProofAsCertifying) ∧ₗ
     (ev leanEdit ∧ₗ atom startsProof ⟹ once (ev reply ∧ₗ link checksStatementServes))
 
@@ -1124,7 +1084,6 @@ def statementBeforeProof : Rule where
 def hypothesesWitnessed : Rule where
   number := 461
   keyword := .must
-  domain := .softwareEngineering
   formula := ev leanEdit ∧ₗ atom addsNewStatement ⟹
     atom includesHypothesisWitness ∨ₗ eventually (ev leanEdit ∧ₗ link witnessesHypotheses)
 
@@ -1132,35 +1091,30 @@ def hypothesesWitnessed : Rule where
 def undeterminedRecorded : Rule where
   number := 462
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom presentsStatement ⟹ atom recordsUndetermined
 
 /-- Rule 463: a Lean change reviewed from its printed types and axioms. -/
 def reviewFromPrintedTypes : Rule where
   number := 463
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom approvesLeanChange ⟹ once (ev toolCall ∧ₗ link printsTypesAndAxioms)
 
 /-- Rule 464: what the kernel doesn't vouch for is read as code. -/
 def unvouchedCodeRead : Rule where
   number := 464
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom approvesLeanChange ⟹ once (ev reading ∧ₗ link readsUnvouchedCode)
 
 /-- Rule 465: an empty goal after sorry is no proof. -/
 def sorryGoalIsNoProof : Rule where
   number := 465
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom claimsProofFromSorryGoal)
 
 /-- Rule 466: no stale diagnostics relied on; completed told from timed out. -/
 def freshDiagnostics : Rule where
   number := 466
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom reliesOnStaleDiagnostics) ∧ₗ
     (ev reply ∧ₗ atom reportsLeanDiagnostics ⟹ atom saysCompletedOrTimedOut)
 
@@ -1168,7 +1122,6 @@ def freshDiagnostics : Rule where
 def scratchTacticCopied : Rule where
   number := 467
   keyword := .must
-  domain := .softwareEngineering
   formula := ev anyResult ∧ₗ atom scratchTacticSucceeded ⟹
     eventually (ev leanEdit ∧ₗ link copiesThatTactic ∧ₗ eventually (ev leanCheck))
 
@@ -1176,14 +1129,12 @@ def scratchTacticCopied : Rule where
 def tacticClosesCleanly : Rule where
   number := 468
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsTacticSucceeded ⟹ once (ev anyResult ∧ₗ link showsGoalsClosedNoBadAxiom)
 
 /-- Rule 469: the requested statement kept; a false premise recorded in the plan. -/
 def requestedStatementKept : Rule where
   number := 469
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom altersRequestedStatement) ∧ₗ
     (ev reply ∧ₗ atom findsFalsePremise ⟹ eventually (ev planEdit ∧ₗ link recordsFalsePremise))
 
@@ -1191,7 +1142,6 @@ def requestedStatementKept : Rule where
 def importsBuiltFirst : Rule where
   number := 470
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reliesOnFileLevelCheck ∧ₗ once (ev leanEdit ∧ₗ atom editsImportedModule) ⟹
     since (ev leanBuild) (ev leanEdit ∧ₗ atom editsImportedModule)
 
@@ -1199,7 +1149,6 @@ def importsBuiltFirst : Rule where
 def checksPreserved : Rule where
   number := 471
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom weakensAxiomOrSourceCheck) ∧ₗ
     never (ev reply ∧ₗ atom treatsLeanVerifyAsFidelity)
 
@@ -1207,35 +1156,30 @@ def checksPreserved : Rule where
 def refactorInspected : Rule where
   number := 472
   keyword := .must
-  domain := .softwareEngineering
   formula := ev leanEdit ∧ₗ atom refactorsProof ⟹ eventually (ev toolCall ∧ₗ link inspectsTypeAndAxioms)
 
 /-- Rule 473: a failed removal shows no necessity. -/
 def removalShowsNoNecessity : Rule where
   number := 473
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom readsRemovalAsNecessity)
 
 /-- Rule 474: a remote search hit confirmed locally. -/
 def remoteHitConfirmed : Rule where
   number := 474
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reliesOnRemoteHit ⟹ once (ev toolCall ∧ₗ link confirmsHitLocally)
 
 /-- Rule 475: an empty search proves no absence without the index status. -/
 def emptySearchNoAbsence : Rule where
   number := 475
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom treatsEmptySearchAsAbsence)
 
 /-- Rule 476: a transformation's laws each established, a rewrite's sides observationally equal. -/
 def transformationLaws : Rule where
   number := 476
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsTransformationCorrect ⟹
     once (ev toolCall ∧ₗ link establishesEachLaw) ∧ₗ once (ev toolCall ∧ₗ link showsSidesObservationallyEqual)
 
@@ -1243,14 +1187,12 @@ def transformationLaws : Rule where
 def primitivesAgree : Rule where
   number := 477
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsImplementationPreserves ⟹ once (ev toolCall ∧ₗ link showsPrimitivesAgree)
 
 /-- Rule 478: stateful equivalence by a step relation, not final output alone. -/
 def stepSimulation : Rule where
   number := 478
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsStatefulEquivalence ⟹
     once (ev toolCall ∧ₗ link showsStepSimulation) ∧ₗ ¬ₗ atom restsOnFinalOutput
 
@@ -1258,7 +1200,6 @@ def stepSimulation : Rule where
 def normalFormEstablished : Rule where
   number := 479
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsNormalForm ⟹
     once (ev toolCall ∧ₗ link establishesTermination) ∧ₗ once (ev toolCall ∧ₗ link establishesUniqueness)
 
@@ -1266,42 +1207,36 @@ def normalFormEstablished : Rule where
 def noGuessedIndex : Rule where
   number := 480
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom guessesHiddenIndex)
 
 /-- Rule 481: no second unchecked entrance to a validated type. -/
 def noUncheckedEntrance : Rule where
   number := 481
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom addsUncheckedEntrance)
 
 /-- Rule 482: untrusted input parsed into the typed form, with an explicit error. -/
 def parseUntrustedInput : Rule where
   number := 482
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom readsUntrustedInput ⟹ atom parsesIntoTypedForm ∧ₗ atom returnsExplicitError
 
 /-- Rule 483: a phantom marker proves nothing alone. -/
 def phantomIsNoProof : Rule where
   number := 483
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never ((ev editing ∨ₗ ev reply) ∧ₗ atom treatsPhantomAsProof)
 
 /-- Rule 484: no partial or unsafe code as evidence. -/
 def noPartialEvidence : Rule where
   number := 484
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom usesPartialAsEvidence)
 
 /-- Rule 485: a BEq's laws proved before its result is used as equality. -/
 def beqLawsFirst : Rule where
   number := 485
   keyword := .must
-  domain := .softwareEngineering
   formula := ev leanEdit ∧ₗ atom usesBeqAsEquality ⟹
     atom provesBeqLawsHere ∨ₗ once (ev leanEdit ∧ₗ link provesThoseBeqLaws)
 
@@ -1309,21 +1244,18 @@ def beqLawsFirst : Rule where
 def toolchainChecked : Rule where
   number := 486
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reliesOnToolchainBehavior ⟹ once (ev toolCall ∧ₗ link checksActualToolchain)
 
 /-- Rule 487: a dispatch cache's key checked for every distinction. -/
 def cacheKeyChecked : Rule where
   number := 487
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom addsDispatchCache ⟹ eventually (ev toolCall ∧ₗ link checksCacheKey)
 
 /-- Rule 488: branch-local state defined before retries or parallel search. -/
 def branchStateFirst : Rule where
   number := 488
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom enablesRetriesOrParallel ⟹
     atom definesBranchStateHere ∨ₗ once (ev editing ∧ₗ link definesBranchState)
 
@@ -1331,7 +1263,6 @@ def branchStateFirst : Rule where
 def noOrderDispatch : Rule where
   number := 489
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom registrationOrderDecides)
 
 /-! Rules 490 to 498: merge request descriptions, approvals, references and chat. -/
@@ -1340,28 +1271,24 @@ def noOrderDispatch : Rule where
 def verificationParagraph : Rule where
   number := 490
   keyword := .must
-  domain := .softwareEngineering
   formula := ev mrDescription ⟹ atom statesWhatVerifiedHow ∧ₗ atom namesUnverified
 
 /-- Rule 491: confidence levels distinguished. -/
 def confidenceLevels : Rule where
   number := 491
   keyword := .must
-  domain := .softwareEngineering
   formula := ev mrDescription ⟹ atom distinguishesConfidence
 
 /-- Rule 492: a partial check says which part went unchecked and why. -/
 def uncheckedPartNamed : Rule where
   number := 492
   keyword := .must
-  domain := .softwareEngineering
   formula := ev mrDescription ∧ₗ atom partlyChecked ⟹ atom saysUncheckedPartWhy
 
 /-- Rule 493: a check for others worded with its command; no person addressed. -/
 def checkForOthersWorded : Rule where
   number := 493
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev mrDescription ∧ₗ atom hasCheckForOthers ⟹ atom checkWordedWithCommand) ∧ₗ
     never (ev mrDescription ∧ₗ atom addressesPerson)
 
@@ -1369,7 +1296,6 @@ def checkForOthersWorded : Rule where
 def noQuestionsInDescription : Rule where
   number := 494
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev mrDescription ∧ₗ atom asksReviewerQuestion)
 
 /-- Rule 495: approvals and the reset setting read before a force-push, and read again after; a
@@ -1377,7 +1303,6 @@ claim they survive rests on both reads. -/
 def approvalsReadAround : Rule where
   number := 495
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev forcePush ∧ₗ atom mrHasApprovals ⟹
       once (ev readsApprovals) ∧ₗ once (ev toolCall ∧ₗ link readsResetSetting) ∧ₗ
       eventually (ev readsApprovals)) ∧ₗ
@@ -1388,21 +1313,18 @@ def approvalsReadAround : Rule where
 def mrReadBack : Rule where
   number := 496
   keyword := .must
-  domain := .softwareEngineering
   formula := ev mrOpen ⟹ eventually (ev mrView ∧ₗ link viewsThatMr)
 
 /-- Rule 497: every reference the reader can open linked where it appears. -/
 def referencesLinked : Rule where
   number := 497
   keyword := .must
-  domain := .softwareEngineering
   formula := never ((ev editing ∨ₗ ev reply) ∧ₗ atom hasUnlinkedReference)
 
 /-- Rule 498: every sentence of a chat draft capitalized. -/
 def chatSentencesCapitalized : Rule where
   number := 498
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom draftsChatMessage ⟹ atom sentencesCapitalized
 
 /-! Rules 499 to 514: paper writing. -/
@@ -1411,7 +1333,6 @@ def chatSentencesCapitalized : Rule where
 def examplesVerified : Rule where
   number := 499
   keyword := .must
-  domain := .mathematics
   formula := (ev editing ∧ₗ atom addsWorkedExample ⟹
       once (ev toolCall ∧ₗ link verifiesExampleAgainstStatement)) ∧ₗ
     never (ev editing ∧ₗ atom treatsPictureAsProof)
@@ -1420,28 +1341,24 @@ def examplesVerified : Rule where
 def conventionsPreserved : Rule where
   number := 500
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom dropsMathConvention)
 
 /-- Rule 501: what is edited is read first. -/
 def readBeforeEditingMath : Rule where
   number := 501
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom editsMathStatement ⟹ once (ev reading ∧ₗ link readsEditedPassage)
 
 /-- Rule 502: substance separated from presentation in the handoff. -/
 def substanceSeparated : Rule where
   number := 502
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom handsOffManuscript ⟹ atom separatesSubstanceFromPresentation
 
 /-- Rule 503: statement and proof corrected together, nearby constructions checked. -/
 def statementAndProofTogether : Rule where
   number := 503
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom correctsMathStatement ⟹
     atom correctsProofToo ∧ₗ eventually (ev toolCall ∧ₗ link checksNearbyConstructions)
 
@@ -1449,14 +1366,12 @@ def statementAndProofTogether : Rule where
 def noWarningOnlyFix : Rule where
   number := 504
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom onlyRemovesWarning)
 
 /-- Rule 505: bibliographic facts verified from sources before relied on. -/
 def bibliographyVerified : Rule where
   number := 505
   keyword := .must
-  domain := .mathematics
   formula := (ev editing ∨ₗ ev reply) ∧ₗ atom reliesOnBibliographicFact ⟹
     once (ev toolCall ∧ₗ link readsSourceOfFact)
 
@@ -1464,21 +1379,18 @@ def bibliographyVerified : Rule where
 def priorWorkCompared : Rule where
   number := 506
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom describesPriorWork ⟹ atom distinguishesContribution
 
 /-- Rule 507: an example's intermediates and exceptional cases checked. -/
 def exampleIntermediatesChecked : Rule where
   number := 507
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom addsWorkedExample ⟹ once (ev toolCall ∧ₗ link checksExampleIntermediates)
 
 /-- Rule 508: no example of an excluded object, no hidden failed condition. -/
 def noManufacturedExample : Rule where
   number := 508
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom manufacturesExcludedExample) ∧ₗ
     never (ev editing ∧ₗ atom hidesFailedCondition)
 
@@ -1486,42 +1398,36 @@ def noManufacturedExample : Rule where
 def boundOnWholeExpression : Rule where
   number := 509
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom appliesDegreeBound ⟹ atom coversWholeExpression
 
 /-- Rule 510: a final parameter choice checked against all requirements. -/
 def parametersCheckedJointly : Rule where
   number := 510
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom fixesParameterChoice ⟹ atom checksAllRequirements
 
 /-- Rule 511: claims of novelty, authorship, checking or evidence supported. -/
 def supportedClaims : Rule where
   number := 511
   keyword := .must
-  domain := .mathematics
   formula := never ((ev editing ∨ₗ ev reply) ∧ₗ atom unsupportedClaimOfSupport)
 
 /-- Rule 512: a publishable manuscript acknowledges AI contributions. -/
 def aiAcknowledged : Rule where
   number := 512
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom editsPublishableManuscript ⟹ atom acknowledgesAi
 
 /-- Rule 513: a no-gap review certifies no paper. -/
 def reviewIsNoCertificate : Rule where
   number := 513
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom treatsNoGapReviewAsCertification)
 
 /-- Rule 514: no proof reopened for exposition alone. -/
 def proofNotReopened : Rule where
   number := 514
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom reopensProofForExposition)
 
 /-! Rules 515 to 527: moving changes between commits and reviewing merge requests. -/
@@ -1532,7 +1438,6 @@ last continue needs a diff against the original since the last reset. -/
 def splitDiffedBeforeContinue : Rule where
   number := 515
   keyword := .must
-  domain := .softwareEngineering
   formula := ev rebaseContinue ∧ₗ since (ev gitReset) (ev rebaseContinue) ⟹
     since (ev gitDiff ∧ₗ link diffsSplitAgainstOriginal) (ev gitReset ∨ₗ ev rebaseContinue)
 
@@ -1540,28 +1445,24 @@ def splitDiffedBeforeContinue : Rule where
 def cutSpecsDryRun : Rule where
   number := 516
   keyword := .must
-  domain := .softwareEngineering
   formula := ev gitRebase ∧ₗ atom rebaseAppliesCutSpecs ⟹ once (ev toolCall ∧ₗ link dryRunsCutSpecs)
 
 /-- Rule 517: a review comment's facts checked in a ledger first. -/
 def reviewFactsInLedger : Rule where
   number := 517
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom draftsReviewFact ⟹ once (ev ledgerEdit ∧ₗ link ledgerRowChecksFact)
 
 /-- Rule 518: a colleague's change reviewed with one's own rigor. -/
 def ownRigorInReview : Rule where
   number := 518
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom offersSubstandardReview)
 
 /-- Rule 519: configuration rendered per environment and diffed against the deployed. -/
 def configRenderedAndDiffed : Rule where
   number := 519
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersConfigReview ⟹
     once (ev toolCall ∧ₗ link rendersPerEnvironment) ∧ₗ once (ev toolCall ∧ₗ link diffsAgainstDeployed)
 
@@ -1569,14 +1470,12 @@ def configRenderedAndDiffed : Rule where
 def settingsWorkAtRunTime : Rule where
   number := 520
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersConfigReview ⟹ once (ev toolCall ∧ₗ link checksSettingsAtRunTime)
 
 /-- Rule 521: pins compared with what runs; the image build honours the lock. -/
 def pinsCompared : Rule where
   number := 521
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersPinReview ⟹
     once (ev toolCall ∧ₗ link comparesPinWithRunning) ∧ₗ once (ev toolCall ∧ₗ link checksImageHonoursLock)
 
@@ -1584,42 +1483,36 @@ def pinsCompared : Rule where
 def contractsReadAtVersion : Rule where
   number := 522
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersReview ⟹ once (ev toolCall ∧ₗ link readsReliedContracts)
 
 /-- Rule 523: what the change depends on checked in place. -/
 def dependenciesInPlace : Rule where
   number := 523
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersReview ⟹ once (ev toolCall ∧ₗ link checksDependenciesInPlace)
 
 /-- Rule 524: what an import turns on is listed. -/
 def importEffectsListed : Rule where
   number := 524
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersImportReview ⟹ atom listsWhatImportTurnsOn
 
 /-- Rule 525: alert rules tested on edge series. -/
 def alertRulesTested : Rule where
   number := 525
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersAlertRuleReview ⟹ once (ev toolCall ∧ₗ link testsRulesOnEdgeSeries)
 
 /-- Rule 526: who can reach what the change opens, with what credential. -/
 def reachAsked : Rule where
   number := 526
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersAccessReview ⟹ atom saysWhoCanReach
 
 /-- Rule 527: the diff and live facts re-checked before posting. -/
 def recheckBeforePosting : Rule where
   number := 527
   keyword := .must
-  domain := .softwareEngineering
   formula := ev postsReviewComment ⟹
     once (ev toolCall ∧ₗ link rechecksMrDiff) ∧ₗ once (ev toolCall ∧ₗ link rechecksLiveFacts)
 
@@ -1629,7 +1522,6 @@ def recheckBeforePosting : Rule where
 def defaultSkillsLoaded : Rule where
   number := 528
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom taskInProgress ⟹
     defaultSkills.foldr (fun s acc => sinceCompaction (ev (loadsSkill s)) ∧ₗ acc) (ev editing)
 
@@ -1637,14 +1529,12 @@ def defaultSkillsLoaded : Rule where
 def lean4Loaded : Rule where
   number := 529
   keyword := .must
-  domain := .tasks
   formula := ev leanEdit ⟹ sinceCompaction (ev (loadsSkill "lean4"))
 
 /-- Rule 530: a task's listed extra skills loaded in the context. -/
 def extraSkillsLoaded : Rule where
   number := 530
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom taskListsExtraSkill ⟹
     sinceCompaction (ev loadsAnySkill ∧ₗ link loadsTaskListedSkill)
 
@@ -1652,14 +1542,12 @@ def extraSkillsLoaded : Rule where
 def coverLetterFormat : Rule where
   number := 531
   keyword := .must
-  domain := .tasks
   formula := ev mrDescription ⟹ atom followsCoverLetterFormat
 
 /-- Rule 532: a task's directory made by task_index.py new, with a descriptive slug. -/
 def taskDirectoryByTool : Rule where
   number := 532
   keyword := .must
-  domain := .tasks
   formula := never (ev taskIndexNew ∧ₗ atom slugIsTicketOnly) ∧ₗ
     (ev editing ∧ₗ atom createsTaskDirectory ⟹ once (ev taskIndexNew ∧ₗ link createsThatTask))
 
@@ -1667,28 +1555,24 @@ def taskDirectoryByTool : Rule where
 def taskJsonByTool : Rule where
   number := 533
   keyword := .must
-  domain := .tasks
   formula := never (ev taskJsonEdit)
 
 /-- Rule 534: PLAN.md living, Theory building first, Path second. -/
 def planShape : Rule where
   number := 534
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ⟹ atom keepsTheoryThenPath
 
 /-- Rule 535: a delegated task's theory before its plan or code. -/
 def theoryFirst : Rule where
   number := 535
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom writesPlanOrCode ⟹ once (ev planEdit ∧ₗ link recordsTaskTheory)
 
 /-- Rule 536: the theory as questions with answers, ahead of the plan, answered by research. -/
 def theoryAsQuestions : Rule where
   number := 536
   keyword := .must
-  domain := .discipline
   formula := (ev planEdit ∧ₗ atom recordsTheory ⟹ atom theoryAsQuestionsAhead) ∧ₗ
     never (ev reply ∧ₗ atom asksWhatResearchAnswers)
 
@@ -1696,7 +1580,6 @@ def theoryAsQuestions : Rule where
 def questionOpenFirst : Rule where
   number := 537
   keyword := .must
-  domain := .tasks
   formula := (ev planEdit ∧ₗ atom addsResolvedEntry ⟹ once (ev planEdit ∧ₗ link openedAsQuestionFirst)) ∧ₗ
     (ev reply ∧ₗ atom findsAnswer ⟹ eventually (ev planEdit ∧ₗ link movesToResolved))
 
@@ -1704,7 +1587,6 @@ def questionOpenFirst : Rule where
 def resolvedTrace : Rule where
   number := 538
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom prunesResolved) ∧ₗ never (ev planEdit ∧ₗ atom resolvedEntryMalformed) ∧ₗ
     never (ev planEdit ∧ₗ atom mixesOpenAndResolved) ∧ₗ never (ev planEdit ∧ₗ atom leavesStaleStatement)
 
@@ -1712,7 +1594,6 @@ def resolvedTrace : Rule where
 def questionWording : Rule where
   number := 539
   keyword := .must
-  domain := .tasks
   formula := (ev planEdit ∧ₗ atom addsResolvedEntry ⟹ atom entryStartsWithQuestion) ∧ₗ
     (ev planEdit ∧ₗ atom addsIncidentalFinding ⟹ atom placesUnderAnsweredQuestion) ∧ₗ
     never (ev planEdit ∧ₗ atom rewordsMovedQuestion)
@@ -1721,7 +1602,6 @@ def questionWording : Rule where
 def runResultEntered : Rule where
   number := 540
   keyword := .must
-  domain := .tasks
   formula := ev toolCall ∧ₗ ¬ₗ ev planEdit ⟹
     ¬ₗ since (ev anyResult ∧ₗ atom taskRunResult) (ev planEdit ∧ₗ atom entersRunResult)
 
@@ -1729,49 +1609,42 @@ def runResultEntered : Rule where
 def statusEveryCycle : Rule where
   number := 541
   keyword := .must
-  domain := .tasks
   formula := ev cycleCheckpoint ⟹ inCycle (ev taskStatusSet)
 
 /-- Rule 542: a request resolved with the tool in the cycle moving its substance to the plan. -/
 def requestResolvedInCycle : Rule where
   number := 542
   keyword := .must
-  domain := .tasks
   formula := ev requestResolve ⟹ inCycle (ev planEdit ∧ₗ link movesRequestSubstance)
 
 /-- Rule 543: a request resolved only when fulfilled or dropped; no item number reused. -/
 def requestResolvedHonestly : Rule where
   number := 543
   keyword := .must
-  domain := .tasks
   formula := (ev requestResolve ⟹ atom requestFulfilledOrDropped) ∧ₗ never (ev requestAdd ∧ₗ atom reusesItemNumber)
 
 /-- Rule 544: content removed from an open request only by request edit. -/
 def requestContentByEdit : Rule where
   number := 544
   keyword := .must
-  domain := .tasks
   formula := ev toolCall ∧ₗ atom removesRequestContent ⟹ ev requestEdit
 
 /-- Rule 545: a blocked task names what blocks it. -/
 def blockedTaskNamesBlocker : Rule where
   number := 545
   keyword := .must
-  domain := .tasks
   formula := ev taskBlocked ⟹ atom statesWhatBlocks
 
 /-- Rule 546: the task's other evidence committed under its directory. -/
 def evidenceUnderTask : Rule where
   number := 546
   keyword := .must
-  domain := .tasks
   formula := never ((ev commit ∨ₗ ev cycleCheckpoint) ∧ₗ atom evidenceOutsideTaskDir)
 
 /-- Rule 547: a dated, complete notebook entry each cycle, and no per-task log or counter. -/
 def entryEachCycle : Rule where
   number := 547
   keyword := .must
-  domain := .tasks
   formula := (ev cycleCheckpoint ⟹ atom appendsCycleEntry ∧ₗ atom entryHasRequiredParts) ∧ₗ
     never (ev editing ∧ₗ atom writesTaskLog)
 
@@ -1779,7 +1652,6 @@ def entryEachCycle : Rule where
 def respectTaskLock : Rule where
   number := 548
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom writesLockedTask) ∧ₗ
     ((ev anyResult ∨ₗ ev hookRefusal) ∧ₗ atom reportsTaskLock ⟹
       eventually ((ev reply ∧ₗ link tellsUserOfLock) ∨ₗ (ev editing ∧ₗ link worksOnOtherTask)))
@@ -1788,7 +1660,6 @@ def respectTaskLock : Rule where
 def pauseOnSwitch : Rule where
   number := 549
   keyword := .must
-  domain := .tasks
   formula := (ev editing ∧ₗ atom startsOtherTask ⟹
       sameMessage pausesTask ∨ₗ since (ev taskPaused) (ev editing)) ∧ₗ
     never (ev cycleCheckpoint ∧ₗ atom recordsNameWrongTask)
@@ -1797,7 +1668,6 @@ def pauseOnSwitch : Rule where
 def staleRecordsCorrected : Rule where
   number := 550
   keyword := .must
-  domain := .tasks
   formula := (ev anyResult ∨ₗ ev hookRefusal) ∧ₗ atom trajectoryNamesOtherTask ⟹
     eventually (ev editing ∧ₗ link correctsStaleRecords)
 
@@ -1805,7 +1675,6 @@ def staleRecordsCorrected : Rule where
 def whereWeStandOpenOnly : Rule where
   number := 551
   keyword := .must
-  domain := .tasks
   formula := never (ev notebookEdit ∧ₗ atom holdsFinishedWork) ∧ₗ
     never (ev cycleCheckpoint ∧ₗ atom openTaskLacksParagraph)
 
@@ -1813,14 +1682,12 @@ def whereWeStandOpenOnly : Rule where
 def statusAtCheckpoint : Rule where
   number := 552
   keyword := .must
-  domain := .tasks
   formula := ev cycleCheckpoint ⟹ atom statusSaysWhatCycleLeft ∧ₗ inCycle (ev statusTextRun)
 
 /-- Rule 553: the first cycle restates the task and checks for earlier work. -/
 def firstCycleRestates : Rule where
   number := 553
   keyword := .must
-  domain := .tasks
   formula := ev cycleCheckpoint ∧ₗ atom closesFirstCycle ⟹
     once (ev planEdit ∧ₗ link restatesTask) ∧ₗ once (ev toolCall ∧ₗ link checksStartedElsewhere)
 
@@ -1828,7 +1695,6 @@ def firstCycleRestates : Rule where
 def investigateAndAskNeeded : Rule where
   number := 554
   keyword := .must
-  domain := .tasks
   formula := (ev planEdit ∧ₗ atom writesFirstPathSteps ⟹ once (ev reading ∧ₗ link readsWhatTaskTouches)) ∧ₗ
     never (ev planEdit ∧ₗ atom settlesUsersScope) ∧ₗ never (ev reply ∧ₗ atom asksWhatBlocksNothing)
 
@@ -1836,7 +1702,6 @@ def investigateAndAskNeeded : Rule where
 def answersRecorded : Rule where
   number := 555
   keyword := .must
-  domain := .tasks
   formula := ev user ∧ₗ atom userAnswersQuestion ⟹ eventually (ev planEdit ∧ₗ link recordsAnswerPair)
 
 /-- Rule 556: the Path written once the theory is stable, as concrete ordered steps. Stability is
@@ -1845,7 +1710,6 @@ states it, not a question asked of the edit. -/
 def pathAfterStableTheory : Rule where
   number := 556
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesFirstPathSteps ⟹ atom stepsConcreteOrdered ∧ₗ
     since (ev stableCheck ∧ₗ link stableSucceeded) (ev planEdit ∧ₗ atom editsTheory)
 
@@ -1854,7 +1718,6 @@ unless the Path quotes the user's order. -/
 def stableBeforePath : Rule where
   number := 557
   keyword := .mustNot
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesFirstPathSteps ⟹
     since (ev stableCheck ∧ₗ link stableSucceeded) (ev planEdit ∧ₗ atom editsTheory) ∨ₗ atom quotesUserOrder
 
@@ -1863,7 +1726,6 @@ edit after it enters it; each queued run names its step. -/
 def userPlanEntered : Rule where
   number := 558
   keyword := .must
-  domain := .tasks
   formula := (ev user ∧ₗ atom userStatesPlan ⟹ eventually (ev planEdit)) ∧ₗ
     (ev planEdit ∧ₗ since (ev user ∧ₗ atom userStatesPlan) (ev planEdit) ⟹ atom entersStatedUserPlan) ∧ₗ
     (ev computeRun ∧ₗ atom queuesTaskRun ⟹ atom namesPathStep)
@@ -1872,14 +1734,12 @@ def userPlanEntered : Rule where
 def firstEntryStarted : Rule where
   number := 559
   keyword := .must
-  domain := .tasks
   formula := ev cycleCheckpoint ∧ₗ atom closesFirstCycle ⟹ atom entryStatusStarted
 
 /-- Rule 560: a replacing decision through the checklist before its first edit. -/
 def replacingDecisionChecked : Rule where
   number := 560
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom implementsReplacingDecision ⟹ once (ev planEdit ∧ₗ link checklistsDecision)
 
 def rules : List Rule :=

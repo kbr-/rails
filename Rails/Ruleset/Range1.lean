@@ -660,7 +660,6 @@ def rerunsDelegateChecks : Link := ⟨"rerunsDelegateChecks",
 def readinessIsNoAuthorization : Rule where
   number := 2
   keyword := .mustNot
-  domain := .mathematics
   formula := ev publish ∧ₗ atom submitsManuscript ⟹ since (ev user ∧ₗ atom authorizesPush) (ev publish)
 
 /-- Rule 4: a lapsed grant covers nothing, the grant is restored after compaction, and no ask
@@ -668,7 +667,6 @@ repeats what a grant covers. -/
 def honourGrantLimits : Rule where
   number := 4
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev publish ∧ₗ atom usesLapsedGrant) ∧ₗ never (ev reply ∧ₗ atom asksWithinGrantedScope) ∧ₗ
     (ev user ∧ₗ atom isCompactionSummary ⟹ eventually (ev runStateRead))
 
@@ -677,7 +675,6 @@ force only when listed. -/
 def grantsLiveInRunState : Rule where
   number := 5
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev user ∧ₗ (atom givesGrant ∨ₗ atom endsGrantOrOverride) ⟹ eventually (ev runStateEdit)) ∧ₗ
     never (ev runStateEdit ∧ₗ atom grantRecordLacksWordsOrDate) ∧ₗ never (atom reliesOnUnlistedGrant)
 
@@ -685,35 +682,30 @@ def grantsLiveInRunState : Rule where
 def noSkippingUserSteps : Rule where
   number := 6
   keyword := .mustNot
-  domain := .tasks
   formula := never (atom bypassesUserOnlyStep)
 
 /-- Rule 8: after a request, the other unblocked work goes on. -/
 def continueAfterRequest : Rule where
   number := 8
   keyword := .must
-  domain := .tasks
   formula := ev requestAdd ⟹ eventually (atom advancesOtherWork) ∨ₗ atom nothingUnblocked
 
 /-- Rule 11: a push request follows a clean fresh review made after the last code change. -/
 def cleanReviewBeforePushRequest : Rule where
   number := 11
   keyword := .mustNot
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom requestsPush ⟹ since (atom reportsCleanFreshReview) (ev editing)
 
 /-- Rule 12: no switch to or merge into main to publish; the user's branch is kept. -/
 def noMainSwitchToPublish : Rule where
   number := 12
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev mainSwitch ∧ₗ atom servesPublishing) ∧ₗ never (atom leavesUsersBranch)
 
 /-- Rule 13: no push of pre-publish, and no `--all` or `--mirror`. -/
 def noPrivateOrMirrorPush : Rule where
   number := 13
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev prePublishPush ∨ₗ ev pushAllOrMirror)
 
 /-- Rule 14: verify-checkout and the append-only check run before a publication of the workspace
@@ -721,7 +713,6 @@ other than through the checked push, unless the user overrides them. -/
 def checksBeforePublication : Rule where
   number := 14
   keyword := .must
-  domain := .softwareEngineering
   formula := ev publish ∧ₗ ¬ₗ ev checkedPush ∧ₗ ¬ₗ atom publishesOutsideWorkspace ⟹
     (once (ev verifyCheckout) ∧ₗ once (ev appendOnlyCheck)) ∨ₗ
       once (ev user ∧ₗ atom overridesPublicationChecks)
@@ -730,21 +721,18 @@ def checksBeforePublication : Rule where
 def pushThroughCheckedPush : Rule where
   number := 15
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev gitPush ∧ₗ ¬ₗ atom publishesOutsideWorkspace)
 
 /-- Rule 16: a review is posted only on the user's word for it. -/
 def reviewPostNeedsWord : Rule where
   number := 16
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev reviewPost ⟹ since (ev user ∧ₗ atom approvesThisReview) (ev reviewPost)
 
 /-- Rule 17: a review changed after its approval goes back to the user before posting. -/
 def changedReviewGoesBack : Rule where
   number := 17
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewPost ⟹ ¬ₗ since (ev editing ∧ₗ atom changesReviewDraft) (ev user)
 
 /-- Rule 18: a Pod is created or deleted only on the user's word (a delete short of its
@@ -752,7 +740,6 @@ specification included). -/
 def podLifecycleNeedsWord : Rule where
   number := 18
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev podCreate ∨ₗ ev podDelete ⟹ once (ev user ∧ₗ link authorizesThisPodAction)
 
 /-- Rule 19: a Pod stops on the user's word, or unasked once it is idle, a question about it has
@@ -760,7 +747,6 @@ gone unanswered two minutes, and a read showed the stop pauses billing. -/
 def podStopConditions : Rule where
   number := 19
   keyword := .must
-  domain := .softwareEngineering
   formula := ev podStop ⟹ once (ev user ∧ₗ link authorizesThisPodAction) ∨ₗ
     (atom podIdle ∧ₗ once (ev podRead) ∧ₗ
       since (ev reply ∧ₗ atom asksAboutPod ∧ₗ ¬ₗ within 120000 (ev user ∨ₗ ev podStop)) (ev user))
@@ -769,21 +755,18 @@ def podStopConditions : Rule where
 def stockAndPriceBeforePod : Rule where
   number := 20
   keyword := .must
-  domain := .softwareEngineering
   formula := ev podCreate ⟹ once (ev stockRead) ∧ₗ once (ev reply ∧ₗ atom quotesHourlyPrice)
 
 /-- Rule 21: nothing private goes onto a rented machine. -/
 def nothingPrivateOnRented : Rule where
   number := 21
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (atom copiesPrivateToRented)
 
 /-- Rule 22: an idle rented machine is stopped, its results pulled first and its state read back. -/
 def stopBillingWhenIdle : Rule where
   number := 22
   keyword := .must
-  domain := .softwareEngineering
   formula := (atom rentedMachineIdle ⟹ eventually (ev podStop ∨ₗ ev podDelete)) ∧ₗ
     (ev podStop ∨ₗ ev podDelete ⟹ once (atom pullsResults) ∧ₗ eventually (ev podRead))
 
@@ -791,7 +774,6 @@ def stopBillingWhenIdle : Rule where
 def installNeedsApproval : Rule where
   number := 25
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev install ⟹ since (ev user ∧ₗ link approvesThisInstall) (ev install)
 
 /-- Rule 26: an install is asked for after resolving the combined transaction, and never for the
@@ -799,7 +781,6 @@ nearest package at hand. -/
 def installAskAfterResolution : Rule where
   number := 26
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev reply ∧ₗ atom requestsInstallApproval ⟹ once (ev dryRunResolve)) ∧ₗ
     never (ev reply ∧ₗ atom proposesNearestPackage)
 
@@ -808,7 +789,6 @@ checks are stated as unverified. -/
 def installSupportEstablished : Rule where
   number := 27
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := (ev install ⟹ once (link establishesInstallSupport)) ∧ₗ
     never (ev reply ∧ₗ atom omitsUncheckedRuntime)
 
@@ -816,7 +796,6 @@ def installSupportEstablished : Rule where
 def installsAskedAtOnce : Rule where
   number := 28
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom requestsInstallApproval ⟹
     atom listsAllDependencies ∧ₗ ¬ₗ once (ev reply ∧ₗ atom requestsInstallApproval)
 
@@ -825,7 +804,6 @@ does the job. -/
 def installProposalStatesGain : Rule where
   number := 29
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom requestsInstallApproval ∧ₗ ¬ₗ atom statesInstallGain) ∧ₗ
     never (ev reply ∧ₗ atom buildsSinceNothingInstalled)
 
@@ -833,35 +811,30 @@ def installProposalStatesGain : Rule where
 def renderInstallsWithPlan : Rule where
   number := 30
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom presentsDeploymentPlan ⟹ atom namesRenderInstalls
 
 /-- Rule 31: no raw fallback for a missing zstd; an installation request instead. -/
 def noRawFallback : Rule where
   number := 31
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom storesRawForMissingZstd) ∧ₗ (atom showsZstdMissing ⟹ eventually (ev requestAdd))
 
 /-- Rule 32: no bypassing failed controls, no affinity change, no unprotected job. -/
 def noBypassingControls : Rule where
   number := 32
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev affinityChange ∨ₗ atom bypassesControls)
 
 /-- Rule 33: no computation without the watchdog and cgroup protections. -/
 def protectedComputation : Rule where
   number := 33
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom computesUnprotected)
 
 /-- Rule 34: no slipping under a limit; a refused job is made cheaper. -/
 def noSlippingUnderLimits : Rule where
   number := 34
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev shellLoopRun ∨ₗ atom slipsUnderLimit) ∧ₗ
     (atom isResourceGuardRefusal ⟹ eventually (atom makesJobCheaper))
 
@@ -869,49 +842,42 @@ def noSlippingUnderLimits : Rule where
 def swapLeftAlone : Rule where
   number := 35
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev swapChange ∨ₗ atom fixesRamSwapShares)
 
 /-- Rule 36: no discarded output or status of a record-critical command. -/
 def keepCriticalStatus : Rule where
   number := 36
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev timingStatusDiscarded ∨ₗ atom discardsCriticalStatus)
 
 /-- Rule 37: no write to the harness's project memory. -/
 def noProjectMemory : Rule where
   number := 37
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev memoryWrite)
 
 /-- Rule 39: no private dealings in anything committed or published. -/
 def noPrivateDealings : Rule where
   number := 39
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never ((ev commit ∨ₗ ev publish) ∧ₗ atom describesPrivateDealings)
 
 /-- Rule 40: notes on private dealings stay in a private folder; people's work is cited normally. -/
 def privateNotesStayPrivate : Rule where
   number := 40
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ (atom privateDealingsOutsidePrivateFolder ∨ₗ atom citesPersonBeyondReference))
 
 /-- Rule 41: mutants go in a scratch copy only. -/
 def mutantsInScratchOnly : Rule where
   number := 41
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom mutatesRealSource)
 
 /-- Rule 42: private material goes to an external Lean search only with authorization. -/
 def noPrivateLeanSearch : Rule where
   number := 42
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev externalLeanSearch ∧ₗ atom queryCarriesPrivateData ⟹
     once (ev user ∧ₗ atom authorizesPrivateSearch)
 
@@ -920,7 +886,6 @@ details removed. -/
 def templateDraftsNeedWord : Rule where
   number := 43
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := ev publish ∧ₗ atom publishesContributionDraft ⟹
     once (ev user ∧ₗ atom authorizesDraftPublication) ∧ₗ ¬ₗ atom draftKeepsPrivateDetails
 
@@ -928,35 +893,30 @@ def templateDraftsNeedWord : Rule where
 def firefoxReadsOnly : Rule where
   number := 44
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := atom writesThroughBorrowedSession ⟹ once (ev user ∧ₗ atom asksForSessionWrite)
 
 /-- Rule 45: cookie values stay out of arguments and out of a pasted browser. -/
 def cookiesStayOut : Rule where
   number := 45
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (atom passesCookieValues ∨ₗ atom pastesCookiesIntoBrowser)
 
 /-- Rule 46: no login inside an automated browser. -/
 def noAutomatedLogin : Rule where
   number := 46
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (atom logsInAutomatedBrowser)
 
 /-- Rule 47: the user runs the cookie copy. -/
 def userCopiesCookies : Rule where
   number := 47
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev cookieCopy)
 
 /-- Rule 48: the cookie file is deleted once unneeded, and the reply says so. -/
 def cookieFileDeleted : Rule where
   number := 48
   keyword := .must
-  domain := .softwareEngineering
   formula := atom cookiesUnneeded ⟹
     eventually (ev cookieDeletion) ∧ₗ eventually (ev reply ∧ₗ atom reportsCookieDeletion)
 
@@ -964,7 +924,6 @@ def cookieFileDeleted : Rule where
 def forbiddenIsReported : Rule where
   number := 49
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (atom routesAroundForbidden) ∧ₗ
     (atom isForbiddenResponse ⟹ eventually (ev reply ∧ₗ atom namesDeniedPermission))
 
@@ -972,7 +931,6 @@ def forbiddenIsReported : Rule where
 def unauthorizedAsksSignIn : Rule where
   number := 50
   keyword := .must
-  domain := .softwareEngineering
   formula := atom isUnauthorizedResponse ⟹ eventually (ev reply ∧ₗ atom asksToSignInAgain)
 
 /-- Rule 51: a credential block gets the user one command, the rest goes on, and nothing routes
@@ -980,7 +938,6 @@ around it. -/
 def credentialBlockGoesToUser : Rule where
   number := 51
   keyword := .must
-  domain := .discipline
   formula := (atom credentialBlocks ⟹
       eventually (ev reply ∧ₗ atom givesUserOneCommand) ∧ₗ eventually (atom advancesOtherWork)) ∧ₗ
     never (atom routesAroundCredential)
@@ -989,14 +946,12 @@ def credentialBlockGoesToUser : Rule where
 def instructionsBind : Rule where
   number := 52
   keyword := .must
-  domain := .discipline
   formula := never (atom goesAgainstStandingInstruction)
 
 /-- Rule 54: no action on a question or a rhetorical question mid-task. -/
 def questionMidTaskIsNoGoAhead : Rule where
   number := 54
   keyword := .mustNot
-  domain := .discipline
   formula := (ev editing ∨ₗ atom changesRunningState) ∧ₗ ¬ₗ ev requestAdd ⟹
     ¬ₗ since (ev user ∧ₗ (atom onlyAsks ∨ₗ atom rhetoricalQuestion)) (ev user)
 
@@ -1004,7 +959,6 @@ def questionMidTaskIsNoGoAhead : Rule where
 def notYetHolds : Rule where
   number := 55
   keyword := .must
-  domain := .discipline
   formula := ev editing ∨ₗ atom changesRunningState ⟹
     ¬ₗ since (ev user ∧ₗ link holdsBackAnchoredCall) (ev user ∧ₗ atom liftsNotYet)
 
@@ -1012,7 +966,6 @@ def notYetHolds : Rule where
 def sideQuestionKeepsWork : Rule where
   number := 57
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom asksSideQuestion ⟹
     before (ev reply) (ev user) ∧ₗ before (atom continuesActiveRequest) (ev user)
 
@@ -1021,7 +974,6 @@ condition holds. -/
 def stopOnlyWhenEnded : Rule where
   number := 58
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom stopsOrSwitchesWork ⟹
     atom workCompleteOrBlocked ∨ₗ since (ev user ∧ₗ atom pausesOrReplacesWork) (ev user)
 
@@ -1029,7 +981,6 @@ def stopOnlyWhenEnded : Rule where
 def redirectionHolds : Rule where
   number := 59
   keyword := .mustNot
-  domain := .discipline
   formula := (atom resumesEarlierWork ⟹
       ¬ₗ since (ev user ∧ₗ atom redirectsWork) (ev user ∧ₗ atom asksToResume)) ∧ₗ
     never (atom startsUnrelatedDuringWait)
@@ -1038,7 +989,6 @@ def redirectionHolds : Rule where
 def othersRequirementsStand : Rule where
   number := 60
   keyword := .mustNot
-  domain := .discipline
   formula := never (atom departsFromSetRequirement) ∧ₗ
     (ev reply ∧ₗ atom disagreesWithSetRequirement ⟹ eventually (ev requestAdd))
 
@@ -1047,7 +997,6 @@ request. -/
 def expansionConfirmed : Rule where
   number := 61
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom expandsBeyondAsk ⟹ once (ev user ∧ₗ link confirmsExpansion)) ∧ₗ
     (ev user ∧ₗ atom asksForNarrowerDiff ⟹ eventually (ev editing ∧ₗ atom restoresNarrowerDiff))
 
@@ -1055,35 +1004,30 @@ def expansionConfirmed : Rule where
 def stayInScope : Rule where
   number := 62
   keyword := .mustNot
-  domain := .discipline
   formula := never (atom unrequestedWork)
 
 /-- Rule 63: existing behaviour goes only with the user's agreement. -/
 def behaviourRemovalAgreed : Rule where
   number := 63
   keyword := .mustNot
-  domain := .discipline
   formula := ev editing ∧ₗ atom removesBehaviour ⟹ once (ev user ∧ₗ link agreesToRemoval)
 
 /-- Rule 64: verification keeps the user's explicit requirements. -/
 def verificationKeepsRequirements : Rule where
   number := 64
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom dropsUserRequirementFromVerification)
 
 /-- Rule 65: an agreed proposal is carried out in the turn. -/
 def agreedProposalIsDone : Rule where
   number := 65
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom agreesWithProposal ⟹ before (link carriesOutProposal) (ev user)
 
 /-- Rule 66: no waiting for a decision while the goal is open; the default is followed. -/
 def noWaitingWhileGoalOpen : Rule where
   number := 66
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom waitsForUserDecision ∧ₗ atom goalOpen) ∧ₗ
     (ev reply ∧ₗ atom raisesUserDecision ∧ₗ atom goalOpen ⟹ eventually (atom followsRecommendedDefault))
 
@@ -1091,14 +1035,12 @@ def noWaitingWhileGoalOpen : Rule where
 def stopConditionFirst : Rule where
   number := 67
   keyword := .must
-  domain := .discipline
   formula := atom startsOpenEndedWork ⟹ once (atom statesStopCondition)
 
 /-- Rule 68: autonomous work stops only on the user's word or the stated condition. -/
 def autonomousWorkContinues : Rule where
   number := 68
   keyword := .mustNot
-  domain := .discipline
   formula := ev reply ∧ₗ atom stopsOrSwitchesWork ∧ₗ atom autonomousWork ⟹
     atom workCompleteOrBlocked ∨ₗ since (ev user ∧ₗ atom pausesOrReplacesWork) (ev user)
 
@@ -1107,7 +1049,6 @@ source, and another mechanism is built after it. -/
 def hardStepsStayOurs : Rule where
   number := 69
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom handsChoiceBack) ∧ₗ
     (ev reply ∧ₗ atom callsStepImpossible ⟹ atom namesMechanismsTried ∧ₗ once (link settlesAtSource) ∧ₗ
       eventually (link buildsAnotherMechanism))
@@ -1116,7 +1057,6 @@ def hardStepsStayOurs : Rule where
 def pivotOnOwnProblem : Rule where
   number := 70
   keyword := .must
-  domain := .discipline
   formula := (atom taskShowsOwnProblem ⟹ eventually (atom removesFriction)) ∧ₗ
     never (ev reply ∧ₗ atom handsChoiceBack ∧ₗ once (atom taskShowsOwnProblem))
 
@@ -1124,21 +1064,18 @@ def pivotOnOwnProblem : Rule where
 def oneStateChangePerCommand : Rule where
   number := 72
   keyword := .must
-  domain := .discipline
   formula := never (ev chainedStateChange)
 
 /-- Rule 73: a state-changing command names its target literally. -/
 def literalTargets : Rule where
   number := 73
   keyword := .must
-  domain := .discipline
   formula := never (ev hiddenTarget)
 
 /-- Rule 74: every part of a multi-part request is recorded before any part is acted on. -/
 def recordRequestFirst : Rule where
   number := 74
   keyword := .must
-  domain := .discipline
   formula := atom actsOnMultipartRequest ⟹ once (ev editing ∧ₗ link recordsAllParts)
 
 /-- Rule 75: implementation starts after the stability check and its quoted output, unless the
@@ -1146,7 +1083,6 @@ user overrides it knowingly. -/
 def stableTheoryFirst : Rule where
   number := 75
   keyword := .mustNot
-  domain := .tasks
   formula := ev editing ∧ₗ atom implementsTask ⟹
     (once (ev stableCheck) ∧ₗ once (ev reply ∧ₗ atom quotesStableOutput)) ∨ₗ
       once (ev user ∧ₗ atom overridesStabilityKnowingly)
@@ -1155,42 +1091,36 @@ def stableTheoryFirst : Rule where
 def plainRequestNoOverride : Rule where
   number := 76
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom restsOnPlainImplementRequest)
 
 /-- Rule 77: a known regression risk ships only on the user's answer. -/
 def noKnownRiskShipped : Rule where
   number := 77
   keyword := .mustNot
-  domain := .tasks
   formula := ev publish ∧ₗ atom shipsKnownRisk ⟹ once (ev user ∧ₗ link acceptsRisk)
 
 /-- Rule 78: a workaround is called one. -/
 def workaroundNamed : Rule where
   number := 78
   keyword := .must
-  domain := .tasks
   formula := never (atom unlabeledWorkaround)
 
 /-- Rule 79: the search for a cause is given up only on the user's word. -/
 def causeSearchStays : Rule where
   number := 79
   keyword := .mustNot
-  domain := .tasks
   formula := ev reply ∧ₗ atom abandonsCauseSearch ⟹ once (ev user ∧ₗ atom allowsGivingUpCause)
 
 /-- Rule 80: the goal behind a signal is served. -/
 def serveTheGoal : Rule where
   number := 80
   keyword := .must
-  domain := .discipline
   formula := never (atom servesSignalOverGoal)
 
 /-- Rule 81: what went wrong has its mechanism named and changed. -/
 def changeTheMechanism : Rule where
   number := 81
   keyword := .must
-  domain := .discipline
   formula := atom somethingWentWrong ⟹
     eventually (ev reply ∧ₗ link namesFaultMechanism) ∧ₗ eventually (ev editing ∧ₗ link changesFaultMechanism)
 
@@ -1198,35 +1128,30 @@ def changeTheMechanism : Rule where
 def noSymptomFix : Rule where
   number := 82
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom symptomOnlyFix)
 
 /-- Rule 83: a fix is preceded by the cause it removes. -/
 def causeBeforeFix : Rule where
   number := 83
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom isFix ⟹ once (ev reply ∧ₗ link statesRemovedCause)
 
 /-- Rule 84: a refusal is acted on as evidence about its goal. -/
 def signalIsEvidence : Rule where
   number := 84
   keyword := .must
-  domain := .discipline
   formula := ev hookRefusal ⟹ eventually (link actsOnSignalsGoal)
 
 /-- Rule 85: no silencing a signal. -/
 def noSilencing : Rule where
   number := 85
   keyword := .mustNot
-  domain := .discipline
   formula := never (atom silencesSignal)
 
 /-- Rule 86: after a rejected fix, one meeting both constraints comes before the status quo. -/
 def fixMeetingBoth : Rule where
   number := 86
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom offersStatusQuoOrBinary ∧ₗ once (ev user ∧ₗ atom rejectsFix) ⟹
     since (ev reply ∧ₗ atom proposesFixMeetingBoth) (ev user ∧ₗ atom rejectsFix)
 
@@ -1235,7 +1160,6 @@ call, and the gate is fixed when the property holds. -/
 def ownGateQuestioned : Rule where
   number := 87
   keyword := .must
-  domain := .discipline
   formula := (ev hookRefusal ∧ₗ atom fromOwnGate ⟹ eventually (ev reply ∧ₗ link asksWhetherPropertyChanged)) ∧ₗ
     (ev anyCall ⟹ ¬ₗ since (ev hookRefusal ∧ₗ atom fromOwnGate) (ev reply ∧ₗ atom asksOwnGatePropertyChanged)) ∧ₗ
     (ev hookRefusal ∧ₗ atom fromOwnGate ∧ₗ atom guardedPropertyHolds ⟹
@@ -1246,7 +1170,6 @@ only satisfies it. -/
 def rightRefusalChangesProcess : Rule where
   number := 88
   keyword := .must
-  domain := .discipline
   formula := (ev hookRefusal ∧ₗ atom refusalIsRight ⟹ eventually (ev editing ∧ₗ link fixesRefusedInstance) ∧ₗ
       eventually (ev editing ∧ₗ link changesWhatPrecedesWriting)) ∧ₗ
     never (ev reply ∧ₗ atom onlySatisfiesRefusal)
@@ -1255,21 +1178,18 @@ def rightRefusalChangesProcess : Rule where
 def gateOwnersWantFirst : Rule where
   number := 89
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom answersGate ⟹ once (ev reply ∧ₗ link namesGateOwnersWant)
 
 /-- Rule 90: no reshaped records and no repeated reply for a goal judge. -/
 def noJudgePleasing : Rule where
   number := 90
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom reshapesRecordsForJudge) ∧ₗ never (ev reply ∧ₗ atom repeatsRefusedReply)
 
 /-- Rule 91: a prevention finds or forces its class's cause, unless nothing can. -/
 def preventionAsFix : Rule where
   number := 91
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom addsOwnMistakePrevention ⟹ atom preventionFindsCause ∨ₗ atom nothingFindsCause
 
 /-- Rule 92: the recommendation removes the diagnosed cause and states its cost, unless a budget
@@ -1277,7 +1197,6 @@ is set. -/
 def recommendTheCure : Rule where
   number := 92
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom recommendsOption ⟹
     (atom removesNamedCause ∧ₗ atom statesOptionCost) ∨ₗ atom userSetBudget
 
@@ -1286,14 +1205,12 @@ user's priority. -/
 def noCheapRecommendation : Rule where
   number := 93
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ (atom recommendsCauseKeepingOption ∨ₗ atom weighsOwnCostAbovePriority))
 
 /-- Rule 94: asked why it failed, the agent answers the actual cause. -/
 def answerActualCause : Rule where
   number := 94
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom asksWhyFailed ⟹ eventually (ev reply ∧ₗ link answersActualCause)
 
 /-- Rule 95: a correction about how the agent works is answered first, and nothing is built
@@ -1301,7 +1218,6 @@ before. -/
 def correctionAnsweredFirst : Rule where
   number := 95
   keyword := .must
-  domain := .discipline
   formula := (ev user ∧ₗ atom correctsHowAgentWorks ⟹ eventually (ev reply ∧ₗ atom answersCorrectionInFull)) ∧ₗ
     (ev editing ⟹ ¬ₗ since (ev user ∧ₗ atom correctsHowAgentWorks) (ev reply ∧ₗ atom answersCorrectionInFull))
 
@@ -1310,7 +1226,6 @@ first edit after it is the fix. -/
 def fixOnPushback : Rule where
   number := 96
   keyword := .must
-  domain := .discipline
   formula := (ev user ∧ₗ atom sharpPushback ⟹ eventually (ev editing)) ∧ₗ
     (ev editing ∧ₗ since (ev user ∧ₗ atom sharpPushback) (ev editing) ⟹ atom fixesLatestPushback)
 
@@ -1318,42 +1233,36 @@ def fixOnPushback : Rule where
 def appendOnlyRecord : Rule where
   number := 98
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom rewritesEarlierEntry)
 
 /-- Rule 99: no unfounded probability for research prospects. -/
 def noUnfoundedProbability : Rule where
   number := 99
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom unfoundedProbability)
 
 /-- Rule 100: no belief as evidence; the unsupported is labelled. -/
 def evidenceNotBelief : Rule where
   number := 100
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom treatsBeliefAsEvidence ∨ₗ atom leavesUnsupportedUnlabeled)
 
 /-- Rule 101: nothing rests on an untested hypothesis. -/
 def noUntestedBasis : Rule where
   number := 101
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom restsOnUntestedHypothesis)
 
 /-- Rule 102: result states kept apart. -/
 def resultStatesApart : Rule where
   number := 102
   keyword := .must
-  domain := .mathematics
   formula := never (atom conflatesResultStates)
 
 /-- Rule 103: only the verified is stated, and what a run shows only after its check. -/
 def onlyVerified : Rule where
   number := 103
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom statesUnverified) ∧ₗ
     (ev reply ∧ₗ atom statesWhatRunShows ⟹ once (link backsStatedFinding))
 
@@ -1361,21 +1270,18 @@ def onlyVerified : Rule where
 def bareExamples : Rule where
   number := 104
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom exampleWithUncheckedDetail)
 
 /-- Rule 105: no fact written without a checked row or run. -/
 def factsHaveRows : Rule where
   number := 105
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom writesUnbackedFact)
 
 /-- Rule 106: sentences no wider than their evidence, quantified facts with their domain. -/
 def narrowToEvidence : Rule where
   number := 106
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ (atom sentenceWiderThanEvidence ∨ₗ atom quantifiedWithoutDomain))
 
 /-- Rule 107: a claim about several things follows a read of every hit, or names only those
@@ -1383,21 +1289,18 @@ checked. -/
 def readEveryHit : Rule where
   number := 107
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom claimsAboutSeveral ⟹ once (link readsEveryHit) ∨ₗ atom namesOnlyCheckedOnes
 
 /-- Rule 108: a failure's cause is stated after its check. -/
 def causeChecked : Rule where
   number := 108
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom attributesFailureCause ⟹ once (link checksAttributedCause)
 
 /-- Rule 109: no overclaim left standing; the unsettled is said. -/
 def noStandingOverclaim : Rule where
   number := 109
   keyword := .mustNot
-  domain := .discipline
   formula := (atom overclaimStanding ⟹ eventually (ev reply ∧ₗ link correctsOverclaim)) ∧ₗ
     never (ev reply ∧ₗ atom hidesUnsettled)
 
@@ -1405,77 +1308,66 @@ def noStandingOverclaim : Rule where
 def outputTerms : Rule where
   number := 111
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom resultNotInOutputTerms)
 
 /-- Rule 112: no verdict or source the output doesn't print. -/
 def noUnprintedVerdict : Rule where
   number := 112
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ (atom verdictNotPrinted ∨ₗ atom sourceNotNamed))
 
 /-- Rule 113: a count of passing tests comes with its run's time. -/
 def countWithTime : Rule where
   number := 113
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom passCountWithoutTime)
 
 /-- Rule 114: no fact on stale output or a compaction summary. -/
 def noStaleFacts : Rule where
   number := 114
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ (atom restsOnStaleOutput ∨ₗ atom citesCompactionSummary))
 
 /-- Rule 115: a correction runs the skipped check, never a reread. -/
 def correctByRunning : Rule where
   number := 115
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom correctsStatement ⟹ once (¬ₗ ev reading ∧ₗ link runsSkippedCheck)
 
 /-- Rule 116: the user's report of an action is the record. -/
 def userWordIsRecord : Rule where
   number := 116
   keyword := .must
-  domain := .discipline
   formula := never (atom doubtsUserReport)
 
 /-- Rule 117: an absence is settled at its source. -/
 def absenceAtSource : Rule where
   number := 117
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom claimsAbsence ⟹ once (link settlesAtSource)
 
 /-- Rule 118: no task done with a mock-only path unlisted. -/
 def mocksAreNotDone : Rule where
   number := 118
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom declaresTaskDone ∧ₗ atom leavesMockOnlyPathUnlisted)
 
 /-- Rule 119: nothing correct condemned; the unchecked said. -/
 def fairVerdicts : Rule where
   number := 119
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ (atom condemnsCorrect ∨ₗ atom omitsUnchecked))
 
 /-- Rule 120: others' findings as theirs; a draft in the user's name true of the user. -/
 def creditAndTruth : Rule where
   number := 120
   keyword := .must
-  domain := .discipline
   formula := never (atom misattributesFinding ∨ₗ atom untrueOfUserInDraft)
 
 /-- Rule 121: nothing attributed to or vouched by the user that they haven't reported or done. -/
 def userClaimsSupported : Rule where
   number := 121
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom attributesUnreportedToUser ∨ₗ atom userVouchesUnchecked ∨ₗ
     atom unsupportedContribution)
 
@@ -1483,21 +1375,18 @@ def userClaimsSupported : Rule where
 def attributeAiWork : Rule where
   number := 122
   keyword := .must
-  domain := .mathematics
   formula := never (atom misattributesAiWork)
 
 /-- Rule 123: no unestablished novelty. -/
 def noUnestablishedNovelty : Rule where
   number := 123
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom unestablishedNovelty)
 
 /-- Rule 124: an argument called correct is verified line by line, the unread parts named. -/
 def verifyBeforeAffirming : Rule where
   number := 124
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom affirmsArgumentCorrect ⟹
     once (link verifiesArgumentLines) ∧ₗ atom namesUnreadDependencies
 
@@ -1505,77 +1394,66 @@ def verifyBeforeAffirming : Rule where
 def unconfirmedNamed : Rule where
   number := 125
   keyword := .must
-  domain := .mathematics
   formula := never (atom unconfirmedAsConfirmed ∨ₗ atom proposalAsPlan)
 
 /-- Rule 126: no quiet change to a proof's statement or completeness. -/
 def noProofDistortion : Rule where
   number := 126
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom distortsProof)
 
 /-- Rule 127: an honest status, the gap identified. -/
 def honestStatus : Rule where
   number := 127
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom hidesArgumentGap)
 
 /-- Rule 128: an unresolved defect is no repaired proof. -/
 def defectReported : Rule where
   number := 128
   keyword := .must
-  domain := .mathematics
   formula := never (atom claimsRepairWithDefectOpen)
 
 /-- Rule 129: provisional results labelled. -/
 def labelProvisional : Rule where
   number := 129
   keyword := .must
-  domain := .mathematics
   formula := never (atom unlabeledProvisionalResult)
 
 /-- Rule 130: no invented anecdotes for the author. -/
 def noInventedAnecdotes : Rule where
   number := 130
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom inventsAuthorAnecdote)
 
 /-- Rule 131: no invented necessity for a hypothesis. -/
 def noInventedNecessity : Rule where
   number := 131
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom inventsHypothesisNecessity)
 
 /-- Rule 132: finite checks reported as such. -/
 def finiteChecksAsSuch : Rule where
   number := 132
   keyword := .must
-  domain := .mathematics
   formula := never (atom finiteCheckAsUniversal)
 
 /-- Rule 133: no verification claim without its support. -/
 def supportedVerification : Rule where
   number := 133
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom unsupportedVerificationClaim)
 
 /-- Rule 134: no MR that doesn't exist, no dependency without its link. -/
 def resolvableReferences : Rule where
   number := 134
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (atom mentionsNonexistentMr ∨ₗ atom dependencyWithoutLink)
 
 /-- Rule 135: the exact failure reported, and a target change flagged. -/
 def exactFailure : Rule where
   number := 135
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom reportsOtherThanExactFailure) ∧ₗ
     (ev editing ∧ₗ atom changesTestTarget ⟹ eventually (ev reply ∧ₗ link flagsTargetChange))
 
@@ -1583,7 +1461,6 @@ def exactFailure : Rule where
 def checkDelegates : Rule where
   number := 136
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reliesOnDelegateResult ⟹
     once (link readsDelegateDiff) ∧ₗ once (link rerunsDelegateChecks)
 
@@ -1591,7 +1468,6 @@ def checkDelegates : Rule where
 def noUnclearedPublication : Rule where
   number := 137
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never ((ev commit ∨ₗ ev publish) ∧ₗ atom carriesUnclearedSource) ∧ₗ
     never (ev publish ∧ₗ atom publishesPrivateMaterial)
 
@@ -1599,21 +1475,18 @@ def noUnclearedPublication : Rule where
 def followLicense : Rule where
   number := 138
   keyword := .must
-  domain := .softwareEngineering
   formula := never (atom breaksLicensing)
 
 /-- Rule 139: no session IDs, logs or the like committed; no launcher binding replaced. -/
 def noForbiddenCommits : Rule where
   number := 139
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev commit ∧ₗ atom commitsForbiddenArtifact) ∧ₗ never (atom replacesLauncherBinding)
 
 /-- Rule 140: no research in private agent memory. -/
 def noResearchInMemory : Rule where
   number := 140
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom researchInPrivateMemory)
 
 def rules : List Rule :=

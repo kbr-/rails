@@ -693,14 +693,12 @@ def briefNamesSuspectedDefect : Atom := ⟨"briefNamesSuspectedDefect",
 def noReplaceHelper : Rule where
   number := 141
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom writesReplaceHelper)
 
 /-- Rule 142: commit blockers reported honestly; no unrelated user edits committed. -/
 def honestCommits : Rule where
   number := 142
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev commit ∧ₗ atom commitsUnrelatedUserEdits) ∧ₗ
     never (ev reply ∧ₗ atom misreportsCommitBlocker)
 
@@ -708,7 +706,6 @@ def honestCommits : Rule where
 def inspectEvidenceBeforeCommit : Rule where
   number := 143
   keyword := .must
-  domain := .softwareEngineering
   formula := ev commit ∧ₗ atom commitsArchivedEvidence ⟹
     once (ev toolCall ∧ₗ link inspectsEvidenceForSecrets)
 
@@ -716,7 +713,6 @@ def inspectEvidenceBeforeCommit : Rule where
 def correspondenceStaysPrivate : Rule where
   number := 144
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom writesCorrespondenceOutsidePrivate) ∧ₗ
     never (ev commit ∧ₗ atom commitsCorrespondence)
 
@@ -724,7 +720,6 @@ def correspondenceStaysPrivate : Rule where
 def ledgerOutOfDocument : Rule where
   number := 145
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom putsLedgerInDocument) ∧ₗ
     never (ev editing ∧ₗ atom writesMessageLedger ∧ₗ ¬ₗ ev privateEdit)
 
@@ -732,14 +727,12 @@ def ledgerOutOfDocument : Rule where
 def attachmentsPrivate : Rule where
   number := 146
   keyword := .must
-  domain := .tasks
   formula := never (ev toolCall ∧ₗ atom savesAttachmentOutsidePrivate)
 
 /-- Rule 147: task scaffolding and tangential write-ups stay out of the target repository. -/
 def scaffoldingOutOfTarget : Rule where
   number := 147
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom writesScaffoldingInTarget) ∧ₗ
     never (ev editing ∧ₗ atom writesBugWriteUpInTarget)
 
@@ -747,14 +740,12 @@ def scaffoldingOutOfTarget : Rule where
 def noDeploymentLiteral : Rule where
   number := 148
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom hardcodesDeploymentLiteral)
 
 /-- Rule 149: no reference its reader can't resolve, in committed content or outside artifacts. -/
 def resolvableReferences : Rule where
   number := 149
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom referencesUnresolvable) ∧ₗ
     never (ev commit ∧ₗ atom commitMessageReferencesUnresolvable)
 
@@ -762,7 +753,6 @@ def resolvableReferences : Rule where
 def notebookLocalLinks : Rule where
   number := 150
   keyword := .must
-  domain := .mathematics
   formula := never (ev notebookEdit ∧ₗ atom notebookLinkUnresolvable) ∧ₗ
     (ev notebookEdit ∧ₗ atom addsNotebookLink ⟹ eventually (ev toolCall ∧ₗ link verifiesLinkTarget))
 
@@ -770,7 +760,6 @@ def notebookLocalLinks : Rule where
 def noNamesInDocuments : Rule where
   number := 151
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom namesPeopleInSharedDocument)
 
 /-- Rule 152: a failed or empty fetch is rendered with a headless browser before any secondary
@@ -778,7 +767,6 @@ source. -/
 def renderBeforeSecondarySource : Rule where
   number := 152
   keyword := .must
-  domain := .softwareEngineering
   formula := ev toolCall ∧ₗ atom consultsSecondarySource ⟹
     ¬ₗ since (ev toolResult ∧ₗ atom fetchCameBackEmpty) (ev browserRender)
 
@@ -786,7 +774,6 @@ def renderBeforeSecondarySource : Rule where
 def unretrievableSourceRequest : Rule where
   number := 153
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom saysSourceUnretrievable ⟹
     eventually ((ev requestAdd ∨ₗ ev editing) ∧ₗ link filesSourceRequest)
 
@@ -794,28 +781,24 @@ def unretrievableSourceRequest : Rule where
 def preciseTechnicalState : Rule where
   number := 155
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom misstatesTechnicalState)
 
 /-- Rule 156: a proposal contradicting what is established is flagged. -/
 def flagContradiction : Rule where
   number := 156
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom proposesContradictingEstablished ⟹ atom flagsContradiction
 
 /-- Rule 157: an empirical test over a plausible claim. -/
 def testOverClaim : Rule where
   number := 157
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom assertsTestableClaimUntested)
 
 /-- Rule 158: a decision's factual claims are checked, and how is stated. -/
 def checkDecisionClaims : Rule where
   number := 158
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom decisionRestsOnClaim ⟹
     once (ev toolResult ∧ₗ link checksDecisionClaim) ∧ₗ atom statesHowChecked
 
@@ -823,21 +806,18 @@ def checkDecisionClaims : Rule where
 def delegateReportIsLead : Rule where
   number := 159
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom resolvesFromDelegate ⟹ once (ev toolCall ∧ₗ link readsCitedSource)
 
 /-- Rule 160: an unverified claim names every route tried. -/
 def unverifiedNamesRoutes : Rule where
   number := 160
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom leavesClaimUnverified ⟹ atom namesRoutesTried
 
 /-- Rule 161: cheap checks in the pass, expensive ones to the user as a request. -/
 def cheapChecksInPass : Rule where
   number := 161
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom defersCheapCheck) ∧ₗ
     (ev editing ∧ₗ atom leavesExpensiveCheck ⟹ eventually (ev requestAdd))
 
@@ -845,7 +825,6 @@ def cheapChecksInPass : Rule where
 def realCheckBeforeDone : Rule where
   number := 162
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∧ₗ atom callsStepDone ⟹ once (ev toolResult ∧ₗ link checksThatStep)) ∧ₗ
     never (ev reply ∧ₗ atom hidesFailedCheck)
 
@@ -853,7 +832,6 @@ def realCheckBeforeDone : Rule where
 def distinguishingTests : Rule where
   number := 163
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom testNotDistinguishing) ∧ₗ
     never (ev editing ∧ₗ atom wiringTestLacksBothCases)
 
@@ -861,7 +839,6 @@ def distinguishingTests : Rule where
 def productionPath : Rule where
   number := 164
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom claimsEnforcement ⟹ once (ev toolResult ∧ₗ link exercisesProductionPath)) ∧ₗ
     never (ev reply ∧ₗ atom citesConfigAsEnforcement)
 
@@ -869,14 +846,12 @@ def productionPath : Rule where
 def noOwnMockContract : Rule where
   number := 165
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom provesContractWithOwnMock)
 
 /-- Rule 166: external systems tested against, a missing test or service a question of its own. -/
 def testExternalSystems : Rule where
   number := 166
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom testsAroundExternalSystem) ∧ₗ
     (ev planEdit ∧ₗ atom findsMissingSystemTest ⟹ atom recordsAsOwnQuestion)
 
@@ -884,28 +859,24 @@ def testExternalSystems : Rule where
 def verifiedFakes : Rule where
   number := 167
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom addsFakeOfLibrary ⟹ eventually (ev testRun ∧ₗ link runsFakeContractTest)
 
 /-- Rule 168: verification goes into committed tests. -/
 def verificationCommitted : Rule where
   number := 168
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsVerifiedBehaviour ⟹ eventually (ev commit ∧ₗ link commitsTestOfIt)
 
 /-- Rule 169: nothing checkable listed as unverified. -/
 def noCheckableUnverified : Rule where
   number := 169
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom listsCheckableAsUnverified)
 
 /-- Rule 171: absence settled by a search in the system's terms and the variants' code. -/
 def settleAbsence : Rule where
   number := 171
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom claimsAbsent ⟹
     once (ev toolCall ∧ₗ link searchesOwnTerms) ∧ₗ once (ev reading ∧ₗ link readsVariantCode)
 
@@ -913,7 +884,6 @@ def settleAbsence : Rule where
 def checkVersionInUse : Rule where
   number := 172
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom claimsVersionBehaviour ⟹ once (ev toolCall ∧ₗ link checksVersionInUse)) ∧ₗ
     never (ev reply ∧ₗ atom settlesOnGuessedNameMiss)
 
@@ -921,28 +891,24 @@ def checkVersionInUse : Rule where
 def seekContradiction : Rule where
   number := 173
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom findFitsCase ⟹ eventually (ev toolCall ∧ₗ link seeksContradiction)
 
 /-- Rule 174: an unexplained anomaly is investigated. -/
 def investigateAnomaly : Rule where
   number := 174
   keyword := .must
-  domain := .discipline
   formula := ev toolResult ∧ₗ atom showsAnomaly ⟹ eventually (ev toolCall ∧ₗ link investigatesAnomaly)
 
 /-- Rule 175: a defect found is swept for its whole class. -/
 def sweepDefectClass : Rule where
   number := 175
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsDefectFound ⟹ eventually (ev toolCall ∧ₗ link sweepsDefectClass)
 
 /-- Rule 176: a defect check targets the class and runs over a real corpus. -/
 def checkTargetsDefectClass : Rule where
   number := 176
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom writesDefectCheck ⟹
     atom checkTargetsClass ∧ₗ eventually (ev toolResult ∧ₗ link checkRunOverCorpus)
 
@@ -950,14 +916,12 @@ def checkTargetsDefectClass : Rule where
 def measureCheckClaim : Rule where
   number := 177
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom claimsCheckCapability ⟹ once (ev toolResult ∧ₗ link measuresCheckCapability)
 
 /-- Rule 178: what must hold is said before building what achieves it. -/
 def statementBeforeConstruction : Rule where
   number := 178
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom buildsConstruction ⟹
     once ((ev reply ∨ₗ ev editing) ∧ₗ link statesWhatMustHold)
 
@@ -965,14 +929,12 @@ def statementBeforeConstruction : Rule where
 def wholeSpace : Rule where
   number := 179
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom generalizesFromInstance)
 
 /-- Rule 180: the statement finds what was undecided; a counterexample corrects. -/
 def counterexampleCorrects : Rule where
   number := 180
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom statementLeavesUndecidedUnlisted) ∧ₗ
     (ev toolResult ∧ₗ atom showsCounterexample ⟹ eventually (ev editing ∧ₗ link correctsThingOrStatement))
 
@@ -980,28 +942,24 @@ def counterexampleCorrects : Rule where
 def temporalSpecification : Rule where
   number := 181
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom specifiesTemporalSystem ⟹ atom statesStartStepSafetyLiveness
 
 /-- Rule 182: no hidden state. -/
 def noHiddenState : Rule where
   number := 182
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom addsHiddenState)
 
 /-- Rule 183: a boundary states what each side establishes, guarantees and preserves. -/
 def boundaryContract : Rule where
   number := 183
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom definesBoundary ⟹ atom statesBoundaryContract
 
 /-- Rule 184: a replacement assumes no more and guarantees no less; a breach names its side. -/
 def substitutableReplacement : Rule where
   number := 184
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom replacementWeakensContract) ∧ₗ
     (ev toolResult ∧ₗ atom showsBoundaryBreach ⟹ eventually (ev reply ∧ₗ link reportsBreachSide))
 
@@ -1009,14 +967,12 @@ def substitutableReplacement : Rule where
 def statedCompleteness : Rule where
   number := 185
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom omitsCompleteness)
 
 /-- Rule 186: the cheapest wrong thing is found and excluded before relying on anything. -/
 def cheapestWrongFirst : Rule where
   number := 186
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reliesOnStatement ⟹
     once ((ev reply ∨ₗ ev editing) ∧ₗ link namesCheapestWrong)
 
@@ -1024,14 +980,12 @@ def cheapestWrongFirst : Rule where
 def casesFromDefinition : Rule where
   number := 187
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom casesNotFromDefinition)
 
 /-- Rule 188: a generator shown to reach every case; the whole outcome observed. -/
 def generatorReachesAll : Rule where
   number := 188
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom writesPredictableConstruction ⟹ eventually (ev toolResult ∧ₗ link showsGeneratorReach)) ∧ₗ
     never (ev editing ∧ₗ atom observesPartOutcome)
 
@@ -1039,28 +993,24 @@ def generatorReachesAll : Rule where
 def smallestCounterexample : Rule where
   number := 189
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsFailure ⟹ atom givesSmallestCounterexample
 
 /-- Rule 190: the instrument held to the same checks. -/
 def checkTheInstrument : Rule where
   number := 190
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom buildsInstrument ⟹ eventually (ev toolResult ∧ₗ link checksInstrument)
 
 /-- Rule 191: every tool gets the discipline. -/
 def disciplineForEveryTool : Rule where
   number := 191
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom exemptsSmallTool)
 
 /-- Rule 192: a waiting script bounds its waits and runs on a control first. -/
 def boundedWaitsControlFirst : Rule where
   number := 192
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom unboundedWait) ∧ₗ
     (ev toolCall ∧ₗ atom runsWaitingScriptOnTarget ⟹ once (ev toolResult ∧ₗ link controlRunOfScript))
 
@@ -1068,14 +1018,12 @@ def boundedWaitsControlFirst : Rule where
 def bugBecomesTheorem : Rule where
   number := 193
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsDefectFound ⟹ eventually (ev editing ∧ₗ link writesClassTheorem)
 
 /-- Rule 194: a closable gap is closed in its turn; a report lists only gaps with a reason. -/
 def closeGapsNow : Rule where
   number := 194
   keyword := .must
-  domain := .discipline
   formula := (atom findsClosableGap ⟹ before (link closesFoundGap) (ev user)) ∧ₗ
     never (ev reply ∧ₗ atom listsGapWithoutReason)
 
@@ -1083,7 +1031,6 @@ def closeGapsNow : Rule where
 def judgeTestByRejections : Rule where
   number := 195
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom judgesTestOtherwise)
 
 /-- Rule 196: expected outcomes from an independent account; properties drafted before the body is
@@ -1091,7 +1038,6 @@ read; a mined law justified from the domain. -/
 def independentExpectations : Rule where
   number := 196
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom expectationFromCode) ∧ₗ
     (ev editing ∧ₗ atom writesProperty ⟹ ¬ₗ once (ev reading ∧ₗ link readsBodyUnderTest)) ∧ₗ
     never (ev editing ∧ₗ atom minedLawUnjustified)
@@ -1100,7 +1046,6 @@ def independentExpectations : Rule where
 def positiveCaseForNegativeCheck : Rule where
   number := 197
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom negativeCheckWithoutPositive) ∧ₗ
     (ev reply ∧ₗ atom explainsAwayAllNegative ⟹ once (ev toolCall ∧ₗ link inspectsCompared))
 
@@ -1108,21 +1053,18 @@ def positiveCaseForNegativeCheck : Rule where
 def unmutatedControlFirst : Rule where
   number := 198
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsMutantResults ⟹ once (ev toolResult ∧ₗ link unmutatedControlPassed)
 
 /-- Rule 199: a step's new tests are mutation-checked. -/
 def mutationCheckStepTests : Rule where
   number := 199
   keyword := .must
-  domain := .tasks
   formula := ev testEdit ∧ₗ atom addsStepTests ⟹ eventually (ev mutationRun)
 
 /-- Rule 200: mutation testing for new decision logic of uncertain test adequacy. -/
 def mutationForDecisionLogic : Rule where
   number := 200
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom addsDecisionLogic ∧ₗ atom testAdequacyUncertain ⟹
     eventually (ev mutationRun) ∨ₗ atom justified
 
@@ -1130,7 +1072,6 @@ def mutationForDecisionLogic : Rule where
 def namedKills : Rule where
   number := 201
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom countsUnshownKill) ∧ₗ
     (ev reply ∧ₗ atom reportsMutantResults ⟹ atom namesKillingTests)
 
@@ -1138,7 +1079,6 @@ def namedKills : Rule where
 def survivorIsFinding : Rule where
   number := 202
   keyword := .must
-  domain := .discipline
   formula := ev toolResult ∧ₗ atom showsSurvivingMutant ⟹
     eventually ((ev editing ∨ₗ ev reply) ∧ₗ link closesOrExplainsSurvivor)
 
@@ -1146,14 +1086,12 @@ def survivorIsFinding : Rule where
 def testFailsOnItsDefect : Rule where
   number := 203
   keyword := .must
-  domain := .discipline
   formula := ev testEdit ∧ₗ atom addsGuardTest ⟹ eventually (ev mutationRun ∧ₗ link mutatesGuardedDefect)
 
 /-- Rule 204: a branch's mutation specs run together at its tip before review, the report read. -/
 def mutationSpecsAtTip : Rule where
   number := 204
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom reviewsCode ⟹
     once (ev mutationRun ∧ₗ link runsSpecsAtTip) ∧ₗ once (ev reading ∧ₗ link readsBranchMutationSurvivors)
 
@@ -1161,14 +1099,12 @@ def mutationSpecsAtTip : Rule where
 def noTableEntryTests : Rule where
   number := 205
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom testsTableByEntries)
 
 /-- Rule 206: a property-test generator checked valid and complete. -/
 def generatorValidAndComplete : Rule where
   number := 206
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom writesPredictableConstruction ⟹ eventually (ev toolResult ∧ₗ link showsGeneratorReach)
 
 /-- Rule 207: a failure test raises the real library's error; a constructed one only where the state
@@ -1176,7 +1112,6 @@ can't be produced, built from the library's source, recorded in the plan. -/
 def realLibraryErrors : Rule where
   number := 207
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom constructsLibraryError ⟹
     atom errorStateUnproducible ∧ₗ once (ev reading ∧ₗ link readsLibraryErrorSource) ∧ₗ
       eventually (ev planEdit ∧ₗ link recordsErrorSource)
@@ -1185,14 +1120,12 @@ def realLibraryErrors : Rule where
 def injectDocumentedErrors : Rule where
   number := 208
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom writesFailureTests ⟹ atom injectsEachDocumentedError
 
 /-- Rule 209: each failure mode of the reread a test case, or why it can't apply. -/
 def failureModesTested : Rule where
   number := 209
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom addsStepTests ⟹ atom coversEachFailureMode
 
 /-- Rule 210: integration tests use the counterpart's client; the other system's deployed source is
@@ -1200,7 +1133,6 @@ read where its documentation is silent. -/
 def counterpartClient : Rule where
   number := 210
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom integrationTestWithoutCounterpartClient) ∧ₗ
     (ev reply ∧ₗ atom reliesOnOtherSystemBehaviour ⟹ once (ev toolCall ∧ₗ link readsDeployedSource))
 
@@ -1209,7 +1141,6 @@ cycle that sees the skip: before the next checkpoint, which ends the cycle. -/
 def skippedTestRunOrRequest : Rule where
   number := 211
   keyword := .must
-  domain := .tasks
   formula := (ev toolResult ∧ₗ atom showsServiceSkip ⟹
       eventually ((ev testRun ∧ₗ link runsSkippedTest) ∨ₗ ev requestAdd)) ∧ₗ
     (ev checkpoint ⟹ ¬ₗ since (ev toolResult ∧ₗ atom showsServiceSkip)
@@ -1220,7 +1151,6 @@ and the entry links the saved output. -/
 def realInputBeforeTestsCount : Rule where
   number := 212
   keyword := .must
-  domain := .tasks
   formula := ev entryAppend ∧ₗ atom countsTestsAsCheck ⟹
     once (ev toolResult ∧ₗ link realInputRun) ∧ₗ atom entryLinksSavedOutput
 
@@ -1228,21 +1158,18 @@ def realInputBeforeTestsCount : Rule where
 def readerOnWholeSet : Rule where
   number := 213
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom writesSetReader ⟹ eventually (ev toolResult ∧ₗ link runsOverWholeSet)
 
 /-- Rule 214: a procedure's tools get a test walking it before their commit. -/
 def procedureWalkTest : Rule where
   number := 214
   keyword := .must
-  domain := .tasks
   formula := ev commit ∧ₗ atom commitsProcedureTools ⟹ once (ev testRun ∧ₗ link walksProcedure)
 
 /-- Rule 215: an entry links saved output or says "No real run." with the reason. -/
 def entryLinksRun : Rule where
   number := 215
   keyword := .must
-  domain := .tasks
   formula := never (ev entryAppend ∧ₗ atom entryLacksRunOrReason)
 
 /-- Rule 216: a real-run script runs through `tools/real_run.py`, each run in a new empty
@@ -1250,7 +1177,6 @@ directory. -/
 def realRunThroughTool : Rule where
   number := 216
   keyword := .must
-  domain := .tasks
   formula := (ev toolCall ∧ₗ atom runsRealRunScript ⟹ ev realRun) ∧ₗ
     never (ev realRun ∧ₗ atom reusesRunDirectory)
 
@@ -1259,7 +1185,6 @@ beside a baseline before another. -/
 def baselineBeforeTraining : Rule where
   number := 217
   keyword := .must
-  domain := .tasks
   formula := ev toolCall ∧ₗ atom queuesTrainingRun ⟹
     once (ev toolResult ∧ₗ link measuresUntrainedBaseline) ∧ₗ
       ¬ₗ since (ev toolResult ∧ₗ atom showsNonImprovingModel)
@@ -1269,14 +1194,12 @@ def baselineBeforeTraining : Rule where
 def leanTestScripts : Rule where
   number := 218
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom writesNonLeanTestScript)
 
 /-- Rule 219: a check's mechanism is named before it runs, and a check with none is skipped. -/
 def mechanismBeforeCheck : Rule where
   number := 219
   keyword := .must
-  domain := .discipline
   formula := (ev toolCall ∧ₗ atom runsCheckOrBenchmark ⟹ once (ev reply ∧ₗ link namesCheckMechanism)) ∧ₗ
     never (ev toolCall ∧ₗ atom runsCheckOrBenchmark ∧ₗ atom checkHasNoMechanism)
 
@@ -1285,7 +1208,6 @@ independent account. -/
 def checkCheapestWrong : Rule where
   number := 220
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reliesOnCheckVerdict ⟹
     once ((ev reply ∨ₗ ev editing) ∧ₗ link namesCheapestWrong) ∧ₗ atom verdictFromIndependentAccount
 
@@ -1293,14 +1215,12 @@ def checkCheapestWrong : Rule where
 def independentCheckDiffers : Rule where
   number := 221
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom checkSharesAssumptionUnderTest)
 
 /-- Rule 222: a known-good call compared before credentials are blamed. -/
 def knownGoodBeforeCredentials : Rule where
   number := 222
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom blamesCredentials ⟹ once (ev toolResult ∧ₗ link comparesKnownGoodCall)
 
 /-- Rule 223: a check keyed on its property, named in a sentence, with the stand-in's failing test
@@ -1308,7 +1228,6 @@ written first. -/
 def keyOnProperty : Rule where
   number := 223
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom keysCheckOnStandIn) ∧ₗ
     (ev editing ∧ₗ atom writesPropertyCheck ⟹
       atom namesGuardedProperty ∧ₗ once (ev testEdit ∧ₗ link writesStandInFailingTest))
@@ -1318,7 +1237,6 @@ keeps. -/
 def reviewDigest : Rule where
   number := 224
   keyword := .must
-  domain := .discipline
   formula := (ev reviewerRun ∧ₗ atom reviewsCode ⟹ eventually (ev editing ∧ₗ link recordsReviewedDigest)) ∧ₗ
     never (ev editing ∧ₗ atom referencesUnpushedByHash)
 
@@ -1326,14 +1244,12 @@ def reviewDigest : Rule where
 def runtimeEffect : Rule where
   number := 225
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom recordsDecisionOrSetting ⟹ atom statesRuntimeEffect
 
 /-- Rule 226: verdicts keyed on exit status; `pipefail` where a pipeline's status matters. -/
 def exitStatusVerdicts : Rule where
   number := 226
   keyword := .must
-  domain := .discipline
   formula := never (ev toolCall ∧ₗ atom keysVerdictOnPrintedWord) ∧ₗ
     never (ev pipelineNoPipefail ∧ₗ atom pipelineStatusMatters)
 
@@ -1341,21 +1257,18 @@ def exitStatusVerdicts : Rule where
 def sharedScenario : Rule where
   number := 227
   keyword := .must
-  domain := .discipline
   formula := ev toolCall ∧ₗ atom computesComparison ⟹ once (ev reply ∧ₗ link statesSharedScenario)
 
 /-- Rule 228: a check refuses or reports when what it reads is gone. -/
 def missingInputReported : Rule where
   number := 228
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom checkIgnoresMissingInput)
 
 /-- Rule 229: a shared mechanism checked through every caller's entry point. -/
 def everyEntryPoint : Rule where
   number := 229
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom changesSharedMechanism ⟹
     eventually (ev toolResult ∧ₗ link checksEveryEntryPoint)
 
@@ -1363,14 +1276,12 @@ def everyEntryPoint : Rule where
 def partialCheckIsPartial : Rule where
   number := 230
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom partialCheckStandsInForRule)
 
 /-- Rule 231: slowness measured before it is blamed. -/
 def measureSlowness : Rule where
   number := 231
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom blamesSlownessOnEnvironment ⟹ once (ev toolResult ∧ₗ link measuresBlamedSlowness)
 
 /-- Rule 232: an intermittent failure forced (failing old, passing new), its forcing kept, never
@@ -1378,7 +1289,6 @@ decided by repetition. -/
 def forceIntermittent : Rule where
   number := 232
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom claimsIntermittentFixed ⟹
       once (ev toolResult ∧ₗ link forcedRunFailsOld) ∧ₗ once (ev toolResult ∧ₗ link forcedRunPassesNew)) ∧ₗ
     (ev editing ∧ₗ atom fixesIntermittent ⟹ atom keepsForcingInTest) ∧ₗ
@@ -1388,14 +1298,12 @@ def forceIntermittent : Rule where
 def fixSuspectValue : Rule where
   number := 233
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom testsMeasuredValueSuspect ⟹ atom fixesSuspectValue ∨ₗ atom justified
 
 /-- Rule 234: a suspect order traced with sleeps and forced. -/
 def forceSuspectOrder : Rule where
   number := 234
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom fixesOrderRace ⟹
     (once (ev toolResult ∧ₗ link tracedFailingOrder) ∧ₗ atom forcesOrderInTest) ∨ₗ atom justified
 
@@ -1403,7 +1311,6 @@ def forceSuspectOrder : Rule where
 def chancePreventionMeasured : Rule where
   number := 235
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom addsChanceBasedPrevention ⟹
     once (ev toolResult ∧ₗ link measuresCatchChance) ∧ₗ atom statesCatchChanceAbove80
 
@@ -1412,7 +1319,6 @@ lands. -/
 def attackPrevention : Rule where
   number := 236
   keyword := .must
-  domain := .discipline
   formula := (ev commit ∧ₗ atom commitsPrevention ⟹ once (ev reply ∧ₗ link attacksPrevention)) ∧ₗ
     never (ev commit ∧ₗ atom commitsPrevention ∧ₗ atom keepsDesignAttackLanded)
 
@@ -1420,7 +1326,6 @@ def attackPrevention : Rule where
 def existingCheckFirst : Rule where
   number := 237
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom addsPrevention ⟹
     once (ev toolResult ∧ₗ link runsExistingCheckOnMistake) ∧ₗ once (ev reply ∧ₗ link weighsMistakeCost)
 
@@ -1428,14 +1333,12 @@ def existingCheckFirst : Rule where
 def fixMissingCheck : Rule where
   number := 238
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsCheckMissedDefect ⟹ eventually (ev editing ∧ₗ link fixesMissingCheck)
 
 /-- Rule 239: a new check traps no data stored before it, and should offer a path for that data. -/
 def checkSparesStoredData : Rule where
   number := 239
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom checkTrapsExistingData) ∧ₗ
     (ev editing ∧ₗ atom addsDataCheck ⟹ atom offersExistingDataPath ∨ₗ atom justified)
 
@@ -1443,84 +1346,72 @@ def checkSparesStoredData : Rule where
 def entryFailureModes : Rule where
   number := 240
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesTheoryEntry ⟹ atom coversFailureModes
 
 /-- Rule 241: each claimed mode's fault state walked, the surviving mechanism first. -/
 def walkFaultStates : Rule where
   number := 241
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom claimsFaultMode ⟹ atom walksFaultStateSurvivorFirst
 
 /-- Rule 242: callers, hostile callers and credential holders asked about. -/
 def callersAndCredentials : Rule where
   number := 242
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesTheoryEntry ⟹ atom asksCallersAndCredentials
 
 /-- Rule 243: caller-controlled identifiers bounded. -/
 def boundCallerIdentifiers : Rule where
   number := 243
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom unboundedCallerIdentifier)
 
 /-- Rule 244: caller values the server fetches held to the caller's scope. -/
 def scopeCallerFetches : Rule where
   number := 244
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom unscopedCallerFetch)
 
 /-- Rule 245: caller values escaped in log lines. -/
 def escapeCallerLogs : Rule where
   number := 245
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom unescapedCallerLog)
 
 /-- Rule 246: a route newly reached by a confined credential gets the checks on every body field. -/
 def confinedRouteFields : Rule where
   number := 246
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom opensRouteToConfinedCredential ⟹ atom checksEveryBodyField
 
 /-- Rule 247: a signal's reader and its coverage of failures established. -/
 def signalReader : Rule where
   number := 247
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom addsSignal ⟹ atom statesSignalReaderAndCoverage
 
 /-- Rule 248: each permission pinned. -/
 def pinPermissions : Rule where
   number := 248
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom unpinnedPermission)
 
 /-- Rule 249: a set's members and readers listed when it changes. -/
 def setReadersListed : Rule where
   number := 249
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom changesSetMembership ⟹ atom listsSetReaders
 
 /-- Rule 250: a per-call part's cost stated and moved off the path where it can be. -/
 def perCallCost : Rule where
   number := 250
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom addsPerCallPart ⟹ atom statesPerCallCost
 
 /-- Rule 251: a repeated job reads only changes, with a timed no-change run and a test of it. -/
 def incrementalJob : Rule where
   number := 251
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom addsRepeatedJob ⟹
     atom readsOnlyChanges ∧ₗ eventually (ev toolResult ∧ₗ link timesNoChangeRun) ∧ₗ
       eventually (ev testRun ∧ₗ link testsSecondRunReadsNothing)
@@ -1530,7 +1421,6 @@ before its branches are offered. -/
 def renderForCluster : Rule where
   number := 252
   keyword := .must
-  domain := .tasks
   formula := (ev planEdit ∧ₗ atom settlesClusterPlan ⟹ once (ev toolResult ∧ₗ link rendersForCluster)) ∧ₗ
     (ev reply ∧ₗ atom offersClusterBranch ⟹ once (ev toolResult ∧ₗ link rendersForCluster))
 
@@ -1538,21 +1428,18 @@ def renderForCluster : Rule where
 def deploymentBranchInPath : Rule where
   number := 253
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom writesClusterChangePath ⟹ atom pathHasDeploymentBranch
 
 /-- Rule 254: existing instances listed, the simplest path taken or the difference said. -/
 def existingInstances : Rule where
   number := 254
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom decidesIntegrationPath ⟹ atom listsExistingInstances
 
 /-- Rule 255: a new artifact measured against all of its kind, the numbers given in the entry. -/
 def measureAgainstKind : Rule where
   number := 255
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom addsArtifactOfExistingKind ⟹
     once (ev toolResult ∧ₗ link measuresAgainstExisting) ∧ₗ
       eventually (ev entryAppend ∧ₗ link entryGivesArtifactNumbers)
@@ -1562,7 +1449,6 @@ listing named. -/
 def wholeSetChecked : Rule where
   number := 256
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∨ₗ ev editing) ∧ₗ atom makesWholeSetClaim ⟹
     once (ev toolResult ∧ₗ link listsSetByDefinition) ∧ₗ atom namesSetListing
 
@@ -1570,7 +1456,6 @@ def wholeSetChecked : Rule where
 def acceptedWrongCase : Rule where
   number := 257
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom acceptsWrongCase ⟹
     atom marksUsersTradeOff ∧ₗ eventually (ev editing ∧ₗ link statesLimitInChange)
 
@@ -1578,14 +1463,12 @@ def acceptedWrongCase : Rule where
 def realisticAcceptance : Rule where
   number := 258
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom namesReliedProperty ⟹ atom givesRealisticAcceptance
 
 /-- Rule 259: each design number's provenance stated. -/
 def designNumberProvenance : Rule where
   number := 259
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom setsDesignNumber ⟹ atom statesNumberProvenance
 
 /-- Rule 260: a calibrated value accepted by a run elsewhere, or the run said impossible; a
@@ -1593,7 +1476,6 @@ definition's value says so. -/
 def calibratedValues : Rule where
   number := 260
   keyword := .must
-  domain := .tasks
   formula := (ev planEdit ∧ₗ atom acceptsCalibratedValue ⟹
       once (ev toolResult ∧ₗ link runInUncalibratedEnvironment) ∨ₗ atom statesRunImpossible) ∧ₗ
     (ev editing ∧ₗ atom setsDefinitionValue ⟹ atom saysDefinitionSet)
@@ -1602,7 +1484,6 @@ def calibratedValues : Rule where
 def rejectByCheck : Rule where
   number := 261
   keyword := .must
-  domain := .tasks
   formula := (ev planEdit ∧ₗ atom rejectsAlternative ⟹ once (ev toolResult ∧ₗ link checksRejectedAlternative)) ∧ₗ
     never (ev planEdit ∧ₗ atom rejectsByOpenQuestion)
 
@@ -1610,63 +1491,54 @@ def rejectByCheck : Rule where
 def readDefiningDocument : Rule where
   number := 262
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom reliesOnLibraryBehaviour ⟹ once (ev toolCall ∧ₗ link readsDefiningDocument)
 
 /-- Rule 263: a copied precedent counts once seen running. -/
 def precedentSeenRunning : Rule where
   number := 263
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom citesCopiedPrecedent ⟹ once (ev toolResult ∧ₗ link seesPrecedentRunning)
 
 /-- Rule 264: an adopted contract listed member by member, promising the least its use needs. -/
 def contractMembers : Rule where
   number := 264
   keyword := .must
-  domain := .tasks
   formula := ev planEdit ∧ₗ atom adoptsContract ⟹ atom listsContractMembers
 
 /-- Rule 265: each acceptance case has an input and outcome a named wrong implementation changes. -/
 def acceptanceFails : Rule where
   number := 265
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom acceptanceLacksWrongImpl)
 
 /-- Rule 266: no acceptance clause restating the deliverable or a rule. -/
 def acceptanceShowsCase : Rule where
   number := 266
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom acceptanceRestatesRule)
 
 /-- Rule 267: each member of a rule over several gets its case. -/
 def caseForEachMember : Rule where
   number := 267
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom memberWithoutCase)
 
 /-- Rule 268: refusals paired with passes, bound ends and forms tried, scope edges passing. -/
 def pairedCases : Rule where
   number := 268
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom refusalCaseUnpaired)
 
 /-- Rule 269: an "every" clause placed where its members exist. -/
 def everyClausePlaced : Rule where
   number := 269
   keyword := .must
-  domain := .tasks
   formula := never (ev planEdit ∧ₗ atom everyClauseMisplaced)
 
 /-- Rule 270: a referring clause's passage cased part by part before any review. -/
 def referredPartsCased : Rule where
   number := 270
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom reviewsPlan ⟹
     ¬ₗ since (ev planEdit ∧ₗ atom writesReferringClause) (ev planEdit ∧ₗ atom casesReferredParts)
 
@@ -1674,28 +1546,24 @@ def referredPartsCased : Rule where
 def findingNeedsScenario : Rule where
   number := 271
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom countsFindingWithoutScenario)
 
 /-- Rule 272: no looping on notes; matters of taste left out. -/
 def noLoopOnNotes : Rule where
   number := 272
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reviewerRun ∧ₗ atom loopsOnNotes) ∧ₗ never (ev editing ∧ₗ atom recordsTasteFinding)
 
 /-- Rule 273: a held finding marked `Waiting:`; the writer's own decision never waits. -/
 def waitingMarked : Rule where
   number := 273
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom heldFindingUnmarked) ∧ₗ never (ev editing ∧ₗ atom ownDecisionMarkedWaiting)
 
 /-- Rule 274: each fresh-review finding states its verdict beside its origin. -/
 def findingVerdictAndOrigin : Rule where
   number := 274
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom findingLacksVerdictOrOrigin)
 
 /-- Rule 275: each changed file's diff read against the failure-mode list before any reviewer, and
@@ -1703,7 +1571,6 @@ what the pass finds fixed or recorded by then. -/
 def writersPassFirst : Rule where
   number := 275
   keyword := .must
-  domain := .tasks
   formula := (ev reviewerRun ∧ₗ atom reviewsCode ⟹ once (ev toolCall ∧ₗ link readsDiffAgainstModes)) ∧ₗ
     never (ev reviewerRun ∧ₗ atom reviewsCode ∧ₗ atom writersPassFindingUnhandled)
 
@@ -1711,7 +1578,6 @@ def writersPassFirst : Rule where
 def commitClaimsChecked : Rule where
   number := 276
   keyword := .must
-  domain := .tasks
   formula := (ev commit ∧ₗ atom commitMessageMakesClaims ⟹ once (ev toolResult ∧ₗ link checksCommitClaims)) ∧ₗ
     (ev toolCall ∧ₗ atom rewritesHistory ⟹ eventually (ev toolResult ∧ₗ link rechecksCommitClaims))
 
@@ -1719,14 +1585,12 @@ def commitClaimsChecked : Rule where
 def openReviewInputs : Rule where
   number := 277
   keyword := .must
-  domain := .tasks
   formula := never (ev reviewerRun ∧ₗ atom openReviewGetsRecords)
 
 /-- Rule 278: the enumerated review gets the list and ledgers and names itself. -/
 def enumeratedReviewInputs : Rule where
   number := 278
   keyword := .must
-  domain := .tasks
   formula := ev reviewerRun ∧ₗ atom isEnumeratedReview ⟹ atom briefHasListAndLedgers
 
 /-- Rule 279: neither fresh review reads the other's output before reconciliation; both are briefed
@@ -1734,7 +1598,6 @@ in one message. -/
 def reviewsApart : Rule where
   number := 279
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reviewerRun ∧ₗ atom briefCarriesOtherReview) ∧ₗ
     (ev reviewerRun ∧ₗ atom startsFreshReview ⟹ sameMessage pairedReviewer)
 
@@ -1742,7 +1605,6 @@ def reviewsApart : Rule where
 def briefNamesNoDefect : Rule where
   number := 280
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reviewerRun ∧ₗ atom briefNamesSuspectedDefect)
 
 def rules : List Rule :=

@@ -832,7 +832,6 @@ def plansMemoryUse : Link := ⟨"plansMemoryUse",
 def r281 : Rule where
   number := 281
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom mergesFindings ⟹ once (ev editing ∧ₗ link recordsRawFindingsOf)
 
 /-- Rule 282: after a rebase, its upstream commits are read and the verdict on a logical dependency
@@ -840,7 +839,6 @@ recorded; a changed dependency calls for a fresh round. -/
 def r282 : Rule where
   number := 282
   keyword := .must
-  domain := .tasks
   formula :=
     (ev gitRebase ⟹ eventually (ev readsHistory ∧ₗ link readsUpstreamOfRebase) ∧ₗ
       eventually (ev editing ∧ₗ link recordsDependencyVerdict)) ∧ₗ
@@ -850,7 +848,6 @@ def r282 : Rule where
 def r283 : Rule where
   number := 283
   keyword := .must
-  domain := .tasks
   formula := never (ev agentRun ∧ₗ ((atom isOpenReview ∧ₗ atom briefHasLedger) ∨ₗ atom briefAsksLedgerAudit))
 
 /-- Rule 284: a stale ledger row whose sentence holds is fixed by the writer and recorded as no
@@ -858,7 +855,6 @@ finding. -/
 def r284 : Rule where
   number := 284
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∧ₗ atom findsStaleHoldingRow ⟹ eventually (ev editing ∧ₗ link fixesThatRow)) ∧ₗ
     never (ev editing ∧ₗ atom recordsStaleRowAsFinding)
 
@@ -867,7 +863,6 @@ instance fixed. -/
 def r285 : Rule where
   number := 285
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom acceptsReviewerFinding ⟹
     eventually (ev reading ∧ₗ link readsPathForClass) ∧ₗ eventually (ev editing ∧ₗ link fixesClassInstances)
 
@@ -875,7 +870,6 @@ def r285 : Rule where
 def r286 : Rule where
   number := 286
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom acceptsReviewerFinding ⟹ eventually (ev editsReviewFile ∧ₗ link recordsMissingCheck)
 
 /-- Rule 287: an enumerable class gets its check run on the table before the review is sent; a too
@@ -883,7 +877,6 @@ noisy candidate is rekeyed or narrowed and measured again. -/
 def r287 : Rule where
   number := 287
   keyword := .must
-  domain := .tasks
   formula := (ev agentRun ∧ₗ atom enumerableClassPending ⟹ once (ev anyCall ∧ₗ link runsClassCheck)) ∧ₗ
     (ev reply ∧ₗ atom candidateTooNoisy ⟹ eventually (ev anyCall ∧ₗ link remeasuresCandidate))
 
@@ -891,7 +884,6 @@ def r287 : Rule where
 def r288 : Rule where
   number := 288
   keyword := .must
-  domain := .tasks
   formula := ev agentRun ⟹
     ¬ₗ since (ev reply ∧ₗ atom statesPreventionLimit) (ev editing ∧ₗ atom closesPreventionLimit)
 
@@ -899,14 +891,12 @@ def r288 : Rule where
 def r289 : Rule where
   number := 289
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom editsTest ⟹ once (ev loadsPropertyTesting)
 
 /-- Rule 290: property tests use Hypothesis under the workspace's profiles. -/
 def r290 : Rule where
   number := 290
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom propertyTestOffProfiles)
 
 /-- Rule 291: a property test's statement stands beside it, precise as a formula, drafted before the
@@ -914,7 +904,6 @@ body is read. -/
 def r291 : Rule where
   number := 291
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom propertyTestWithoutStatement) ∧ₗ
     (ev reading ∧ₗ atom readsBodyUnderTest ⟹ once (ev editing ∧ₗ link draftsStatementFor))
 
@@ -922,14 +911,12 @@ def r291 : Rule where
 def r292 : Rule where
   number := 292
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom exampleWithoutFailure)
 
 /-- Rule 293: the three branch checks run before a branch is offered for review. -/
 def r293 : Rule where
   number := 293
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom offersBranchForReview ⟹
     once (ev commitSymbolUse) ∧ₗ once (ev handBuiltErrors) ∧ₗ once (ev circularOracle)
 
@@ -938,35 +925,30 @@ assertion. -/
 def r294 : Rule where
   number := 294
   keyword := .must
-  domain := .tasks
   formula := ev passesAllow ⟹ once (ev editing ∧ₗ link settlesAllowed)
 
 /-- Rule 295: the git hooks are installed before the first commit in an external repository. -/
 def r295 : Rule where
   number := 295
   keyword := .must
-  domain := .tasks
   formula := ev gitCommit ∧ₗ atom commitsInExternalRepository ⟹ once (ev installGitHooks ∧ₗ link sameRepository)
 
 /-- Rule 296: commit_symbol_use.py's failures come from its closing recap. -/
 def r296 : Rule where
   number := 296
   keyword := .must
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom symbolFailuresNotFromRecap)
 
 /-- Rule 297: a reviewer judging without the change's intent works on a blind copy. -/
 def r297 : Rule where
   number := 297
   keyword := .must
-  domain := .tasks
   formula := ev agentRun ∧ₗ atom judgesWithoutIntent ⟹ once (ev blindCopy)
 
 /-- Rule 298: no blind-copy reviewer briefed in a worktree, no blind copy in an MR review's brief. -/
 def r298 : Rule where
   number := 298
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev agentRun ∧ₗ (atom blindBriefInWorktree ∨ₗ atom blindCopyInMrBrief))
 
 /-- Rule 299: a test that failed once is run alone and in its worker's order, and its cause found,
@@ -974,7 +956,6 @@ before it is queued. -/
 def r299 : Rule where
   number := 299
   keyword := .must
-  domain := .tasks
   formula := ev leadQueueAdd ∧ₗ atom queuesFailedTest ⟹
     once (ev anyCall ∧ₗ link runsFailedTestAlone) ∧ₗ once (ev anyCall ∧ₗ link runsInWorkerOrder) ∧ₗ
       once (ev reply ∧ₗ link statesCauseOf)
@@ -983,14 +964,12 @@ def r299 : Rule where
 def r300 : Rule where
   number := 300
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom waitingTestUnforced)
 
 /-- Rule 301: each real-time bound kept gets a fixed-delay case. -/
 def r301 : Rule where
   number := 301
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom keepsRealTimeBound ⟹ eventually (ev editing ∧ₗ link addsDelayCase)
 
 /-- Rule 302: time_bound_tests.py runs before a branch's review, and what it flags is rewritten or
@@ -998,7 +977,6 @@ allowed. -/
 def r302 : Rule where
   number := 302
   keyword := .must
-  domain := .tasks
   formula := (ev agentRun ∧ₗ atom reviewsBranchBeforePush ⟹ once (ev timeBoundTests)) ∧ₗ
     never (ev reply ∧ₗ atom leavesFlaggedTimeBound)
 
@@ -1006,14 +984,12 @@ def r302 : Rule where
 def r303 : Rule where
   number := 303
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom treatsRepeatAsPass)
 
 /-- Rule 304: before blaming the language for a slow suite, the cores, a profile and the sleeps. -/
 def r304 : Rule where
   number := 304
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom blamesLanguage ⟹
     once (ev anyCall ∧ₗ link checksCoreUse) ∧ₗ once (ev anyCall ∧ₗ link profilesTypicalTest) ∧ₗ
       once (ev anyCall ∧ₗ link looksForSleeps)
@@ -1023,7 +999,6 @@ defect. -/
 def r305 : Rule where
   number := 305
   keyword := .must
-  domain := .tasks
   formula := (ev gitCommit ∧ₗ atom commitsPerCallCode ⟹ once (ev anyCall ∧ₗ link timesThatCode)) ∧ₗ
     never (ev reply ∧ₗ atom dismissesTimeRise)
 
@@ -1032,7 +1007,6 @@ and records it under an `-own` label. -/
 def r306 : Rule where
   number := 306
   keyword := .must
-  domain := .tasks
   formula := ev taskCheckpoint ∧ₗ atom targetKeepsOwnTimeCheck ⟹
     ev ownTimedCheckpoint ∧ₗ since (ev anyCall ∧ₗ link runsOwnTimeCheck) (ev taskCheckpoint)
 
@@ -1040,7 +1014,6 @@ def r306 : Rule where
 def r307 : Rule where
   number := 307
   keyword := .mustNot
-  domain := .tasks
   formula := ev editing ∧ₗ atom raisesSuiteBudget ⟹
     once (ev anyCall ∧ₗ link measuresSuite) ∧ₗ atom statesBudgetReason
 
@@ -1048,7 +1021,6 @@ def r307 : Rule where
 def r308 : Rule where
   number := 308
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∧ₗ atom usesEvidenceTool ⟹ once (ev anyCall ∧ₗ link runsNegativeControl)) ∧ₗ
     never (ev editing ∧ₗ atom toolHidesUnread)
 
@@ -1057,7 +1029,6 @@ and nothing is built for it. -/
 def r309 : Rule where
   number := 309
   keyword := .must
-  domain := .tasks
   formula :=
     (ev editing ∧ₗ atom fixesReviewFinding ⟹ once (ev anyCall ∧ₗ link assessesFinding)) ∧ₗ
     (ev reply ∧ₗ atom rejectsFinding ⟹ eventually (ev editing ∧ₗ link recordsRejectionReason)) ∧ₗ
@@ -1068,7 +1039,6 @@ built. -/
 def r310 : Rule where
   number := 310
   keyword := .must
-  domain := .tasks
   formula := (ev editing ∧ₗ atom fixesReviewFinding ⟹ once (ev reply ∧ₗ link appliesFailureModes)) ∧ₗ
     never (ev editing ∧ₗ atom fixBelowFirstRigor)
 
@@ -1076,7 +1046,6 @@ def r310 : Rule where
 def r311 : Rule where
   number := 311
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom largerFixThanNeeded)
 
 /-- Rule 312: a finding in a fix is recorded as the pass's defect with the item that should have
@@ -1084,7 +1053,6 @@ found it. -/
 def r312 : Rule where
   number := 312
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom findsDefectInFix ⟹ eventually (ev editing ∧ₗ link recordsPassDefect)
 
 /-- Rule 313: a branch is read against the user's words before it is offered, and what is missing
@@ -1092,7 +1060,6 @@ is built, not caveated. -/
 def r313 : Rule where
   number := 313
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∧ₗ atom offersBranchForReview ⟹ once (ev reply ∧ₗ link comparesBranchWithAsk)) ∧ₗ
     never (ev reply ∧ₗ atom caveatsMissingAsk)
 
@@ -1100,7 +1067,6 @@ def r313 : Rule where
 def r314 : Rule where
   number := 314
   keyword := .must
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom requestsPush ⟹
     once (ev loadsMrReview) ∧ₗ once (ev editsReviewFile ∧ₗ link recordsPerFileReview)
 
@@ -1109,7 +1075,6 @@ ledger. -/
 def r315 : Rule where
   number := 315
   keyword := .must
-  domain := .tasks
   formula := ev agentRun ∧ₗ atom isOpenReview ⟹
     once (ev formatPatch) ∧ₗ atom briefHasDescriptionAndAccess ∧ₗ ¬ₗ atom briefHasLedger
 
@@ -1117,7 +1082,6 @@ def r315 : Rule where
 def r316 : Rule where
   number := 316
   keyword := .must
-  domain := .tasks
   formula := never (ev reply ∧ₗ atom reportsReviewWithoutKind) ∧ₗ
     never (ev editing ∧ₗ atom freshReviewWithoutHeading)
 
@@ -1125,14 +1089,12 @@ def r316 : Rule where
 def r317 : Rule where
   number := 317
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev requestAdd ∧ₗ atom requestsPush ∧ₗ atom laterPassAfterFresh)
 
 /-- Rule 318: a document for an outside reader is written from its ledger, built first. -/
 def r318 : Rule where
   number := 318
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom writesOutsideDocument ⟹ once (ev editsLedger ∧ₗ link writesLedgerOf)
 
 /-- Rule 319: the row, its check done, before the sentence; a changed fact's ledger edit first, in a
@@ -1140,7 +1102,6 @@ message of its own. -/
 def r319 : Rule where
   number := 319
   keyword := .must
-  domain := .tasks
   formula :=
     (ev editing ∧ₗ atom wordsDocumentSentence ⟹ once (ev editsLedger ∧ₗ link writesRowFor)) ∧ₗ
     (ev editsLedger ∧ₗ atom writesLedgerRow ⟹ once (ev anyCall ∧ₗ link checksRowFact)) ∧ₗ
@@ -1151,7 +1112,6 @@ def r319 : Rule where
 def r320 : Rule where
   number := 320
   keyword := .must
-  domain := .tasks
   formula := (ev editsLedger ⟹ once (ev ledgerNew ∧ₗ link startsThatLedger)) ∧ₗ
     never (ev editsLedger ∧ₗ (atom ledgerWrongColumns ∨ₗ atom copiesOtherLedger))
 
@@ -1159,14 +1119,12 @@ def r320 : Rule where
 def r321 : Rule where
   number := 321
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev editsLedger ∧ₗ (atom rowOnlyNamesSource ∨ₗ atom statedAsExceedsFact))
 
 /-- Rule 322: a fact about what another system receives rests on that system's form of the data. -/
 def r322 : Rule where
   number := 322
   keyword := .must
-  domain := .tasks
   formula := never (ev editsLedger ∧ₗ atom restsOnOwnValue)
 
 /-- Rule 323: an offered branch's commit messages and comments have ledger rows, written out by
@@ -1174,7 +1132,6 @@ branch_prose.py. -/
 def r323 : Rule where
   number := 323
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom offersBranchForReview ⟹
     once (ev branchProse) ∧ₗ once (ev editsLedger ∧ₗ link givesProseRows)
 
@@ -1183,7 +1140,6 @@ row left unexplained. -/
 def r324 : Rule where
   number := 324
   keyword := .must
-  domain := .tasks
   formula := ev requestAdd ∧ₗ atom requestsPush ⟹
     once (ev readerCheckAlso) ∧ₗ once (ev ledgerAtTip) ∧ₗ ¬ₗ atom staleRowsLeft
 
@@ -1191,14 +1147,12 @@ def r324 : Rule where
 def r325 : Rule where
   number := 325
   keyword := .must
-  domain := .tasks
   formula := ev editsLedger ∧ₗ atom rowCitesRun ⟹ once (ev saveRunOutput ∧ₗ link savesCitedRun)
 
 /-- Rule 326: a pushed branch's ledger has its environment row, each part read at its source. -/
 def r326 : Rule where
   number := 326
   keyword := .must
-  domain := .tasks
   formula := (ev requestAdd ∧ₗ atom requestsPush ⟹ once (ev editsLedger ∧ₗ link writesEnvironmentRowOf)) ∧ₗ
     (ev editsLedger ∧ₗ atom writesEnvironmentRow ⟹ once (ev reading ∧ₗ link readsEnvironmentSource))
 
@@ -1206,21 +1160,18 @@ def r326 : Rule where
 def r327 : Rule where
   number := 327
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom offersDocument ⟹ once (ev readerCheck) ∧ₗ ¬ₗ atom leavesFlaggedFactRowless
 
 /-- Rule 328: a missing `.reader-names` is told to the user. -/
 def r328 : Rule where
   number := 328
   keyword := .must
-  domain := .tasks
   formula := ev toolResult ∧ₗ atom warnsReaderNamesMissing ⟹ eventually (ev reply ∧ₗ link namesReaderNamesFile)
 
 /-- Rule 329: each question in a message carries "Routes tried:". -/
 def r329 : Rule where
   number := 329
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ atom questionWithoutRoutes)
 
 /-- Rule 330: a document is read whole by object and term before it is offered, and what it misleads
@@ -1228,7 +1179,6 @@ a reader into is said. -/
 def r330 : Rule where
   number := 330
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom offersDocument ⟹
     once (ev reading ∧ₗ link readsOfferedDocumentWhole) ∧ₗ atom saysWhatItMisleads
 
@@ -1236,7 +1186,6 @@ def r330 : Rule where
 def r331 : Rule where
   number := 331
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom findsCoherenceConflict ⟹ eventually (ev editing ∧ₗ link fixesConflictInText)
 
 /-- Rule 332: one reviewer, in one pass, given the document, the ledger, saved reader_check output
@@ -1244,7 +1193,6 @@ and the sources. -/
 def r332 : Rule where
   number := 332
   keyword := .must
-  domain := .tasks
   formula := ev agentRun ∧ₗ atom reviewsDocument ⟹
     atom briefHasDocumentLedgerAndCheck ∧ₗ once (ev readerCheck) ∧ₗ
       ¬ₗ once (ev agentRun ∧ₗ link reviewsSameDocument)
@@ -1253,7 +1201,6 @@ def r332 : Rule where
 def r333 : Rule where
   number := 333
   keyword := .mustNot
-  domain := .tasks
   formula := never (ev agentRun ∧ₗ atom reviewsUserMessage)
 
 /-- Rule 334: a fix adding a claim gets its row first, and the same reviewer, resumed, rechecks the
@@ -1261,7 +1208,6 @@ changed paragraphs. -/
 def r334 : Rule where
   number := 334
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom fixAddsClaim ⟹
     once (ev editsLedger ∧ₗ link rowForAddedClaim) ∧ₗ eventually (ev resumesAgent ∧ₗ link rechecksChangedParagraphs)
 
@@ -1270,7 +1216,6 @@ places are found by its value before it is edited. -/
 def r335 : Rule where
   number := 335
   keyword := .must
-  domain := .tasks
   formula :=
     (ev editing ∧ₗ atom fixesClaimFinding ⟹ once (ev searches ∧ₗ link searchesClaimWords)) ∧ₗ
     (ev editing ∧ₗ atom editsDecidedFact ⟹ once (ev searches ∧ₗ link searchesFactValue)) ∧ₗ
@@ -1280,35 +1225,30 @@ def r335 : Rule where
 def r336 : Rule where
   number := 336
   keyword := .must
-  domain := .tasks
   formula := never (ev editing ∧ₗ (atom investigationOutsideReport ∨ₗ atom papersOverGuess))
 
 /-- Rule 337: a stacked part ends each state it writes, or its description says which stay open. -/
 def r337 : Rule where
   number := 337
   keyword := .must
-  domain := .tasks
   formula := never (atom stackedCutLeavesStateOpen)
 
 /-- Rule 338: a guard a value can slip under is rekeyed on the behaviour. -/
 def r338 : Rule where
   number := 338
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom findsGuardSlippable ⟹ eventually (ev editing ∧ₗ link rekeysGuard)
 
 /-- Rule 339: a gate an action discharges keys on the action's result observed afterwards. -/
 def r339 : Rule where
   number := 339
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom gateKeysOnWording)
 
 /-- Rule 340: a source's hypotheses are read before relying on it, and each newer version compared. -/
 def r340 : Rule where
   number := 340
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reliesOnSource ⟹
     once (ev reading ∧ₗ link readsSourceHypotheses) ∧ₗ
       (atom sourceHasNewerVersions ⟹ once (ev reply ∧ₗ link comparesNewerVersions))
@@ -1317,56 +1257,48 @@ def r340 : Rule where
 def r342 : Rule where
   number := 342
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom usesPointedSource ⟹ once (ev reading ∧ₗ link readsItsTheoremStatement)
 
 /-- Rule 343: missing edges are no independence, an impact warning no falsity. -/
 def r343 : Rule where
   number := 343
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev reply ∧ₗ (atom missingEdgesAsIndependence ∨ₗ atom impactAsFalsity))
 
 /-- Rule 344: the exhaustive checker runs on a rule, tree or encoding change before it is relied on. -/
 def r344 : Rule where
   number := 344
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reliesOnEncodingChange ⟹ once (ev anyCall ∧ₗ link runsExhaustiveChecker)
 
 /-- Rule 345: a focused correctness review before a new result's status. -/
 def r345 : Rule where
   number := 345
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom assignsResultStatus ⟹ once (ev reply ∧ₗ link reviewsResultCorrectness)
 
 /-- Rule 346: falsifying tests with controls, and no old suite rerun to simulate progress. -/
 def r346 : Rule where
   number := 346
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom testCannotFalsify) ∧ₗ never (ev anyCall ∧ₗ atom rerunsOldSuite)
 
 /-- Rule 347: full arguments, tests, dependencies, gaps and parameter accounting recorded. -/
 def r347 : Rule where
   number := 347
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom recordOmitsArgument)
 
 /-- Rule 348: an incomplete verification gate means a conditional status. -/
 def r348 : Rule where
   number := 348
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom unconditionalWithOpenGate)
 
 /-- Rule 349: every reviewer gap resolved, every unused hypothesis dropped or justified. -/
 def r349 : Rule where
   number := 349
   keyword := .must
-  domain := .mathematics
   formula := (ev toolResult ∧ₗ atom reportsGap ⟹ eventually (ev editing ∧ₗ link resolvesGap)) ∧ₗ
     (ev toolResult ∧ₗ atom reportsUnusedHypothesis ⟹ eventually (ev editing ∧ₗ link dropsOrJustifiesHypothesis))
 
@@ -1374,21 +1306,18 @@ def r349 : Rule where
 def r350 : Rule where
   number := 350
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reliesOnReviewerSuggestion ⟹ once (ev anyCall ∧ₗ link verifiesSuggestion)
 
 /-- Rule 351: a stand-in objection is checked against the record before it is acted on. -/
 def r351 : Rule where
   number := 351
   keyword := .must
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom actsOnStandInObjection ⟹ once (ev reading ∧ₗ link checksObjection)
 
 /-- Rule 352: a framework commit claims only measured effects. -/
 def r352 : Rule where
   number := 352
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := (ev gitCommit ∧ₗ atom commitClaimsEffect ⟹ once (ev anyCall ∧ₗ link measuresClaimedEffect)) ∧ₗ
     never (ev gitCommit ∧ₗ atom commitStatesUnchecked)
 
@@ -1396,7 +1325,6 @@ def r352 : Rule where
 def r353 : Rule where
   number := 353
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reportsTested ⟹
     once (ev suiteBeforeCommit ∧ₗ once (ev gitStage ∧ₗ link stagesReportedChange))
 
@@ -1405,7 +1333,6 @@ file. -/
 def r354 : Rule where
   number := 354
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev gitCommit ∧ₗ atom commitsFrameworkChange ⟹ once (ev frameworkTests ∧ₗ link coversAffectedTests)) ∧ₗ
     never (ev gitCommit ∧ₗ atom toolWithoutTestFile)
 
@@ -1413,7 +1340,6 @@ def r354 : Rule where
 def r355 : Rule where
   number := 355
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev anyCall ∧ₗ ¬ₗ ev viaComputeSh ∧ₗ atom runsLocalWorkload) ∧ₗ
     (ev viaComputeSh ⟹ once (ev readsComputationRules))
 
@@ -1422,7 +1348,6 @@ grew with. -/
 def r356 : Rule where
   number := 356
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev gitCommit ∧ₗ atom commitsRecordReader ⟹ once (ev anyCall ∧ₗ link timesOnRealRepository)) ∧ₗ
     never (ev editing ∧ₗ atom toolHidesGrowth)
 
@@ -1430,35 +1355,30 @@ def r356 : Rule where
 def r357 : Rule where
   number := 357
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev runsResearchScript ∧ₗ atom rerunsFinishedJob)
 
 /-- Rule 358: mathematics and goal progress reported apart. -/
 def r358 : Rule where
   number := 358
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom mixesProgress)
 
 /-- Rule 359: no convenience, reformulation or finite check counted as goal progress. -/
 def r359 : Rule where
   number := 359
   keyword := .mustNot
-  domain := .mathematics
   formula := never ((ev reply ∨ₗ ev editing) ∧ₗ atom countsNonProgress)
 
 /-- Rule 360: `data-goal-progress="advanced"` only citing a declared proof, reduction or refutation. -/
 def r360 : Rule where
   number := 360
   keyword := .must
-  domain := .mathematics
   formula := never (ev marksGoalAdvanced ∧ₗ atom citesNoDeclaredProof)
 
 /-- Rule 361: formalization work only under explicit assignment, after its AGENTS.md and README. -/
 def r361 : Rule where
   number := 361
   keyword := .mustNot
-  domain := .mathematics
   formula := ev editsFormalization ⟹
     once (ev user ∧ₗ atom assignsLeanWork) ∧ₗ once (ev readsFormalizationAgents) ∧ₗ
       once (ev readsFormalizationReadme)
@@ -1467,14 +1387,12 @@ def r361 : Rule where
 def r362 : Rule where
   number := 362
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev reply ∧ₗ (atom specialCaseAsFull ∨ₗ atom noLeanAsIncomplete))
 
 /-- Rule 363: exact per-claim Lean scope with file links. -/
 def r363 : Rule where
   number := 363
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom leanScopeInexact)
 
 /-- Rule 364: a Closed follow-up reads the source statements it relies on and rests on no
@@ -1482,7 +1400,6 @@ abstract. -/
 def r364 : Rule where
   number := 364
   keyword := .mustNot
-  domain := .mathematics
   formula := ev closesFollowUp ⟹ once (ev reading ∧ₗ link readsClosureSources) ∧ₗ ¬ₗ atom restsOnAbstract
 
 /-- Rule 365: a one-step objection falsifies one formulation; its items get a development cycle
@@ -1490,7 +1407,6 @@ before a statement is declared without mechanism. -/
 def r365 : Rule where
   number := 365
   keyword := .must
-  domain := .mathematics
   formula := (ev editing ∧ₗ atom declaresNoMechanism ⟹ once (ev editing ∧ₗ link developsObjectionItems)) ∧ₗ
     never (ev editing ∧ₗ atom objectionAsGeneralFalsification)
 
@@ -1498,7 +1414,6 @@ def r365 : Rule where
 def r366 : Rule where
   number := 366
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev editing ∧ₗ (atom metaRepeatsPrevention ∨ₗ atom metaNamesOnlyMistake))
 
 /-- Rule 367: stopping running work follows weighing its cost; a requested change stops it only when
@@ -1506,7 +1421,6 @@ the user said to discard it. -/
 def r367 : Rule where
   number := 367
   keyword := .must
-  domain := .discipline
   formula := (ev stopsWork ⟹ once (link weighsStopping)) ∧ₗ
     (ev stopsWork ∧ₗ atom stopsForRequestedChange ⟹ since (ev user ∧ₗ atom saysDiscardRun) (ev user))
 
@@ -1514,35 +1428,30 @@ def r367 : Rule where
 def r368 : Rule where
   number := 368
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ (atom multiRunLinesUnlabeled ∨ₗ atom omittedPartAsKnown ∨ₗ atom undocumentedOrder))
 
 /-- Rule 369: a check runs to the depth set before its first result. -/
 def r369 : Rule where
   number := 369
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom checkShortOfDepth)
 
 /-- Rule 370: a deletion, a push or a closed item is preceded by reading what the plan still needs. -/
 def r370 : Rule where
   number := 370
   keyword := .must
-  domain := .discipline
   formula := ev deletes ∨ₗ ev publish ∨ₗ ev closesItem ⟹ once (ev reading ∧ₗ link readsPlanNeeds)
 
 /-- Rule 371: after a compaction, the recorded knowledge is reloaded before an edit. -/
 def r371 : Rule where
   number := 371
   keyword := .must
-  domain := .discipline
   formula := ev editing ⟹ ¬ₗ since (ev user ∧ₗ atom isCompactionSummary) (ev loadsKnowledge)
 
 /-- Rule 372: history is rewritten only with a concrete justification. -/
 def r372 : Rule where
   number := 372
   keyword := .must
-  domain := .discipline
   formula := ev rewritesHistory ⟹ atom rewriteJustified
 
 /-- Rule 373: a rewrite follows a check against the remote and a backup branch, never a tag, kept
@@ -1550,7 +1459,6 @@ until the work is done. -/
 def r373 : Rule where
   number := 373
   keyword := .must
-  domain := .discipline
   formula :=
     (ev rewritesHistory ⟹ once (ev anyCall ∧ₗ link checksAgainstRemote) ∧ₗ
       once (ev branchCreate ∧ₗ link backsUpRewrittenBranch)) ∧ₗ
@@ -1561,7 +1469,6 @@ comparison, and a failed check restores from the backup. -/
 def r374 : Rule where
   number := 374
   keyword := .must
-  domain := .discipline
   formula :=
     (ev rewritesHistory ∧ₗ atom movesChanges ⟹
       eventually (ev diffStat) ∧ₗ eventually (ev rangeDiff) ∧ₗ eventually (ev logFormat)) ∧ₗ
@@ -1571,14 +1478,12 @@ def r374 : Rule where
 def r375 : Rule where
   number := 375
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom callsIncompatible ⟹ once (ev anyCall ∧ₗ link measuresRealInput)
 
 /-- Rule 376: orphaned state checked before and after a destructive or cleanup action. -/
 def r376 : Rule where
   number := 376
   keyword := .must
-  domain := .discipline
   formula := ev anyCall ∧ₗ atom destructiveAction ⟹
     once (ev anyCall ∧ₗ link checksOrphans) ∧ₗ eventually (ev anyCall ∧ₗ link checksOrphans)
 
@@ -1586,7 +1491,6 @@ def r376 : Rule where
 def r377 : Rule where
   number := 377
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom settlesAtDelivery)
 
 /-- Rule 378: an external attribute's real values are probed, and a checkable assumption checked,
@@ -1594,7 +1498,6 @@ before code relies on them. -/
 def r378 : Rule where
   number := 378
   keyword := .must
-  domain := .discipline
   formula :=
     (ev editing ∧ₗ atom parsesExternalAttribute ⟹ once (ev anyCall ∧ₗ link probesRealValues)) ∧ₗ
     (ev editing ∧ₗ atom implementsOnAssumption ⟹ once (ev anyCall ∧ₗ link checksAssumption))
@@ -1603,28 +1506,24 @@ def r378 : Rule where
 def r379 : Rule where
   number := 379
   keyword := .must
-  domain := .discipline
   formula := never (ev stagesWholeTree ∧ₗ atom inCommittingScript)
 
 /-- Rule 380: coverage stated by its definition and omissions, never beyond it. -/
 def r380 : Rule where
   number := 380
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom statesCoverage ⟹ atom namesDefinitionAndOmissions ∧ₗ ¬ₗ atom claimsBeyondDefinition
 
 /-- Rule 381: a reviewer's fix is checked before it is built. -/
 def r381 : Rule where
   number := 381
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom buildsReviewerFix ⟹ once (ev anyCall ∧ₗ link checksProposedFix)
 
 /-- Rule 382: a promised item closes after each point is read against the changed code. -/
 def r382 : Rule where
   number := 382
   keyword := .must
-  domain := .discipline
   formula := ev closesItem ⟹ once (ev reading ∧ₗ link readsPointsAgainstCode)
 
 /-- Rule 384: a fix's value forms are searched in the real inputs, and the changed reader run over
@@ -1632,7 +1531,6 @@ them. -/
 def r384 : Rule where
   number := 384
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom fixesReader ⟹
     once (ev searches ∧ₗ link searchesValueForms) ∧ₗ eventually (ev anyCall ∧ₗ link runsReaderOverInputs)
 
@@ -1640,7 +1538,6 @@ def r384 : Rule where
 def r385 : Rule where
   number := 385
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom guardTestsOnlySeenForms)
 
 /-- Rule 386: a narrowed guard is tested with what it must refuse, an added refusal with its
@@ -1648,7 +1545,6 @@ harmless neighbour. -/
 def r386 : Rule where
   number := 386
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom narrowsGuard ⟹ eventually (ev editing ∧ₗ link testsRefusedInputs)) ∧ₗ
     (ev editing ∧ₗ atom addsRefusal ⟹ eventually (ev editing ∧ₗ link testsHarmlessNeighbour))
 
@@ -1656,21 +1552,18 @@ def r386 : Rule where
 def r387 : Rule where
   number := 387
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom narrowsByRebuilding)
 
 /-- Rule 388: a fix's changed function is read from its top before its tests run. -/
 def r388 : Rule where
   number := 388
   keyword := .must
-  domain := .discipline
   formula := ev anyCall ∧ₗ atom runsFixTests ⟹ once (ev reading ∧ₗ link readsChangedFunction)
 
 /-- Rule 389: a guard refuses what it can't classify. -/
 def r389 : Rule where
   number := 389
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom guardPassesUnclassified)
 
 /-- Rule 390: a guard over a language opens the language's definition in the step writing the fix
@@ -1678,7 +1571,6 @@ def r389 : Rule where
 def r390 : Rule where
   number := 390
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom fixesLanguageGuard ⟹
     since (ev anyCall ∧ₗ link opensLanguageDefinition) (ev gitCommit) ∧ₗ
       eventually (ev editing ∧ₗ link testNamesDefinition)
@@ -1687,14 +1579,12 @@ def r390 : Rule where
 def r391 : Rule where
   number := 391
   keyword := .must
-  domain := .discipline
   formula := never (ev gitCommit ∧ₗ atom guardLessonsPartial)
 
 /-- Rule 392: a sentence about how code runs is checked by running it. -/
 def r392 : Rule where
   number := 392
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom statesHowCodeRuns ⟹ once (ev anyCall ∧ₗ link runsToCheckSentence)
 
 /-- Rule 393: before a reader's fix, the inputs changing its verdict are written down, and each is
@@ -1702,7 +1592,6 @@ tested. -/
 def r393 : Rule where
   number := 393
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom fixesReader ⟹
     once (link listsVerdictInputs) ∧ₗ eventually (ev editing ∧ₗ link testsEachVerdictInput)
 
@@ -1710,7 +1599,6 @@ def r393 : Rule where
 def r394 : Rule where
   number := 394
   keyword := .must
-  domain := .discipline
   formula := (ev publish ∨ₗ ev gitMerge ∨ₗ (ev user ∧ₗ atom endsGrant)) ∧ₗ atom routineInProgress ⟹
     eventually (link reassessesScope)
 
@@ -1719,7 +1607,6 @@ shared checkout. -/
 def r395 : Rule where
   number := 395
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom callsFailurePreexisting ⟹ once (ev anyCall ∧ₗ link runsFailureOnMain)) ∧ₗ
     never (ev gitStash ∧ₗ atom inSharedCheckout)
 
@@ -1727,21 +1614,18 @@ def r395 : Rule where
 def r396 : Rule where
   number := 396
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom statesChangeableState ⟹ once (ev anyCall ∧ₗ link checksThatStateLatest)
 
 /-- Rule 397: a number is copied from output printed before it. -/
 def r397 : Rule where
   number := 397
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∨ₗ ev editing) ∧ₗ atom statesNumber ⟹ once (ev toolResult ∧ₗ link printsThatNumber)
 
 /-- Rule 398: a number a decision rests on is measured in the turn. -/
 def r398 : Rule where
   number := 398
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom decisionRestsOnNumber ⟹
     since (ev anyCall ∧ₗ link measuresDecisionNumber) (ev user)
 
@@ -1750,7 +1634,6 @@ sources. -/
 def r399 : Rule where
   number := 399
   keyword := .must
-  domain := .discipline
   formula := (ev anyCall ∧ₗ atom actsOnNumber ⟹ once (ev anyCall ∧ₗ link looksUpMeasurement)) ∧ₗ
     (ev reply ∧ₗ atom actsOnDerivedNumber ⟹ once (ev anyCall ∧ₗ link recomputesFromSources))
 
@@ -1759,42 +1642,36 @@ have contradicted it. -/
 def r400 : Rule where
   number := 400
   keyword := .must
-  domain := .discipline
   formula := ev anyCall ∧ₗ atom entersMechanism ⟹ once (ev toolResult ∧ₗ link observationTestsExplanation)
 
 /-- Rule 401: an endpoint's path comes from the route table before its status code is evidence. -/
 def r401 : Rule where
   number := 401
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom readsStatusCode ⟹ once (ev anyCall ∧ₗ link readsRouteTable)
 
 /-- Rule 402: a use-only search proves no absence; its place is read first. -/
 def r402 : Rule where
   number := 402
   keyword := .mustNot
-  domain := .discipline
   formula := ev reply ∧ₗ atom undefinedFromUseSearch ⟹ once (ev reading ∧ₗ link readsUsePlace)
 
 /-- Rule 403: processes and listeners checked before changing dependencies or starting a server. -/
 def r403 : Rule where
   number := 403
   keyword := .must
-  domain := .discipline
   formula := ev anyCall ∧ₗ (atom changesDependencies ∨ₗ atom startsServer) ⟹ once (ev checksProcesses)
 
 /-- Rule 404: an input is deleted after its output is written and verified. -/
 def r404 : Rule where
   number := 404
   keyword := .must
-  domain := .discipline
   formula := ev deletes ∧ₗ atom deletesInput ⟹ once (ev anyCall ∧ₗ link verifiesOutputOfDeleted)
 
 /-- Rule 405: checks run once at the ready branch's tip, and results stated from that run. -/
 def r405 : Rule where
   number := 405
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom offersBranchForReview ⟹ once (ev anyCall ∧ₗ link runsChecksAtTip)) ∧ₗ
     (ev reply ∧ₗ atom statesTipResult ⟹ once (ev toolResult ∧ₗ link resultAtTip))
 
@@ -1802,77 +1679,66 @@ def r405 : Rule where
 def r406 : Rule where
   number := 406
   keyword := .must
-  domain := .discipline
   formula := never ((ev reply ∨ₗ ev editing) ∧ₗ atom countNotFromDiff)
 
 /-- Rule 407: a precondition handed over comes with what makes the wrong way impossible or loud. -/
 def r407 : Rule where
   number := 407
   keyword := .must
-  domain := .discipline
   formula := never ((ev reply ∨ₗ ev editing ∨ₗ ev requestAdd) ∧ₗ atom unguardedPrecondition)
 
 /-- Rule 408: the whole dependency set resolved by a dry run before an install. -/
 def r408 : Rule where
   number := 408
   keyword := .must
-  domain := .discipline
   formula := ev installs ⟹ once (ev dryRunResolve ∧ₗ link resolvesWholeSet)
 
 /-- Rule 409: RAM plus swap within 70% of MemTotal across all jobs. -/
 def r409 : Rule where
   number := 409
   keyword := .must
-  domain := .mathematics
   formula := never (ev anyCall ∧ₗ atom exceedsMemoryBudget)
 
 /-- Rule 410: CPUs within 90% of the online logical CPUs, the lowest-numbered. -/
 def r410 : Rule where
   number := 410
   keyword := .must
-  domain := .mathematics
   formula := never (ev anyCall ∧ₗ atom exceedsCpuBudget)
 
 /-- Rule 411: a memory-heavy run's memory is planned below the limit first. -/
 def r411 : Rule where
   number := 411
   keyword := .must
-  domain := .mathematics
   formula := ev anyCall ∧ₗ atom memoryHeavyRun ⟹ once (link plansMemoryUse)
 
 /-- Rule 412: available RAM stays above 5% of MemTotal. -/
 def r412 : Rule where
   number := 412
   keyword := .must
-  domain := .mathematics
   formula := never (ev anyCall ∧ₗ atom dropsAvailableRam)
 
 /-- Rule 413: compute.sh runs directly, never through bash. -/
 def r413 : Rule where
   number := 413
   keyword := .must
-  domain := .mathematics
   formula := never (ev computeViaShell)
 
 /-- Rule 414: the controllers' output read whole, never filtered, and the commands run as named. -/
 def r414 : Rule where
   number := 414
   keyword := .must
-  domain := .mathematics
   formula := never (ev controllerFiltered) ∧ₗ never (ev reply ∧ₗ atom controllerOutputSkimmed)
 
 /-- Rule 415: no `pkill -f` or `pgrep -f`, whose pattern the invoking command always holds. -/
 def r415 : Rule where
   number := 415
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev pkillPattern)
 
 /-- Rule 416: controls reported inactive are set up again and verified, without asking. -/
 def r416 : Rule where
   number := 416
   keyword := .must
-  domain := .mathematics
   formula := (ev toolResult ∧ₗ atom reportsControlsInactive ⟹
       eventually (ev controlsSetup ∧ₗ eventually (ev computeStatus))) ∧ₗ
     never (ev reply ∧ₗ atom asksToRunSetup)
@@ -1881,21 +1747,18 @@ def r416 : Rule where
 def r417 : Rule where
   number := 417
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev stressTest ∧ₗ atom toResumeWork)
 
 /-- Rule 418: after a reboot, timing continues only in a fresh session. -/
 def r418 : Rule where
   number := 418
   keyword := .must
-  domain := .mathematics
   formula := ev timingContinues ⟹ ¬ₗ since (atom showsReboot) (ev computeStart)
 
 /-- Rule 419: no environment prefix before compute.sh, which drops it. -/
 def r419 : Rule where
   number := 419
   keyword := .must
-  domain := .mathematics
   formula := never (ev envPrefixToCompute)
 
 def rules : List Rule :=

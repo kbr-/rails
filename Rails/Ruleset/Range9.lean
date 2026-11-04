@@ -171,7 +171,6 @@ def saysWhoSelectsIndex : Atom := ⟨"saysWhoSelectsIndex",
 def explicitQuantifiersInApiReview : Rule where
   number := 1121
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reviewsAbstractApi ⟹
     (atom writesQuantifiersExplicitly ∧ₗ atom saysWhoSelectsIndex) ∨ₗ atom justified
 
@@ -186,7 +185,6 @@ def statesRuntimeObligations : Atom := ⟨"statesRuntimeObligations",
 def protocolIndexedByState : Rule where
   number := 1122
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom definesProtocolOperations ⟹
     (atom indexesOperationsByState ∧ₗ atom statesRuntimeObligations) ∨ₗ atom justified
 
@@ -201,7 +199,6 @@ def specifiesSchemaPolicy : Atom := ⟨"specifiesSchemaPolicy",
 def schemaAuthoritative : Rule where
   number := 1123
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom describesSchemaAgain ⟹
     (atom derivesFromSchema ∧ₗ atom specifiesSchemaPolicy) ∨ₗ atom justified
 
@@ -214,7 +211,6 @@ def renameExposesPrivateData : Atom := ⟨"renameExposesPrivateData",
 def renameKeepsProtocol : Rule where
   number := 1124
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ (atom renameRedefinesProtocol ∨ₗ atom renameExposesPrivateData))
 
 def writesRejection : Atom := ⟨"writesRejection",
@@ -230,7 +226,6 @@ def testsMinimalValidCaller : Atom := ⟨"testsMinimalValidCaller",
 def rejectionInDomainTerms : Rule where
   number := 1125
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev editing ∧ₗ atom writesRejection ⟹ atom rejectionGivesNextAction) ∧ₗ
     (ev editing ∧ₗ atom testsInvalidUses ⟹ atom testsMinimalValidCaller) ∨ₗ atom justified
 
@@ -243,7 +238,6 @@ def hidesNeededWitness : Atom := ⟨"hidesNeededWitness",
 def evidenceTypesFit : Rule where
   number := 1126
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ (atom misusesSubtypeSigmaExists ∨ₗ atom hidesNeededWitness)) ∨ₗ
     atom justified
 
@@ -254,7 +248,6 @@ def boolAsEvidence : Atom := ⟨"boolAsEvidence",
 def boolApartFromProp : Rule where
   number := 1127
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom boolAsEvidence) ∨ₗ atom justified
 
 def mixesNoncomputableExecutable : Atom := ⟨"mixesNoncomputableExecutable",
@@ -264,7 +257,6 @@ def mixesNoncomputableExecutable : Atom := ⟨"mixesNoncomputableExecutable",
 def noncomputableApart : Rule where
   number := 1128
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom mixesNoncomputableExecutable) ∨ₗ atom justified
 
 def assumesErasureRemovesCost : Atom := ⟨"assumesErasureRemovesCost",
@@ -274,7 +266,6 @@ def assumesErasureRemovesCost : Atom := ⟨"assumesErasureRemovesCost",
 def erasureKeepsCosts : Rule where
   number := 1129
   keyword := .shouldNot
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom assumesErasureRemovesCost) ∨ₗ atom justified
 
 def definesValueSemantics : Atom := ⟨"definesValueSemantics",
@@ -286,7 +277,6 @@ def definesObservations : Atom := ⟨"definesObservations",
 def observationsDefined : Rule where
   number := 1130
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom definesValueSemantics ⟹ atom definesObservations ∨ₗ atom justified
 
 def claimsEquivalence : Atom := ⟨"claimsEquivalence",
@@ -300,7 +290,6 @@ def checksSubstitution : Atom := ⟨"checksSubstitution",
 def equivalenceExplicit : Rule where
   number := 1131
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom claimsEquivalence ⟹
     (atom statesEquivalenceExplicitly ∧ₗ atom checksSubstitution) ∨ₗ atom justified
 
@@ -313,7 +302,6 @@ def strengthensOrRestricts : Link := ⟨"strengthensOrRestricts",
 def distinguishingContextAnswered : Rule where
   number := 1132
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom findsDistinguishingContext ⟹
     eventually (ev editing ∧ₗ link strengthensOrRestricts) ∨ₗ atom justified
 
@@ -330,7 +318,6 @@ def anchorsObservationsInDomain : Atom := ⟨"anchorsObservationsInDomain",
 def lawsHaveModel : Rule where
   number := 1133
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom statesApiLaws ⟹
     (atom exhibitsDistinctBehaviors ∧ₗ atom givesRealizingModel ∧ₗ atom anchorsObservationsInDomain) ∨ₗ
     atom justified
@@ -346,7 +333,6 @@ def statesEquationConditions : Atom := ⟨"statesEquationConditions",
 def primitiveMeaning : Rule where
   number := 1134
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom definesPrimitive ⟹
     (atom givesPrimitiveMeaning ∧ₗ atom statesEquationConditions) ∨ₗ atom justified
 
@@ -357,7 +343,6 @@ def comparesDerivations : Link := ⟨"comparesDerivations",
 def derivationsCompared : Rule where
   number := 1135
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom statesApiLaws ⟹
     eventually (ev reply ∧ₗ link comparesDerivations) ∨ₗ atom justified
 
@@ -368,7 +353,6 @@ def algebraLosesStructure : Atom := ⟨"algebraLosesStructure",
 def algebraKeepsStructure : Rule where
   number := 1136
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom algebraLosesStructure) ∨ₗ atom justified
 
 def neutralAsMissing : Atom := ⟨"neutralAsMissing",
@@ -378,7 +362,6 @@ def neutralAsMissing : Atom := ⟨"neutralAsMissing",
 def neutralValueMeaning : Rule where
   number := 1137
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom neutralAsMissing) ∨ₗ atom justified
 
 def pureLawsClaimEffects : Atom := ⟨"pureLawsClaimEffects",
@@ -388,7 +371,6 @@ def pureLawsClaimEffects : Atom := ⟨"pureLawsClaimEffects",
 def effectsAtBoundary : Rule where
   number := 1138
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom pureLawsClaimEffects) ∨ₗ atom justified
 
 def addsConvenience : Atom := ⟨"addsConvenience",
@@ -402,7 +384,6 @@ def basisByConstructorCount : Atom := ⟨"basisByConstructorCount",
 def conveniencesFromPrimitives : Rule where
   number := 1139
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev editing ∧ₗ atom addsConvenience ⟹ atom convenienceThroughPrimitives) ∧ₗ
     never (ev editing ∧ₗ atom basisByConstructorCount) ∨ₗ atom justified
 
@@ -419,7 +400,6 @@ def connectsInterpreterToSpec : Atom := ⟨"connectsInterpreterToSpec",
 def representationInterpreted : Rule where
   number := 1140
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev editing ∧ₗ atom addsRepresentation ⟹ atom givesInterpretation) ∧ₗ
     (ev editing ∧ₗ atom addsReferenceInterpreter ⟹ atom connectsInterpreterToSpec) ∨ₗ atom justified
 
@@ -434,7 +414,6 @@ def performanceFromSemantics : Atom := ⟨"performanceFromSemantics",
 def domainDifferencesTracked : Rule where
   number := 1141
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev editing ∧ₗ atom domainsDiffer ⟹ atom tracksDomainDifferences) ∧ₗ
     never (ev reply ∧ₗ atom performanceFromSemantics) ∨ₗ atom justified
 
@@ -449,7 +428,6 @@ def quotientWithoutRespect : Atom := ⟨"quotientWithoutRespect",
 def totalInterpreter : Rule where
   number := 1142
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ (atom partialInterpreter ∨ₗ atom interpretationEqualityNotRelation ∨ₗ
     atom quotientWithoutRespect)) ∨ₗ atom justified
 
@@ -460,7 +438,6 @@ def conflatesEqualities : Atom := ⟨"conflatesEqualities",
 def equalitiesExplicit : Rule where
   number := 1143
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom conflatesEqualities) ∨ₗ atom justified
 
 def addsTransformation : Atom := ⟨"addsTransformation",
@@ -472,7 +449,6 @@ def provesPreservationByInduction : Link := ⟨"provesPreservationByInduction",
 def preservationByInduction : Rule where
   number := 1144
   keyword := .should
-  domain := .softwareEngineering
   formula := ev leanEdit ∧ₗ atom addsTransformation ⟹
     eventually (ev leanEdit ∧ₗ link provesPreservationByInduction) ∨ₗ atom justified
 
@@ -487,7 +463,6 @@ def propertyFromCallers : Atom := ⟨"propertyFromCallers",
 def propertiesFromCallers : Rule where
   number := 1145
   keyword := .should
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom statesProperty ⟹ atom propertyFromCallers ∨ₗ atom justified
 
 def combinesRelations : Atom := ⟨"combinesRelations",
@@ -499,7 +474,6 @@ def statesPropertySetCompleteness : Atom := ⟨"statesPropertySetCompleteness",
 def severalRelations : Rule where
   number := 1146
   keyword := .should
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom statesProperty ⟹
     (atom combinesRelations ∧ₗ atom statesPropertySetCompleteness) ∨ₗ atom justified
 
@@ -512,7 +486,6 @@ def statesStartStepsSafetyLiveness : Atom := ⟨"statesStartStepsSafetyLiveness"
 def statefulSpecified : Rule where
   number := 1147
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom specifiesStatefulCode ⟹ atom statesStartStepsSafetyLiveness ∨ₗ
     atom justified
 
@@ -529,7 +502,6 @@ def checksFasterOracle : Atom := ⟨"checksFasterOracle",
 def plainOracle : Rule where
   number := 1148
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev testEdit ∧ₗ atom writesOracle ⟹ atom oracleIndependentPlain) ∧ₗ
     (ev testEdit ∧ₗ atom addsFasterOracle ⟹ atom checksFasterOracle) ∨ₗ atom justified
 
@@ -542,7 +514,6 @@ def labelsProperty : Atom := ⟨"labelsProperty",
 def propertiesLabelled : Rule where
   number := 1149
   keyword := .should
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom statesProperty ⟹
     (atom propertyOverEveryInput ∧ₗ atom labelsProperty) ∨ₗ atom justified
 
@@ -555,7 +526,6 @@ def generatorIgnoresStructure : Atom := ⟨"generatorIgnoresStructure",
 def inputsByConstruction : Rule where
   number := 1150
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ (atom filtersGeneratedInputs ∨ₗ atom generatorIgnoresStructure)) ∨ₗ
     atom justified
 
@@ -568,7 +538,6 @@ def mixesMalformedRaw : Atom := ⟨"mixesMalformedRaw",
 def publicConstructorsInTests : Rule where
   number := 1151
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ (atom generatesThroughInternals ∨ₗ atom mixesMalformedRaw)) ∨ₗ
     atom justified
 
@@ -579,7 +548,6 @@ def shrinkingBreaksConstraints : Atom := ⟨"shrinkingBreaksConstraints",
 def shrinkingKeepsDomain : Rule where
   number := 1152
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ atom shrinkingBreaksConstraints) ∨ₗ atom justified
 
 def instanceHidesOrder : Atom := ⟨"instanceHidesOrder",
@@ -589,7 +557,6 @@ def instanceHidesOrder : Atom := ⟨"instanceHidesOrder",
 def revealingInstances : Rule where
   number := 1153
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ atom instanceHidesOrder) ∨ₗ atom justified
 
 def samplesSmallDomain : Atom := ⟨"samplesSmallDomain",
@@ -601,7 +568,6 @@ def leavesBoundaryUntested : Atom := ⟨"leavesBoundaryUntested",
 def smallDomainsWhole : Rule where
   number := 1154
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ (atom samplesSmallDomain ∨ₗ atom leavesBoundaryUntested)) ∨ₗ
     atom justified
 
@@ -614,7 +580,6 @@ def weightsTowardCoincidences : Atom := ⟨"weightsTowardCoincidences",
 def generatorsHitCoincidences : Rule where
   number := 1155
   keyword := .should
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom writesInputGenerator ⟹ atom weightsTowardCoincidences ∨ₗ atom justified
 
 def assertsPartOfResult : Atom := ⟨"assertsPartOfResult",
@@ -626,7 +591,6 @@ def showsSlowProperty : Atom := ⟨"showsSlowProperty",
 def wholeResultFastProperties : Rule where
   number := 1156
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ atom assertsPartOfResult) ∧ₗ
     never (ev toolResult ∧ₗ atom showsSlowProperty) ∨ₗ atom justified
 
@@ -639,7 +603,6 @@ def exampleExpectationFromCode : Atom := ⟨"exampleExpectationFromCode",
 def examplesOnlyWhereNeeded : Rule where
   number := 1157
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ (atom needlessExampleTest ∨ₗ atom exampleExpectationFromCode)) ∨ₗ
     atom justified
 
@@ -652,7 +615,6 @@ def testOwnedFixedSeed : Atom := ⟨"testOwnedFixedSeed",
 def handRolledPropertySeed : Rule where
   number := 1158
   keyword := .must
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom handRolledPropertyTest ⟹ atom testOwnedFixedSeed
 
 def runsManyCases : Atom := ⟨"runsManyCases",
@@ -664,7 +626,6 @@ def printsSeedAndInput : Atom := ⟨"printsSeedAndInput",
 def manyCasesSeedPrinted : Rule where
   number := 1159
   keyword := .must
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom statesProperty ⟹ atom runsManyCases ∧ₗ atom printsSeedAndInput
 
 /-! Mutation testing (rules 1160 to 1175). -/
@@ -680,7 +641,6 @@ def mutatesWiring : Atom := ⟨"mutatesWiring",
 def wiringByIntegrationCases : Rule where
   number := 1160
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev editing ∧ₗ atom changesWiring ⟹ eventually (ev testEdit ∧ₗ link integrationCasesFor)) ∧ₗ
     never (ev mutationBatch ∧ₗ atom mutatesWiring) ∨ₗ atom justified
 
@@ -691,7 +651,6 @@ def namesDetectionUncertainty : Atom := ⟨"namesDetectionUncertainty",
 def uncertaintyGetsMutants : Rule where
   number := 1161
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom namesDetectionUncertainty ⟹ eventually (ev mutationBatch) ∨ₗ
     atom justified
 
@@ -706,7 +665,6 @@ def statesCoverageQuestion : Link := ⟨"statesCoverageQuestion",
 def genericMutantsJustified : Rule where
   number := 1162
   keyword := .should
-  domain := .softwareEngineering
   formula := ev mutationBatch ∧ₗ atom runsGenericMutants ⟹
     (atom substantialDecisionLogic ∧ₗ once (ev reply ∧ₗ link statesCoverageQuestion)) ∨ₗ
     atom justified
@@ -721,7 +679,6 @@ unchanged since. -/
 def stopWhenSettled : Rule where
   number := 1163
   keyword := .should
-  domain := .softwareEngineering
   formula := ev anyCall ∧ₗ atom runsVerification ⟹
     ¬ₗ since (ev reply ∧ₗ atom saysFailureModesSettled) (ev editing) ∨ₗ atom justified
 
@@ -732,7 +689,6 @@ def overridesUserRequirement : Link := ⟨"overridesUserRequirement",
 def userRequirementsFirst : Rule where
   number := 1164
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev mutationBatch ∧ₗ once (ev user ∧ₗ link overridesUserRequirement))
 
 def writesMutant : Atom := ⟨"writesMutant",
@@ -746,7 +702,6 @@ def checksIntendedTestFailed : Link := ⟨"checksIntendedTestFailed",
 def oneMutantPerBehavior : Rule where
   number := 1165
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev editing ∧ₗ atom writesMutant ⟹ atom mutantBreaksOneBehavior) ∧ₗ
     (ev mutationBatch ⟹ eventually (ev reply ∧ₗ link checksIntendedTestFailed)) ∨ₗ atom justified
 
@@ -757,7 +712,6 @@ def mutantBreaksUnrelated : Atom := ⟨"mutantBreaksUnrelated",
 def preciseMutants : Rule where
   number := 1166
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom mutantBreaksUnrelated) ∨ₗ atom justified
 
 def selectsUnbreakableTests : Atom := ⟨"selectsUnbreakableTests",
@@ -769,7 +723,6 @@ def needlessPaths : Atom := ⟨"needlessPaths",
 def mutantTestSelection : Rule where
   number := 1167
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ (atom selectsUnbreakableTests ∨ₗ atom needlessPaths)) ∨ₗ
     atom justified
 
@@ -782,7 +735,6 @@ def runsInBackground : Atom := ⟨"runsInBackground",
 def longBatchInBackground : Rule where
   number := 1168
   keyword := .should
-  domain := .softwareEngineering
   formula := ev mutationBatch ∧ₗ atom expectedOverMinute ⟹
     (ev underLauncher ∧ₗ atom runsInBackground) ∨ₗ atom justified
 
@@ -793,7 +745,6 @@ def startsWorkerPool : Atom := ⟨"startsWorkerPool",
 def noPoolsInMutatedTests : Rule where
   number := 1169
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ atom startsWorkerPool)
 
 def citesEarlierVerdict : Atom := ⟨"citesEarlierVerdict",
@@ -807,7 +758,6 @@ def changesVerdictInputs : Link := ⟨"changesVerdictInputs",
 def noStaleVerdicts : Rule where
   number := 1170
   keyword := .shouldNot
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom citesEarlierVerdict ⟹
     since (ev toolResult ∧ₗ link isCitedVerdict) (ev editing ∧ₗ link changesVerdictInputs) ∨ₗ
     atom justified
@@ -819,7 +769,6 @@ def skippedScopePassed : Atom := ⟨"skippedScopePassed",
 def skippedScopesIncomplete : Rule where
   number := 1171
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom skippedScopePassed)
 
 def readsMutationReport : Link := ⟨"readsMutationReport",
@@ -835,7 +784,6 @@ def sameMutationCommand : Link := ⟨"sameMutationCommand",
 def survivorsRead : Rule where
   number := 1172
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev mutationBatch ⟹ eventually (ev reading ∧ₗ link readsMutationReport)) ∧ₗ
     (ev reply ∧ₗ atom reportsSurvivors ⟹ atom classifiesSurvivors) ∧ₗ
     (ev mutationBatch ∧ₗ once (ev mutationBatch) ⟹ once (ev mutationBatch ∧ₗ link sameMutationCommand)) ∨ₗ
@@ -848,7 +796,6 @@ def addsNonDistinctTest : Atom := ⟨"addsNonDistinctTest",
 def strengthenBeforeAdding : Rule where
   number := 1173
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev testEdit ∧ₗ atom addsNonDistinctTest) ∨ₗ atom justified
 
 def removesRedundantTest : Atom := ⟨"removesRedundantTest",
@@ -862,7 +809,6 @@ def dropsUniqueAssertion : Atom := ⟨"dropsUniqueAssertion",
 def redundantTestRemoval : Rule where
   number := 1174
   keyword := .must
-  domain := .softwareEngineering
   formula := ev testEdit ∧ₗ atom removesRedundantTest ⟹
     once (ev reading ∧ₗ link confirmsCoveringTest) ∧ₗ ¬ₗ atom dropsUniqueAssertion
 
@@ -879,7 +825,6 @@ def survivorsByKind : Atom := ⟨"survivorsByKind",
 def mutationReportComplete : Rule where
   number := 1175
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reportsMutationResult ⟹
     once (ev mutationBatch) ∧ₗ atom givesAllMutationCounts ∧ₗ atom saysHowGapsClosed ∧ₗ
     atom survivorsByKind
@@ -895,7 +840,6 @@ def readsSignatureContext : Link := ⟨"readsSignatureContext",
 def readBeforeSignatureChange : Rule where
   number := 1176
   keyword := .should
-  domain := .softwareEngineering
   formula := ev leanEdit ∧ₗ atom changesSignature ⟹
     once (ev reading ∧ₗ link readsSignatureContext) ∨ₗ atom justified
 
@@ -909,7 +853,6 @@ each edit. -/
 def inspectAndDiagnose : Rule where
   number := 1177
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev leanEdit ∧ₗ atom editsProof ⟹ once (ev leanInspect)) ∧ₗ
     never (ev leanInspect ∧ₗ atom inspectsWithoutExactPosition) ∧ₗ
     (ev leanEdit ⟹ eventually (ev leanDiagnostics)) ∨ₗ atom justified
@@ -921,7 +864,6 @@ def appliesTacticSuggestion : Atom := ⟨"appliesTacticSuggestion",
 def suggestionsFromCodeActions : Rule where
   number := 1178
   keyword := .should
-  domain := .softwareEngineering
   formula := ev leanEdit ∧ₗ atom appliesTacticSuggestion ⟹ once (ev leanCodeActions) ∨ₗ
     atom justified
 
@@ -936,7 +878,6 @@ def checksLemmaSignature : Link := ⟨"checksLemmaSignature",
 def searchBeforeProving : Rule where
   number := 1179
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev leanEdit ∧ₗ atom constructsNewProof ⟹ once (ev leanLocalSearch)) ∧ₗ
     (ev leanEdit ∧ₗ atom usesFoundLemma ⟹ once (ev leanInspect ∧ₗ link checksLemmaSignature)) ∨ₗ
     atom justified
@@ -950,7 +891,6 @@ def trialEditOfOneCandidate : Atom := ⟨"trialEditOfOneCandidate",
 def tacticsFromGoal : Rule where
   number := 1180
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanMultiAttempt ∧ₗ atom triesEveryTactic) ∧ₗ
     never (ev leanEdit ∧ₗ atom trialEditOfOneCandidate) ∨ₗ atom justified
 
@@ -961,7 +901,6 @@ def monolithicSemanticProof : Atom := ⟨"monolithicSemanticProof",
 def helperLemmas : Rule where
   number := 1181
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom monolithicSemanticProof) ∨ₗ atom justified
 
 def declaresLeanComplete : Atom := ⟨"declaresLeanComplete",
@@ -973,7 +912,6 @@ def isProjectVerification : Link := ⟨"isProjectVerification",
 def completionByProjectCheck : Rule where
   number := 1182
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom declaresLeanComplete ⟹
     once (ev passingResult ∧ₗ link isProjectVerification) ∨ₗ atom justified
 
@@ -990,7 +928,6 @@ def sameDeclarationToolchain : Atom := ⟨"sameDeclarationToolchain",
 def profileMeasuredSlowness : Rule where
   number := 1183
   keyword := .should
-  domain := .softwareEngineering
   formula := (ev leanProfile ⟹ once (ev toolResult ∧ₗ link measuresSlowness)) ∧ₗ
     (ev leanEdit ∧ₗ atom optimizesForSpeed ⟹ once (ev leanProfile)) ∧ₗ
     (ev reply ∧ₗ atom claimsSpeedup ⟹ atom sameDeclarationToolchain) ∨ₗ atom justified
@@ -1002,7 +939,6 @@ def refactorWithoutGain : Atom := ⟨"refactorWithoutGain",
 def refactorForGain : Rule where
   number := 1184
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev leanEdit ∧ₗ atom refactorWithoutGain) ∨ₗ atom justified
 
 def reportsLeanResult : Atom := ⟨"reportsLeanResult",
@@ -1014,7 +950,6 @@ def statesFallbackLimits : Atom := ⟨"statesFallbackLimits",
 def leanServerOrLimits : Rule where
   number := 1185
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reportsLeanResult ∧ₗ once (ev leanCompile) ∧ₗ ¬ₗ once (ev leanMcpCall) ⟹
     atom statesFallbackLimits ∨ₗ atom justified
 
@@ -1031,7 +966,6 @@ def carriesDescription : Atom := ⟨"carriesDescription",
 def singleCommitNoLetter : Rule where
   number := 1186
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ atom letterForSingleCommit) ∧ₗ
     (ev gitCommit ∧ₗ atom singleCommitMrCommit ⟹ atom carriesDescription)
 
@@ -1042,7 +976,6 @@ def opensWithoutContext : Atom := ⟨"opensWithoutContext",
 def letterOpensWithContext : Rule where
   number := 1187
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ atom opensWithoutContext)
 
 def wrongTense : Atom := ⟨"wrongTense",
@@ -1052,7 +985,6 @@ def wrongTense : Atom := ⟨"wrongTense",
 def letterTenses : Rule where
   number := 1188
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ atom wrongTense)
 
 def inventedScenario : Atom := ⟨"inventedScenario",
@@ -1062,7 +994,6 @@ def inventedScenario : Atom := ⟨"inventedScenario",
 def generalCondition : Rule where
   number := 1189
   keyword := .must
-  domain := .softwareEngineering
   formula := never ((ev coverLetterEdit ∨ₗ ev gitCommit) ∧ₗ atom inventedScenario)
 
 def commentsOnCommitList : Atom := ⟨"commentsOnCommitList",
@@ -1072,7 +1003,6 @@ def commentsOnCommitList : Atom := ⟨"commentsOnCommitList",
 def noCommitListCommentary : Rule where
   number := 1190
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ atom commentsOnCommitList)
 
 def longCommitSummary : Atom := ⟨"longCommitSummary",
@@ -1082,7 +1012,6 @@ def longCommitSummary : Atom := ⟨"longCommitSummary",
 def shortCommitSummaries : Rule where
   number := 1191
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ atom longCommitSummary) ∨ₗ atom justified
 
 def sectionsForSmallChange : Atom := ⟨"sectionsForSmallChange",
@@ -1092,7 +1021,6 @@ def sectionsForSmallChange : Atom := ⟨"sectionsForSmallChange",
 def sectionsOnlyWhenLarge : Rule where
   number := 1192
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ (atom sectionsForSmallChange ∨ₗ atom opensWithoutContext))
 
 def refsLinesWrong : Atom := ⟨"refsLinesWrong",
@@ -1102,7 +1030,6 @@ def refsLinesWrong : Atom := ⟨"refsLinesWrong",
 def refsAtEnd : Rule where
   number := 1193
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev coverLetterEdit ∧ₗ atom refsLinesWrong)
 
 def reworksReviewedBranch : Atom := ⟨"reworksReviewedBranch",
@@ -1116,7 +1043,6 @@ refused while a rework without a note since its own previous commit has no note 
 def versionNoteWithRework : Rule where
   number := 1194
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev gitCommit ∧ₗ atom reworksReviewedBranch ⟹
       since (ev versionNoteEdit ∧ₗ link noteForRework) (ev gitCommit) ∨ₗ
         eventually (ev versionNoteEdit ∧ₗ link noteForRework)) ∧ₗ
@@ -1133,7 +1059,6 @@ is written: the update since the commit before the note, or after it with no com
 def letterWithNote : Rule where
   number := 1195
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev versionNoteEdit ⟹
       since (ev coverLetterEdit ∧ₗ link updatesLetterForNote) (ev gitCommit) ∨ₗ
         eventually (ev coverLetterEdit ∧ₗ link updatesLetterForNote)) ∧ₗ
@@ -1153,7 +1078,6 @@ def noteMissingHowChecked : Atom := ⟨"noteMissingHowChecked",
 def versionNoteShape : Rule where
   number := 1196
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev versionNoteEdit ∧ₗ
     (atom noteNotFlatPerChange ∨ₗ atom noteOutOfDiffOrder ∨ₗ atom noteMissingHowChecked))
 
@@ -1164,7 +1088,6 @@ def noteForRebaseOnly : Atom := ⟨"noteForRebaseOnly",
 def noNoteForRebase : Rule where
   number := 1197
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev versionNoteEdit ∧ₗ atom noteForRebaseOnly)
 
 def dependsOnAnchoredMr : Link := ⟨"dependsOnAnchoredMr",
@@ -1174,7 +1097,6 @@ def dependsOnAnchoredMr : Link := ⟨"dependsOnAnchoredMr",
 def mrsInDependencyOrder : Rule where
   number := 1198
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev mrCreate ∧ₗ once (ev mrCreate ∧ₗ link dependsOnAnchoredMr))
 
 def pushesForGitlab : Atom := ⟨"pushesForGitlab",
@@ -1184,7 +1106,6 @@ def pushesForGitlab : Atom := ⟨"pushesForGitlab",
 def signInCheckedBeforePush : Rule where
   number := 1199
   keyword := .must
-  domain := .softwareEngineering
   formula := ev push ∧ₗ atom pushesForGitlab ⟹ once (ev glabAuthStatus)
 
 def dependentNotStacked : Atom := ⟨"dependentNotStacked",
@@ -1194,7 +1115,6 @@ def dependentNotStacked : Atom := ⟨"dependentNotStacked",
 def stackedMrs : Rule where
   number := 1200
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev mrCreate ∧ₗ atom dependentNotStacked)
 
 def pushesNewMrBranch : Atom := ⟨"pushesNewMrBranch",
@@ -1204,7 +1124,6 @@ def pushesNewMrBranch : Atom := ⟨"pushesNewMrBranch",
 def oneMrAtATime : Rule where
   number := 1201
   keyword := .must
-  domain := .softwareEngineering
   formula := ev push ∧ₗ atom pushesNewMrBranch ⟹
     ¬ₗ since (ev push ∧ₗ atom pushesNewMrBranch) (ev mrCreate)
 
@@ -1217,7 +1136,6 @@ def linksEarlierMrs : Link := ⟨"linksEarlierMrs",
 def dependentLinksEarlier : Rule where
   number := 1202
   keyword := .must
-  domain := .softwareEngineering
   formula := ev push ∧ₗ atom pushesDependentMr ⟹ once (ev coverLetterEdit ∧ₗ link linksEarlierMrs)
 
 def omitsOrderConstraint : Atom := ⟨"omitsOrderConstraint",
@@ -1227,7 +1145,6 @@ def omitsOrderConstraint : Atom := ⟨"omitsOrderConstraint",
 def orderConstraintsStated : Rule where
   number := 1203
   keyword := .must
-  domain := .softwareEngineering
   formula := never ((ev coverLetterEdit ∨ₗ ev gitCommit) ∧ₗ atom omitsOrderConstraint)
 
 def recordsMrUrl : Atom := ⟨"recordsMrUrl",
@@ -1237,7 +1154,6 @@ def recordsMrUrl : Atom := ⟨"recordsMrUrl",
 def mrUrlRecorded : Rule where
   number := 1204
   keyword := .must
-  domain := .softwareEngineering
   formula := ev mrCreate ⟹
     eventually (ev editing ∧ₗ atom recordsMrUrl) ∧ₗ ¬ₗ since (ev mrCreate) (ev editing ∧ₗ atom recordsMrUrl)
 
@@ -1250,7 +1166,6 @@ def mapsEveryMove : Link := ⟨"mapsEveryMove",
 def movesMappedFirst : Rule where
   number := 1205
   keyword := .must
-  domain := .softwareEngineering
   formula := ev anyCall ∧ₗ atom movesChanges ⟹ once ((ev reply ∨ₗ ev editing) ∧ₗ link mapsEveryMove)
 
 def reversesCut : Atom := ⟨"reversesCut",
@@ -1260,7 +1175,6 @@ def reversesCut : Atom := ⟨"reversesCut",
 def statesFromOriginals : Rule where
   number := 1206
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom reversesCut)
 
 def leavesDraggedAlong : Atom := ⟨"leavesDraggedAlong",
@@ -1270,7 +1184,6 @@ def leavesDraggedAlong : Atom := ⟨"leavesDraggedAlong",
 def removeDraggedAlong : Rule where
   number := 1207
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev gitCommit ∧ₗ atom leavesDraggedAlong)
 
 def whileSplittingCommit : Atom := ⟨"whileSplittingCommit",
@@ -1280,7 +1193,6 @@ def whileSplittingCommit : Atom := ⟨"whileSplittingCommit",
 def cutSpecsNotInteractive : Rule where
   number := 1208
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev interactiveStaging ∧ₗ atom whileSplittingCommit)
 
 def malformedTodoLine : Atom := ⟨"malformedTodoLine",
@@ -1290,7 +1202,6 @@ def malformedTodoLine : Atom := ⟨"malformedTodoLine",
 def todoThroughTools : Rule where
   number := 1209
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev sequenceEditorRebase ∧ₗ ¬ₗ ev todoToolsUsed) ∧ₗ
     never (ev editing ∧ₗ atom malformedTodoLine)
 
@@ -1301,7 +1212,6 @@ def misplacesFixup : Atom := ⟨"misplacesFixup",
 def fixupPlacement : Rule where
   number := 1210
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev anyCall ∧ₗ atom misplacesFixup)
 
 def pureEditForEarlier : Atom := ⟨"pureEditForEarlier",
@@ -1311,7 +1221,6 @@ def pureEditForEarlier : Atom := ⟨"pureEditForEarlier",
 def pureEditsAsFixups : Rule where
   number := 1211
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev gitCommit ∧ₗ atom pureEditForEarlier ⟹ ev fixupCommit) ∧ₗ
     (ev fixupCommit ⟹ eventually (ev autosquashRebase))
 
@@ -1322,7 +1231,6 @@ def commitsLeftover : Atom := ⟨"commitsLeftover",
 def leftoverAuthorship : Rule where
   number := 1212
   keyword := .should
-  domain := .softwareEngineering
   formula := ev gitCommit ∧ₗ atom commitsLeftover ⟹ ev authorFromTarget ∨ₗ atom justified
 
 def quotesTargetSubject : Atom := ⟨"quotesTargetSubject",
@@ -1332,7 +1240,6 @@ def quotesTargetSubject : Atom := ⟨"quotesTargetSubject",
 def leftoverMessageExact : Rule where
   number := 1213
   keyword := .must
-  domain := .softwareEngineering
   formula := ev gitCommit ∧ₗ atom commitsLeftover ⟹ ev leftoverMessage ∧ₗ atom quotesTargetSubject
 
 /-! Correspondence (rules 1214 to 1221). -/
@@ -1344,7 +1251,6 @@ def showsMessageDraft : Atom := ⟨"showsMessageDraft",
 def draftAfterLedger : Rule where
   number := 1214
   keyword := .must
-  domain := .discipline
   formula := (ev messageDraftEdit ⟹ ev privateEdit ∧ₗ once (ev ledgerEdit)) ∧ₗ
     (ev reply ∧ₗ atom showsMessageDraft ⟹ once (ev messageDraftEdit))
 
@@ -1355,7 +1261,6 @@ def showsTranslatedDraft : Atom := ⟨"showsTranslatedDraft",
 def englishSourceKept : Rule where
   number := 1215
   keyword := .must
-  domain := .discipline
   formula := (ev translationEdit ⟹ once (ev messageDraftEdit)) ∧ₗ
     (ev reply ∧ₗ atom showsTranslatedDraft ⟹ once (ev translationEdit))
 
@@ -1366,7 +1271,6 @@ def changesDraftFact : Atom := ⟨"changesDraftFact",
 def messageChangeOrder : Rule where
   number := 1216
   keyword := .must
-  domain := .discipline
   formula := (ev messageDraftEdit ∧ₗ atom changesDraftFact ⟹ once (ev ledgerEdit)) ∧ₗ
     (ev translationEdit ⟹ once (ev messageDraftEdit)) ∧ₗ never (sameMessage messageFilesTogether)
 
@@ -1377,7 +1281,6 @@ def formalChat : Atom := ⟨"formalChat",
 def informalChat : Rule where
   number := 1217
   keyword := .must
-  domain := .discipline
   formula := never (ev messageDraftEdit ∧ₗ atom formalChat)
 
 def chatBuriesPoint : Atom := ⟨"chatBuriesPoint",
@@ -1387,7 +1290,6 @@ def chatBuriesPoint : Atom := ⟨"chatBuriesPoint",
 def pointFirst : Rule where
   number := 1218
   keyword := .must
-  domain := .discipline
   formula := never (ev messageDraftEdit ∧ₗ atom chatBuriesPoint)
 
 def requestWithoutWhy : Atom := ⟨"requestWithoutWhy",
@@ -1397,7 +1299,6 @@ def requestWithoutWhy : Atom := ⟨"requestWithoutWhy",
 def requestSaysWhy : Rule where
   number := 1219
   keyword := .must
-  domain := .discipline
   formula := never (ev messageDraftEdit ∧ₗ atom requestWithoutWhy)
 
 def needlessExplanation : Atom := ⟨"needlessExplanation",
@@ -1409,7 +1310,6 @@ def explainsToolOutput : Atom := ⟨"explainsToolOutput",
 def onlyNeededExplanation : Rule where
   number := 1220
   keyword := .must
-  domain := .discipline
   formula := never (ev messageDraftEdit ∧ₗ (atom needlessExplanation ∨ₗ atom explainsToolOutput))
 
 def externalWithoutGreeting : Atom := ⟨"externalWithoutGreeting",
@@ -1421,7 +1321,6 @@ def colleagueGreeting : Atom := ⟨"colleagueGreeting",
 def greetingByAudience : Rule where
   number := 1221
   keyword := .must
-  domain := .discipline
   formula := never (ev messageDraftEdit ∧ₗ (atom externalWithoutGreeting ∨ₗ atom colleagueGreeting))
 
 /-! Paper writing (rules 1222 to 1244). -/
@@ -1437,7 +1336,6 @@ def asksImmaterialChoice : Atom := ⟨"asksImmaterialChoice",
 def paperBasisFirst : Rule where
   number := 1222
   keyword := .must
-  domain := .mathematics
   formula := (ev editing ∧ₗ atom startsPaperDraft ⟹
       once ((ev reply ∨ₗ ev editing) ∧ₗ link establishesPaperBasis)) ∧ₗ
     never (ev reply ∧ₗ atom asksImmaterialChoice)
@@ -1449,7 +1347,6 @@ def manuscriptNeedsConversation : Atom := ⟨"manuscriptNeedsConversation",
 def standaloneManuscript : Rule where
   number := 1223
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom manuscriptNeedsConversation)
 
 def contributionNotEarly : Atom := ⟨"contributionNotEarly",
@@ -1459,7 +1356,6 @@ def contributionNotEarly : Atom := ⟨"contributionNotEarly",
 def contributionEarly : Rule where
   number := 1224
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom contributionNotEarly)
 
 def proofWithoutOverview : Atom := ⟨"proofWithoutOverview",
@@ -1469,7 +1365,6 @@ def proofWithoutOverview : Atom := ⟨"proofWithoutOverview",
 def proofOverview : Rule where
   number := 1225
   keyword := .should
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom proofWithoutOverview) ∨ₗ atom justified
 
 def spaceNotByDifficulty : Atom := ⟨"spaceNotByDifficulty",
@@ -1479,7 +1374,6 @@ def spaceNotByDifficulty : Atom := ⟨"spaceNotByDifficulty",
 def spaceByDifficulty : Rule where
   number := 1226
   keyword := .should
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom spaceNotByDifficulty) ∨ₗ atom justified
 
 def resultMissingHypotheses : Atom := ⟨"resultMissingHypotheses",
@@ -1493,7 +1387,6 @@ def buriesRestriction : Atom := ⟨"buriesRestriction",
 def resultsWithHypotheses : Rule where
   number := 1227
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ
     (atom resultMissingHypotheses ∨ₗ atom theoremMixedWithProof ∨ₗ atom buriesRestriction))
 
@@ -1504,7 +1397,6 @@ def longArgumentUnsplit : Atom := ⟨"longArgumentUnsplit",
 def argumentsInLemmas : Rule where
   number := 1228
   keyword := .should
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom longArgumentUnsplit) ∨ₗ atom justified
 
 def callsStepObvious : Atom := ⟨"callsStepObvious",
@@ -1514,7 +1406,6 @@ def callsStepObvious : Atom := ⟨"callsStepObvious",
 def noObviousClaims : Rule where
   number := 1229
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom callsStepObvious)
 
 def definitionBeforeQuestion : Atom := ⟨"definitionBeforeQuestion",
@@ -1524,7 +1415,6 @@ def definitionBeforeQuestion : Atom := ⟨"definitionBeforeQuestion",
 def questionBeforeDefinition : Rule where
   number := 1230
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom definitionBeforeQuestion)
 
 def tighteningDropsExplanation : Atom := ⟨"tighteningDropsExplanation",
@@ -1538,7 +1428,6 @@ def comparesWithOriginal : Link := ⟨"comparesWithOriginal",
 def tighteningKeepsReasoning : Rule where
   number := 1231
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom tighteningDropsExplanation) ∧ₗ
     (ev editing ∧ₗ atom tightensText ⟹ eventually (ev reply ∧ₗ link comparesWithOriginal))
 
@@ -1551,7 +1440,6 @@ def overarchingExample : Atom := ⟨"overarchingExample",
 def runningExample : Rule where
   number := 1232
   keyword := .should
-  domain := .mathematics
   formula := ev editing ∧ₗ atom multiStageArgument ⟹ atom overarchingExample ∨ₗ atom justified
 
 def illustrationsInOverview : Atom := ⟨"illustrationsInOverview",
@@ -1561,7 +1449,6 @@ def illustrationsInOverview : Atom := ⟨"illustrationsInOverview",
 def illustrationsInPlace : Rule where
   number := 1233
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom illustrationsInOverview)
 
 def figureConflates : Atom := ⟨"figureConflates",
@@ -1571,7 +1458,6 @@ def figureConflates : Atom := ⟨"figureConflates",
 def figuresDistinguish : Rule where
   number := 1234
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom figureConflates)
 
 def polishesFrontMatter : Atom := ⟨"polishesFrontMatter",
@@ -1585,7 +1471,6 @@ def frontMatterDisagrees : Atom := ⟨"frontMatterDisagrees",
 def frontMatterLast : Rule where
   number := 1235
   keyword := .must
-  domain := .mathematics
   formula := (ev editing ∧ₗ atom polishesFrontMatter ⟹ once (ev reply ∧ₗ link settlesArgumentScope)) ∧ₗ
     never (ev editing ∧ₗ atom frontMatterDisagrees)
 
@@ -1600,7 +1485,6 @@ def removesVoiceForPreference : Atom := ⟨"removesVoiceForPreference",
 def reviewErrorsResolved : Rule where
   number := 1236
   keyword := .must
-  domain := .mathematics
   formula := (ev toolResult ∧ₗ atom reviewDemonstratesError ⟹
       eventually (ev editing ∧ₗ link resolvesReviewError)) ∧ₗ
     never (ev editing ∧ₗ atom removesVoiceForPreference)
@@ -1614,7 +1498,6 @@ def wholeCopyeditPass : Atom := ⟨"wholeCopyeditPass",
 def copyeditAfterChanges : Rule where
   number := 1237
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom substantiveManuscriptChange ⟹
     eventually (ev editing ∧ₗ atom wholeCopyeditPass)
 
@@ -1625,7 +1508,6 @@ def narratesOwnPedagogy : Atom := ⟨"narratesOwnPedagogy",
 def noPedagogyNarration : Rule where
   number := 1238
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ atom narratesOwnPedagogy)
 
 def deliversUnrequested : Atom := ⟨"deliversUnrequested",
@@ -1637,7 +1519,6 @@ def removesEditableSources : Atom := ⟨"removesEditableSources",
 def requestedArtifactOnly : Rule where
   number := 1239
   keyword := .must
-  domain := .mathematics
   formula := never (ev reply ∧ₗ atom deliversUnrequested) ∧ₗ
     never (ev anyCall ∧ₗ atom removesEditableSources)
 
@@ -1652,7 +1533,6 @@ def viewsEveryPage : Link := ⟨"viewsEveryPage",
 def pdfInspected : Rule where
   number := 1240
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom deliversPdf ⟹
     once (ev pdfRead) ∧ₗ
     (once (ev editing ∧ₗ link repaginatesDelivered) ⟹
@@ -1665,7 +1545,6 @@ def buildsOutsideWorkflow : Atom := ⟨"buildsOutsideWorkflow",
 def repositoryWorkflow : Rule where
   number := 1241
   keyword := .must
-  domain := .mathematics
   formula := never (ev anyCall ∧ₗ atom buildsOutsideWorkflow)
 
 def runsBuildOrValidation : Atom := ⟨"runsBuildOrValidation",
@@ -1677,7 +1556,6 @@ def passOfSameCheck : Link := ⟨"passOfSameCheck",
 def reusePassedChecks : Rule where
   number := 1242
   keyword := .should
-  domain := .mathematics
   formula := ev anyCall ∧ₗ atom runsBuildOrValidation ⟹
     ¬ₗ since (ev passingResult ∧ₗ link passOfSameCheck) (ev editing) ∨ₗ atom justified
 
@@ -1690,7 +1568,6 @@ def reportsEditsChecksGaps : Atom := ⟨"reportsEditsChecksGaps",
 def reportWorkDone : Rule where
   number := 1243
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom closesManuscriptWork ⟹
     atom reportsEditsChecksGaps ∧ₗ ¬ₗ atom inventsProgress
 
@@ -1703,7 +1580,6 @@ def callsRawSourceFidelity : Atom := ⟨"callsRawSourceFidelity",
 def keepTypesetting : Rule where
   number := 1244
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev anyCall ∧ₗ atom replacesTypesetting) ∧ₗ
     never (ev reply ∧ₗ atom callsRawSourceFidelity)
 
@@ -1718,7 +1594,6 @@ def finishesClassicDraft : Atom := ⟨"finishesClassicDraft",
 def classicReviewFirst : Rule where
   number := 1245
   keyword := .must
-  domain := .softwareEngineering
   formula := ev anyCall ∧ₗ atom startsHunkLedger ⟹ once (ev reviewDraftEdit ∧ₗ atom finishesClassicDraft)
 
 def omitsSyncRestarts : Atom := ⟨"omitsSyncRestarts",
@@ -1728,7 +1603,6 @@ def omitsSyncRestarts : Atom := ⟨"omitsSyncRestarts",
 def askWhatRestarts : Rule where
   number := 1246
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reviewDraftEdit ∧ₗ atom omitsSyncRestarts)
 
 def readsBeyondDiff : Link := ⟨"readsBeyondDiff",
@@ -1739,7 +1613,6 @@ fails to do. -/
 def lookBeyondDiff : Rule where
   number := 1247
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewDraftEdit ⟹ once ((ev reading ∨ₗ ev searchCall) ∧ₗ link readsBeyondDiff)
 
 def commentsOnName : Atom := ⟨"commentsOnName",
@@ -1751,7 +1624,6 @@ def findsEveryOccurrence : Link := ⟨"findsEveryOccurrence",
 def everyOccurrenceRead : Rule where
   number := 1248
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewDraftEdit ∧ₗ atom commentsOnName ⟹
     once ((ev reading ∨ₗ ev searchCall) ∧ₗ link findsEveryOccurrence)
 
@@ -1765,7 +1637,6 @@ def leavesDifferenceUnasked : Atom := ⟨"leavesDifferenceUnasked",
 def compareWithInstances : Rule where
   number := 1249
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewDraftEdit ⟹
     once ((ev reading ∨ₗ ev searchCall) ∧ₗ link readsExistingInstance) ∧ₗ ¬ₗ atom leavesDifferenceUnasked
 
@@ -1776,7 +1647,6 @@ def readsCommitMessages : Link := ⟨"readsCommitMessages",
 def messagesAgainstCode : Rule where
   number := 1250
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewDraftEdit ⟹ once (ev gitLog ∧ₗ link readsCommitMessages)
 
 def asksAboutEnumeratedReviewer : Atom := ⟨"asksAboutEnumeratedReviewer",
@@ -1786,7 +1656,6 @@ def asksAboutEnumeratedReviewer : Atom := ⟨"asksAboutEnumeratedReviewer",
 def enumeratedReviewerAsked : Rule where
   number := 1251
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev reviewDraftEdit ⟹ once (ev reply ∧ₗ atom asksAboutEnumeratedReviewer)) ∧ₗ
     never (ev reply ∧ₗ atom asksAboutEnumeratedReviewer ∧ₗ atom asksUserAndStops)
 
@@ -1799,7 +1668,6 @@ def briefBeyondDiff : Atom := ⟨"briefBeyondDiff",
 def leanReviewerBrief : Rule where
   number := 1252
   keyword := .should
-  domain := .softwareEngineering
   formula := ev agentRun ∧ₗ atom briefsMrReviewer ⟹
     (¬ₗ atom briefBeyondDiff ∧ₗ ev cheaperModel) ∨ₗ atom justified
 
@@ -1812,7 +1680,6 @@ def withholdsApproval : Atom := ⟨"withholdsApproval",
 def nonBlockingPointsChecked : Rule where
   number := 1253
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev reviewDraftEdit ∧ₗ (atom raisesSelfClosingPoint ∨ₗ atom withholdsApproval)) ∨ₗ
     atom justified
 
@@ -1823,7 +1690,6 @@ def raisesAnsweredPoint : Atom := ⟨"raisesAnsweredPoint",
 def noRepeatedPoints : Rule where
   number := 1254
   keyword := .mustNot
-  domain := .softwareEngineering
   formula := never (ev reviewDraftEdit ∧ₗ atom raisesAnsweredPoint)
 
 def proposesFix : Atom := ⟨"proposesFix",
@@ -1835,7 +1701,6 @@ def scrutinizesFix : Link := ⟨"scrutinizesFix",
 def fixScrutinized : Rule where
   number := 1255
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reviewDraftEdit ∧ₗ atom proposesFix ⟹
     once ((ev reply ∨ₗ ev thinkingStep) ∧ₗ link scrutinizesFix)
 
@@ -1848,7 +1713,6 @@ def opensAskedForBuild : Link := ⟨"opensAskedForBuild",
 def buildBeforeAsking : Rule where
   number := 1256
   keyword := .must
-  domain := .softwareEngineering
   formula := ev publish ∧ₗ atom postsCommentAskingUse ⟹ once (ev mrCreate ∧ₗ link opensAskedForBuild)
 
 def ownFollowUpInComments : Atom := ⟨"ownFollowUpInComments",
@@ -1858,7 +1722,6 @@ def ownFollowUpInComments : Atom := ⟨"ownFollowUpInComments",
 def ownFollowUpsApart : Rule where
   number := 1257
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reviewDraftEdit ∧ₗ atom ownFollowUpInComments)
 
 def asksCheckableQuestion : Atom := ⟨"asksCheckableQuestion",
@@ -1870,7 +1733,6 @@ def followUpUnfolded : Atom := ⟨"followUpUnfolded",
 def settleCheckable : Rule where
   number := 1258
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reviewDraftEdit ∧ₗ (atom asksCheckableQuestion ∨ₗ atom followUpUnfolded))
 
 def offersReviewComments : Atom := ⟨"offersReviewComments",
@@ -1882,7 +1744,6 @@ def comparesComments : Link := ⟨"comparesComments",
 def commentsCrossRead : Rule where
   number := 1259
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom offersReviewComments ⟹
     once ((ev reading ∨ₗ ev thinkingStep) ∧ₗ link comparesComments)
 
@@ -1893,7 +1754,6 @@ def holdsFindingForLater : Atom := ⟨"holdsFindingForLater",
 def allFindingsAtOnce : Rule where
   number := 1260
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom holdsFindingForLater)
 
 def rules : List Rule :=

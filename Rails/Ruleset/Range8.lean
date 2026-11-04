@@ -612,7 +612,6 @@ def showsValidStatesConstructible : Link := ⟨"showsValidStatesConstructible",
 def strictTyping : Rule where
   number := 981
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom leavesTypesLoose) ∧ₗ
     (ev commitCall ∧ₗ atom commitsCheckableCode ⟹ once (ev typeCheckRun ∧ₗ link strictestOwnChecker))
 
@@ -620,21 +619,18 @@ def strictTyping : Rule where
 def pureCore : Rule where
   number := 982
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom mixesEffectsWithDecisions)
 
 /-- Rule 983: config as an explicit parameter, the environment only where passing is very costly. -/
 def explicitConfig : Rule where
   number := 983
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom readsConfigFromEnvironment ⟹ atom passingConfigCostly
 
 /-- Rule 984: the outer layer gets integration tests against the real system. -/
 def outerLayerIntegrationTests : Rule where
   number := 984
   keyword := .should
-  domain := .discipline
   formula := ev commitCall ∧ₗ atom commitsOuterLayer ⟹
     around (ev editing ∧ₗ link testsOuterLayerLive) ∨ₗ atom justified
 
@@ -642,42 +638,36 @@ def outerLayerIntegrationTests : Rule where
 def noInlineProgram : Rule where
   number := 985
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom writesInlineProgram)
 
 /-- Rule 986: the smallest surgical diff and the simplest mechanism. -/
 def smallestDiff : Rule where
   number := 986
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom needlessNewStructure)
 
 /-- Rule 987: the cheapest mechanism named, and why it fails, before a costlier one. -/
 def cheapestMechanismFirst : Rule where
   number := 987
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom buildsCostlyMechanism ⟹ once (ev reply ∧ₗ link namesCheapestMechanism)
 
 /-- Rule 988: the simplest coherent interface; generality removes special cases. -/
 def earnedGenerality : Rule where
   number := 988
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom unearnedGenerality)
 
 /-- Rule 989: asked how, give the literal command. -/
 def literalCommand : Rule where
   number := 989
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom asksHowTo ⟹ eventually (ev reply ∧ₗ link givesRunnableCommand)
 
 /-- Rule 990: proceed on a provisional answer and keep its question open. -/
 def provisionalAnswer : Rule where
   number := 990
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom givesProvisionalAnswer ⟹
     eventually (ev toolCall ∧ₗ link actsOnProvisionalAnswer) ∧ₗ
       ¬ₗ eventually (ev reply ∧ₗ link closesProvisionalQuestion)
@@ -686,14 +676,12 @@ def provisionalAnswer : Rule where
 def noPerInstanceDesign : Rule where
   number := 991
   keyword := .must
-  domain := .discipline
   formula := never (atom adoptsPerInstanceDesign)
 
 /-- Rule 992: verification chosen by the change, the least costly, escalated only for a risk. -/
 def verificationByChange : Rule where
   number := 992
   keyword := .must
-  domain := .discipline
   formula := never (ev toolCall ∧ₗ atom verificationOffChange) ∧ₗ
     (ev toolCall ∧ₗ atom escalatedVerification ⟹ atom unresolvedRiskOrFailure)
 
@@ -701,28 +689,24 @@ def verificationByChange : Rule where
 def checklistToolsNoGoals : Rule where
   number := 993
   keyword := .mustNot
-  domain := .discipline
   formula := never (atom checklistToolsAsGoals)
 
 /-- Rule 994: a narrow change's verification stays in its area. -/
 def narrowVerification : Rule where
   number := 994
   keyword := .must
-  domain := .discipline
   formula := ev toolCall ∧ₗ atom verifiesBeyondAffectedArea ⟹ atom broadBlastRadius
 
 /-- Rule 995: test the tip after a rewrite. -/
 def testTipAfterRewrite : Rule where
   number := 995
   keyword := .must
-  domain := .discipline
   formula := ev historyRewrite ⟹ eventually (ev checkRun ∧ₗ link testsRewrittenTip)
 
 /-- Rule 996: no repeat of a check whose evidence is in hand, run or planned. -/
 def noRepeatedCheck : Rule where
   number := 996
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev checkRun ∧ₗ once (ev checkRun ∧ₗ link settlesSameQuestion) ∧ₗ
       ¬ₗ atom canStillFindNew) ∧ₗ
     never (ev editing ∧ₗ atom plansRepeatedCheck)
@@ -731,7 +715,6 @@ def noRepeatedCheck : Rule where
 def checkConsumersFirst : Rule where
   number := 997
   keyword := .should
-  domain := .discipline
   formula := ev toolCall ∧ₗ atom changesSharedResource ⟹
     once (ev toolCall ∧ₗ link checksResourceConsumers) ∨ₗ atom justified
 
@@ -739,14 +722,12 @@ def checkConsumersFirst : Rule where
 def oneMechanism : Rule where
   number := 998
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom notesDivergentMechanisms ⟹ atom pushesOneMechanism ∨ₗ atom justified
 
 /-- Rule 999: a shared setting's live value kept before it changes. -/
 def keepLiveValue : Rule where
   number := 999
   keyword := .should
-  domain := .discipline
   formula := ev toolCall ∧ₗ atom changesSharedSetting ⟹
     once (ev toolCall ∧ₗ link keepsLiveValue) ∨ₗ atom justified
 
@@ -755,7 +736,6 @@ listed, the change measured. -/
 def manualOperationChange : Rule where
   number := 1000
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom changesManualOperation ⟹
     once (ev reply ∧ₗ link statesWholeBehaviour) ∧ₗ once (ev reply ∧ₗ link listsExistingBehaviour) ∧ₗ
       eventually (ev checkRun ∧ₗ link measuresManualChange)
@@ -764,28 +744,24 @@ def manualOperationChange : Rule where
 def proofsOverTests : Rule where
   number := 1001
   keyword := .should
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom testWhereProofFits) ∨ₗ atom justified
 
 /-- Rule 1002: a test goes once a proof establishes its property. -/
 def removeProvedTest : Rule where
   number := 1002
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom provesTestedProperty ⟹ eventually (ev editing ∧ₗ link removesSupersededTest)
 
 /-- Rule 1003: tests of behaviour outside a proof's scope stay. -/
 def keepTestsBeyondProof : Rule where
   number := 1003
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom removesTestBeyondProof)
 
 /-- Rule 1004: a relation over generated inputs, never a case table called a property test. -/
 def relationNotTable : Rule where
   number := 1004
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom writesCaseTableTest) ∧ₗ
     never (ev reply ∧ₗ atom callsCaseTablePropertyTest)
 
@@ -793,7 +769,6 @@ def relationNotTable : Rule where
 def markedTestHack : Rule where
   number := 1005
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom writesTestHack ⟹
       atom hackClearlyMarked ∧ₗ eventually (ev editing ∧ₗ link revertsHack)) ∧ₗ
     never (ev commitCall ∧ₗ atom commitsTestHack)
@@ -802,14 +777,12 @@ def markedTestHack : Rule where
 def automationFromWorkflow : Rule where
   number := 1006
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom callsAutomationDone ⟹ once (ev reply ∧ₗ link walksCallerWorkflow)
 
 /-- Rule 1007: mechanical work in the tool, the caller's judgement stated as its boundary. -/
 def mechanicalWorkInTool : Rule where
   number := 1007
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom leavesMechanicalWorkToCaller) ∧ₗ
     (ev editing ∧ₗ atom buildsTool ⟹ atom statesCallerBoundary)
 
@@ -817,14 +790,12 @@ def mechanicalWorkInTool : Rule where
 def deepModules : Rule where
   number := 1008
   keyword := .should
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom shallowModule) ∨ₗ atom justified
 
 /-- Rule 1009: check what the user worked out, without re-deriving it. -/
 def checkUsersWork : Rule where
   number := 1009
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom presentsWorkedResult ⟹
     eventually (ev toolCall ∧ₗ link checksUsersResult) ∧ₗ
       ¬ₗ eventually (ev reply ∧ₗ link rederivesUsersResult)
@@ -833,7 +804,6 @@ def checkUsersWork : Rule where
 def freshReviewOfOwnWork : Rule where
   number := 1010
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom offersArtifact ⟹
     once (ev agentRun ∧ₗ link freshReviewOfArtifact) ∨ₗ atom justified
 
@@ -841,21 +811,18 @@ def freshReviewOfOwnWork : Rule where
 def independentJudgement : Rule where
   number := 1011
   keyword := .must
-  domain := .discipline
   formula := ev user ∧ₗ atom floatsProposal ⟹ eventually (ev reply ∧ₗ link judgesProposalIndependently)
 
 /-- Rule 1012: a delegation carries the goal, the spec, the decisions and the checks. -/
 def delegateWithGoal : Rule where
   number := 1012
   keyword := .must
-  domain := .discipline
   formula := never (ev agentRun ∧ₗ atom briefLacksGoal)
 
 /-- Rule 1013: stale content pruned, a finished task's branches included. -/
 def pruneStale : Rule where
   number := 1013
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom keepsStaleContent) ∧ₗ
     (ev reply ∧ₗ atom closesTask ⟹ ¬ₗ atom leavesFinishedBranches)
 
@@ -863,7 +830,6 @@ def pruneStale : Rule where
 def weighMethodCost : Rule where
   number := 1014
   keyword := .must
-  domain := .discipline
   formula := (ev toolCall ∧ₗ atom costlyMethod ⟹ once (ev reply ∧ₗ link weighsMethodCost)) ∧ₗ
     never (ev toolCall ∧ₗ atom costBuysNothing)
 
@@ -871,7 +837,6 @@ def weighMethodCost : Rule where
 def heavyComputationPrepared : Rule where
   number := 1015
   keyword := .must
-  domain := .discipline
   formula := ev toolCall ∧ₗ atom heavyComputation ⟹
     once (ev reply ∧ₗ link estimatesRunTime) ∧ₗ atom runsCompiledParallel
 
@@ -879,7 +844,6 @@ def heavyComputationPrepared : Rule where
 def processChangeRemovesFriction : Rule where
   number := 1016
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom processChangeAddsFriction) ∧ₗ
     (ev reply ∧ₗ atom reportsProcessFriction ⟹ eventually (ev editing ∧ₗ link changesFrictionalProcess))
 
@@ -887,7 +851,6 @@ def processChangeRemovesFriction : Rule where
 def judgeProcessChange : Rule where
   number := 1017
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsProcessChangeUse ⟹
     atom comparesTimeAndDefects ∧ₗ (atom processTimeMultiplied ⟹ atom reportsFailedExperiment)
 
@@ -895,7 +858,6 @@ def judgeProcessChange : Rule where
 def watchGrowingSteps : Rule where
   number := 1018
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom growsStepPerFix) ∧ₗ
     (ev reply ∧ₗ atom reportsCycle ⟹ atom weighsHoursAndTokens)
 
@@ -903,7 +865,6 @@ def watchGrowingSteps : Rule where
 def buildOnceDecided : Rule where
   number := 1019
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom designDecidesBehaviour ⟹ eventually (ev editing ∧ₗ link buildsNextArtifact)) ∧ₗ
     (ev editing ∧ₗ atom reopensDesign ⟹ atom contradictionOrUndecided)
 
@@ -911,14 +872,12 @@ def buildOnceDecided : Rule where
 def mechanicalEnumeration : Rule where
   number := 1020
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom incompleteEnumeration)
 
 /-- Rule 1021: no record growing multiplicatively; ask what it grows with first. -/
 def recordGrowth : Rule where
   number := 1021
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom recordGrowsMultiplicatively) ∧ₗ
     (ev editing ∧ₗ atom addsRuleListOrField ⟹ once (ev reply ∧ₗ link asksRecordGrowth))
 
@@ -926,7 +885,6 @@ def recordGrowth : Rule where
 def enforceBrokenRule : Rule where
   number := 1022
   keyword := .should
-  domain := .discipline
   formula := ev reply ∧ₗ atom notesRepeatedBreach ⟹
     eventually (ev editing ∧ₗ link addsMinimalCheck) ∨ₗ atom justified
 
@@ -934,35 +892,30 @@ def enforceBrokenRule : Rule where
 def judgementNotChecks : Rule where
   number := 1023
   keyword := .should
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom checksJudgementCall) ∨ₗ atom justified
 
 /-- Rule 1024: status against the goal and the open items. -/
 def statusAgainstGoalRule : Rule where
   number := 1024
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom reportsStatus ⟹ atom statusAgainstGoal
 
 /-- Rule 1025: no wasted wall-clock time. -/
 def noWastedTime : Rule where
   number := 1025
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom idlesWhileWorkRemains)
 
 /-- Rule 1026: a report or a hand-over ends nothing; a full machine limits no own work. -/
 def reportEndsNothing : Rule where
   number := 1026
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom treatsReportAsEnd) ∧ₗ never (ev reply ∧ₗ atom blamesFullMachine)
 
 /-- Rule 1027: short polls and timeouts, independent checks in parallel. -/
 def shortPolls : Rule where
   number := 1027
   keyword := .should
-  domain := .discipline
   formula := never (ev toolCall ∧ₗ atom slowPolling) ∨ₗ atom justified
 
 /-- Rule 1028: each batch projected from the measured rate since the previous batch, none started
@@ -971,7 +924,6 @@ options. -/
 def projectBeforeBatch : Rule where
   number := 1028
   keyword := .must
-  domain := .discipline
   formula := (ev toolCall ∧ₗ atom startsBatch ⟹
       since (ev reply ∧ₗ link projectsFromRate) (ev toolCall ∧ₗ atom startsBatch) ∧ₗ
         ¬ₗ atom projectionExceedsAcceptable) ∧ₗ
@@ -981,14 +933,12 @@ def projectBeforeBatch : Rule where
 def thirdRoundRedesign : Rule where
   number := 1029
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom thirdRoundSameClass ⟹ atom bringsCountsAndDesign
 
 /-- Rule 1030: an order names its dependency; independent work runs together. -/
 def orderIsDependency : Rule where
   number := 1030
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom ordersWithoutDependency) ∧ₗ
     never (ev toolCall ∧ₗ atom serializesIndependentWork)
 
@@ -996,7 +946,6 @@ def orderIsDependency : Rule where
 def gateBlocksDependentOnly : Rule where
   number := 1031
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom blocksIndependentOnGate) ∧ₗ
     (ev reply ∧ₗ atom declaresTaskBlocked ⟹ once (ev reply ∧ₗ link reassessesBuildable))
 
@@ -1004,14 +953,12 @@ def gateBlocksDependentOnly : Rule where
 def isolateReviewInputs : Rule where
   number := 1032
   keyword := .must
-  domain := .discipline
   formula := never (ev agentRun ∧ₗ atom reviewerSeesBeyondInput)
 
 /-- Rule 1033: the tracker issue and its links read before designing. -/
 def readIssueFirst : Rule where
   number := 1033
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom writesDesign ⟹
     once (ev toolCall ∧ₗ link readsTrackerIssue) ∧ₗ once (ev toolCall ∧ₗ link readsIssueLinks)
 
@@ -1020,7 +967,6 @@ since its assignment, and production credentials asked for since an assignment n
 def confirmAccessAtStart : Rule where
   number := 1034
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ (atom writesDesign ∨ₗ atom implementsChange) ⟹
     ¬ₗ since (ev user ∧ₗ atom assignsTask) (ev toolCall ∧ₗ link confirmsAccess) ∧ₗ
       ¬ₗ since (ev user ∧ₗ atom assignsTask ∧ₗ atom needsProductionVerification)
@@ -1030,28 +976,24 @@ def confirmAccessAtStart : Rule where
 def settleSourceOfTruth : Rule where
   number := 1035
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom implementsChange ⟹ once (ev reply ∧ₗ link settlesSourceOfTruth)
 
 /-- Rule 1036: CI, the Makefile and the lockfile read before choosing a tool. -/
 def readBuildConfigFirst : Rule where
   number := 1036
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom choosesTool ⟹ once (ev reading ∧ₗ link readsBuildConfig)
 
 /-- Rule 1037: the settings loader read before naming an environment variable. -/
 def readSettingsLoaderFirst : Rule where
   number := 1037
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom namesEnvVariable ⟹ once (ev reading ∧ₗ link readsSettingsLoader)
 
 /-- Rule 1038: whether a tool exists is searched for in the ecosystem. -/
 def searchEcosystem : Rule where
   number := 1038
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom judgesToolExistence ⟹
     once (ev webLookup ∧ₗ link searchesForTool) ∧ₗ ¬ₗ atom weighsOnlyInstalled
 
@@ -1059,63 +1001,54 @@ def searchEcosystem : Rule where
 def searchFieldsFirst : Rule where
   number := 1039
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom addsField ⟹ once (ev searching ∧ₗ link searchesExistingFields)
 
 /-- Rule 1040: a live route confirmed before citing a file as the convention. -/
 def confirmConventionRoute : Rule where
   number := 1040
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom citesConvention ⟹ once (ev toolCall ∧ₗ link confirmsLiveRoute)
 
 /-- Rule 1041: each fixed choice names who decides it. -/
 def nameTheDecider : Rule where
   number := 1041
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom fixesDesignChoice ⟹ atom namesDecider
 
 /-- Rule 1042: a mechanism the user proposes settled by its stated purpose. -/
 def mechanismByPurpose : Rule where
   number := 1042
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom offersUserMechanism ⟹ atom checksPartsAgainstPurpose
 
 /-- Rule 1043: a recommendation read beside the cause it answers. -/
 def recommendationAgainstCause : Rule where
   number := 1043
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom recommends ⟹ atom recommendationAnswersCause
 
 /-- Rule 1044: a sync designs create, update and delete each way. -/
 def syncBothWays : Rule where
   number := 1044
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom syncMissesOperation)
 
 /-- Rule 1045: design against replicas and concurrent writers. -/
 def designForReplicas : Rule where
   number := 1045
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom ignoresReplicasOrWriters)
 
 /-- Rule 1046: a decision function's bad inputs listed. -/
 def listBadInputs : Rule where
   number := 1046
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom decisionInputsUnlisted)
 
 /-- Rule 1047: every mechanism a decision names mapped to a step or out of scope. -/
 def mapMechanisms : Rule where
   number := 1047
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom unmappedMechanism)
 
 /-- Rule 1048: one verifiable artifact per increment; splits keep obligations and report from the
@@ -1123,7 +1056,6 @@ artifact list. -/
 def oneArtifactPerIncrement : Rule where
   number := 1048
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom incrementHoldsSeveralArtifacts) ∧ₗ
     never (ev editing ∧ₗ atom splitDropsObligations) ∧ₗ
     (ev reply ∧ₗ atom reportsIncrements ⟹ atom fromArtifactList)
@@ -1132,28 +1064,24 @@ def oneArtifactPerIncrement : Rule where
 def recheckAfterRedesign : Rule where
   number := 1049
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom redesigns ⟹ eventually (ev reply ∧ₗ link rechecksTicketRequirements)
 
 /-- Rule 1050: a library's semantics checked before a design relies on them. -/
 def checkLibrarySemantics : Rule where
   number := 1050
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom proposesDesignOnLibrary ⟹ once (ev toolCall ∧ₗ link checksLibrarySemantics)
 
 /-- Rule 1051: whether a tool already does the job checked before designing around its limit. -/
 def checkToolFirst : Rule where
   number := 1051
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom designsAroundToolLimit ⟹ once (ev toolCall ∧ₗ link checksToolPrimitives)
 
 /-- Rule 1052: a tool reports its verified outcome; a repeated hand confirmation moves into it. -/
 def toolVerifiesOutcome : Rule where
   number := 1052
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom toolReportsUnverifiedOutcome) ∧ₗ
     (ev toolCall ∧ₗ atom confirmsToolByHand ∧ₗ once (ev toolCall ∧ₗ link sameHandConfirmation) ⟹
       eventually (ev editing ∧ₗ link movesConfirmationIntoTool) ∨ₗ atom justified)
@@ -1162,7 +1090,6 @@ def toolVerifiesOutcome : Rule where
 def timePerTurnProposal : Rule where
   number := 1053
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom proposesPerTurnMechanism ⟹
     once (ev toolCall ∧ₗ link timesOnRealInput) ∧ₗ atom statesLatency
 
@@ -1170,7 +1097,6 @@ def timePerTurnProposal : Rule where
 def optionOrDefault : Rule where
   number := 1054
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom addsOption ⟹
     once (ev reply ∧ₗ link asksCallersWant) ∧ₗ ¬ₗ atom everyCallerWantsIt
 
@@ -1178,7 +1104,6 @@ def optionOrDefault : Rule where
 def dropInFlightResults : Rule where
   number := 1055
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom stopsRepeatingAsyncTask ⟹
     atom dropsInFlightResults ∧ₗ around (ev editing ∧ₗ link testsResolveAfterStop)
 
@@ -1186,21 +1111,18 @@ def dropInFlightResults : Rule where
 def hybridJudge : Rule where
   number := 1056
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom buildsModelJudge ⟹ atom judgeIsHybrid ∨ₗ atom justified
 
 /-- Rule 1057: a refusing judge errs toward passing. -/
 def judgeErrsToPass : Rule where
   number := 1057
   keyword := .should
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom judgeErrsTowardRefusing) ∨ₗ atom justified
 
 /-- Rule 1058: refusing verdicts' inputs kept; a judge changed only on a replay of them. -/
 def judgeChangedByReplay : Rule where
   number := 1058
   keyword := .should
-  domain := .discipline
   formula := (never (ev editing ∧ₗ atom dropsRefusingInputs) ∧ₗ
       (ev editing ∧ₗ atom changesJudge ⟹ around (ev checkRun ∧ₗ link replaysKeptInputs))) ∨ₗ
     atom justified
@@ -1209,14 +1131,12 @@ def judgeChangedByReplay : Rule where
 def layersInCommitOrder : Rule where
   number := 1059
   keyword := .must
-  domain := .discipline
   formula := never (ev commitCall ∧ₗ atom commitsBeforeItsLayer)
 
 /-- Rule 1060: no gate serializing independent work; each artifact verified before it lands. -/
 def gateSerializesNothing : Rule where
   number := 1060
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom waitsOnGateForIndependentWork) ∧ₗ
     (ev toolCall ∧ₗ atom landsArtifact ⟹ once (ev checkRun ∧ₗ link verifiesLandedArtifact))
 
@@ -1224,21 +1144,18 @@ def gateSerializesNothing : Rule where
 def carryByFirstUse : Rule where
   number := 1061
   keyword := .must
-  domain := .discipline
   formula := never (ev commitCall ∧ₗ atom carriesUnusedCode)
 
 /-- Rule 1062: stage by content a file serving several commits, since the previous commit. -/
 def stageByContent : Rule where
   number := 1062
   keyword := .must
-  domain := .discipline
   formula := ev commitCall ∧ₗ atom fileServesSeveralCommits ⟹ since (ev hunkStaging) (ev commitCall)
 
 /-- Rule 1063: each commit's symbols checked for a user since the previous commit; no unused one. -/
 def symbolsHaveUsers : Rule where
   number := 1063
   keyword := .must
-  domain := .discipline
   formula := ev commitCall ⟹
     since (ev toolCall ∧ₗ link checksSymbolUse) (ev commitCall) ∧ₗ ¬ₗ atom commitsUnusedSymbol
 
@@ -1246,7 +1163,6 @@ def symbolsHaveUsers : Rule where
 def aimedFixup : Rule where
   number := 1064
   keyword := .must
-  domain := .discipline
   formula := ev fixupCall ⟹ since (ev cachedStatCall) (ev commitCall) ∧ₗ ¬ₗ atom fixupMisaimed
 
 /-- Rule 1065: a change to an earlier commit's code committed as its fixup at once, no other commit
@@ -1254,7 +1170,6 @@ before that fixup, and apart from the step's files. -/
 def fixupAtOnce : Rule where
   number := 1065
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom changesEarlierCommitsCode ⟹ eventually (ev fixupCall ∧ₗ link fixupOfThatChange)) ∧ₗ
     (ev commitCall ∧ₗ ¬ₗ ev fixupCall ⟹
       ¬ₗ since (ev editing ∧ₗ atom changesEarlierCommitsCode) (ev fixupCall)) ∧ₗ
@@ -1264,14 +1179,12 @@ def fixupAtOnce : Rule where
 def realignBySplitting : Rule where
   number := 1066
   keyword := .must
-  domain := .discipline
   formula := never (ev toolCall ∧ₗ atom realignsWithFixupPairsAtTip)
 
 /-- Rule 1067: a changed decision's dependent text searched for, and updated in the same edit. -/
 def grepAfterDecision : Rule where
   number := 1067
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom changesDecision ⟹
     around (ev searching ∧ₗ link searchesDependentText) ∧ₗ atom updatesDependentText
 
@@ -1280,7 +1193,6 @@ text updated in the same step: no commit while a change to quoted lines waits fo
 def grepAfterCodeChange : Rule where
   number := 1068
   keyword := .must
-  domain := .discipline
   formula := (ev editing ∧ₗ atom changesCode ⟹ around (ev searching ∧ₗ link searchesQuotedLines)) ∧ₗ
     (ev commitCall ⟹
       ¬ₗ since (ev editing ∧ₗ atom changesCode ∧ₗ atom changedLinesQuoted ∧ₗ ¬ₗ atom updatesQuotingText)
@@ -1290,21 +1202,18 @@ def grepAfterCodeChange : Rule where
 def testsFromRules : Rule where
   number := 1069
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom testsShapedByExisting)
 
 /-- Rule 1070: without an answer key, check by relations. -/
 def checkByRelations : Rule where
   number := 1070
   keyword := .should
-  domain := .discipline
   formula := ev editing ∧ₗ atom writesCheckWithoutAnswerKey ⟹ atom checksByRelations ∨ₗ atom justified
 
 /-- Rule 1071: the first rerun or refusal a stand-in costs is the sign. -/
 def standInSign : Rule where
   number := 1071
   keyword := .should
-  domain := .discipline
   formula := ev hookRefusal ∧ₗ atom standInRefusal ∨ₗ ev toolCall ∧ₗ atom standInRerun ⟹
     eventually (ev reply ∧ₗ link treatsAsStandInSign) ∨ₗ atom justified
 
@@ -1312,28 +1221,24 @@ def standInSign : Rule where
 def timesByHand : Rule where
   number := 1073
   keyword := .must
-  domain := .discipline
   formula := never (ev reply ∧ₗ atom assertsUnworkedTime) ∧ₗ never (ev reply ∧ₗ atom worstCaseMissesSteps)
 
 /-- Rule 1074: scheduled code tested through the real scheduler. -/
 def testThroughScheduler : Rule where
   number := 1074
   keyword := .must
-  domain := .discipline
   formula := never (ev editing ∧ₗ atom testsScheduledCodeDirectly)
 
 /-- Rule 1075: where a hung run stands read before rerunning it. -/
 def inspectHungRun : Rule where
   number := 1075
   keyword := .must
-  domain := .discipline
   formula := ev toolCall ∧ₗ atom rerunsHungRun ⟹ once (ev toolCall ∧ₗ link inspectsHungRun)
 
 /-- Rule 1076: a convention for a standard tool looked for before a custom check. -/
 def standardToolConvention : Rule where
   number := 1076
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom buildsCheckForUncaughtMistake ⟹
     once (ev reply ∧ₗ link considersStandardToolConvention)
 
@@ -1341,35 +1246,30 @@ def standardToolConvention : Rule where
 def runShortCheck : Rule where
   number := 1077
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom settlesCheckableQuestion ⟹ once (ev toolCall ∧ₗ link runsSettlingCheck)
 
 /-- Rule 1078: each job with the tool made for it. -/
 def toolMadeForJob : Rule where
   number := 1078
   keyword := .must
-  domain := .discipline
   formula := never (ev toolCall ∧ₗ atom wrongToolForJob)
 
 /-- Rule 1079: a reset removing migrations resets the local database. -/
 def resetDatabaseToo : Rule where
   number := 1079
   keyword := .must
-  domain := .discipline
   formula := ev branchReset ∧ₗ atom resetRemovesMigrations ⟹ eventually (ev toolCall ∧ₗ link resetsLocalDatabase)
 
 /-- Rule 1080: tests pinning the head searched for when adding a migration. -/
 def grepHeadPins : Rule where
   number := 1080
   keyword := .must
-  domain := .discipline
   formula := ev migrationEdit ⟹ around (ev searching ∧ₗ link searchesHeadPins)
 
 /-- Rule 1081: a chart value traced to its template and code, and the chart rendered. -/
 def traceAndRenderChart : Rule where
   number := 1081
   keyword := .must
-  domain := .discipline
   formula := ev editing ∧ₗ atom editsChartValue ⟹
     around (ev toolCall ∧ₗ link tracesChartValue) ∧ₗ around (ev chartRender)
 
@@ -1378,7 +1278,6 @@ recording it in the plan. -/
 def recordApiRecipe : Rule where
   number := 1082
   keyword := .must
-  domain := .discipline
   formula := (ev passingResult ∧ₗ atom apiRecipeSucceeds ⟹ eventually (ev editing ∧ₗ link recordsApiRecipe)) ∧ₗ
     (ev toolCall ∧ₗ ¬ₗ (ev editing ∧ₗ atom recordsApiRecipeInPlan) ⟹
       ¬ₗ since (ev passingResult ∧ₗ atom apiRecipeSucceeds) (ev editing ∧ₗ atom recordsApiRecipeInPlan))
@@ -1387,63 +1286,54 @@ def recordApiRecipe : Rule where
 def listLeftovers : Rule where
   number := 1083
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom closesTask ⟹ atom listsLeftoverBranches
 
 /-- Rule 1084: the records' counts and status checked against the final state. -/
 def checkRecordsAtClose : Rule where
   number := 1084
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom closesTask ⟹ once (ev toolCall ∧ₗ link checksRecordsAgainstFinal)
 
 /-- Rule 1085: design analysis starts from a concrete change or caller journey. -/
 def analysisFromJourney : Rule where
   number := 1085
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom analysesDesign ⟹ atom startsFromCallerJourney ∨ₗ atom justified
 
 /-- Rule 1086: the dependency behind each symptom traced. -/
 def traceSymptomDependency : Rule where
   number := 1086
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom analysesDesign ⟹ atom tracesSymptomDependency ∨ₗ atom justified
 
 /-- Rule 1087: each module's knowledge and its duplicates named. -/
 def nameOwnedKnowledge : Rule where
   number := 1087
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom analysesDesign ⟹ atom namesOwnedKnowledge ∨ₗ atom justified
 
 /-- Rule 1088: each leak's three options compared. -/
 def compareLeakOptions : Rule where
   number := 1088
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom findsKnowledgeLeak ⟹ atom comparesLeakOptions ∨ₗ atom justified
 
 /-- Rule 1089: a forwarding layer's contribution named before its removal is proposed. -/
 def layerContributionFirst : Rule where
   number := 1089
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom proposesRemovingLayer ⟹ atom namesLayerContribution ∨ₗ atom justified
 
 /-- Rule 1090: necessary public semantics stay in the contract. -/
 def publicSemanticsInContract : Rule where
   number := 1090
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom hidesPublicSemantics) ∨ₗ atom justified
 
 /-- Rule 1091: an interface hard to explain is simplified. -/
 def explanationAsProbe : Rule where
   number := 1091
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom interfaceHardToExplain ⟹
     eventually (ev editing ∧ₗ link simplifiesAbstraction) ∨ₗ atom justified
 
@@ -1451,42 +1341,36 @@ def explanationAsProbe : Rule where
 def specializationBenefit : Rule where
   number := 1092
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom keepsSpecialization ⟹ atom statesCallerBenefit ∨ₗ atom justified
 
 /-- Rule 1093: an option only where its value varies or a wrong default harms. -/
 def justifiedOption : Rule where
   number := 1093
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom needlessOption) ∨ₗ atom justified
 
 /-- Rule 1094: authorization, policy and failure behaviour are contract choices. -/
 def policyInContract : Rule where
   number := 1094
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom policyAsInternalDefault)
 
 /-- Rule 1095: a design finding names symptom, decision, owner and consequence. -/
 def completeDesignFinding : Rule where
   number := 1095
   keyword := .should
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom reportsDesignFinding ⟹ atom findingNamesAll ∨ₗ atom justified
 
 /-- Rule 1096: combinations usable wherever a primitive is. -/
 def closedCombinations : Rule where
   number := 1096
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom combinationLosesContract) ∨ₗ atom justified
 
 /-- Rule 1097: nested combinations checked for lost information. -/
 def checkNestedCombinations : Rule where
   number := 1097
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom buildsCombination ⟹
     around (ev checkRun ∧ₗ link checksNestedCombination) ∨ₗ atom justified
 
@@ -1494,21 +1378,18 @@ def checkNestedCombinations : Rule where
 def lawfulParameters : Rule where
   number := 1098
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom lawBreakingSubstitution) ∨ₗ atom justified
 
 /-- Rule 1099: an extensible operation defines its dispatch. -/
 def defineDispatch : Rule where
   number := 1099
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom buildsExtensibleOperation ⟹ atom definesDispatchRules ∨ₗ atom justified
 
 /-- Rule 1100: a new handler checked against old, mixed and competing inputs. -/
 def checkNewHandler : Rule where
   number := 1100
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom addsHandler ⟹
     around (ev checkRun ∧ₗ link checksHandlerInteractions) ∨ₗ atom justified
 
@@ -1516,49 +1397,42 @@ def checkNewHandler : Rule where
 def separateSelection : Rule where
   number := 1101
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom fusesSelectionAndRun) ∨ₗ atom justified
 
 /-- Rule 1102: description, preparation and execution apart. -/
 def separateStages : Rule where
   number := 1102
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom fusesReusedStages) ∨ₗ atom justified
 
 /-- Rule 1103: a deferred computation's run, environment, rerun and release defined. -/
 def defineDeferral : Rule where
   number := 1103
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom defersComputation ⟹ atom definesDeferralSemantics ∨ₗ atom justified
 
 /-- Rule 1104: generated identities fresh across deferred computations. -/
 def freshIdentities : Rule where
   number := 1104
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom reusesGeneratedIdentity) ∨ₗ atom justified
 
 /-- Rule 1105: each annotation its own rules and a meaning for missing metadata. -/
 def annotationRules : Rule where
   number := 1105
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom addsAnnotation ⟹ atom definesAnnotationRules ∨ₗ atom justified
 
 /-- Rule 1106: provenance's kind chosen and its omissions stated. -/
 def provenanceScope : Rule where
   number := 1106
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom recordsProvenance ⟹ atom statesProvenanceScope ∨ₗ atom justified
 
 /-- Rule 1107: knowledge states and merge defined before propagation. -/
 def knowledgeStatesFirst : Rule where
   number := 1107
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom implementsPropagation ⟹
     once (ev editing ∧ₗ link definesKnowledgeStates) ∨ₗ atom justified
 
@@ -1566,7 +1440,6 @@ def knowledgeStatesFirst : Rule where
 def mergeLaws : Rule where
   number := 1108
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom implementsPropagation ⟹ atom statesMergeLawsAndTermination ∨ₗ
     atom justified
 
@@ -1574,28 +1447,24 @@ def mergeLaws : Rule where
 def assertionsApart : Rule where
   number := 1109
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom mixesAssertionsAndDerived) ∨ₗ atom justified
 
 /-- Rule 1110: generation, acceptance and scheduling replaceable apart. -/
 def separableSearch : Rule where
   number := 1110
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom fusesSearchParts) ∨ₗ atom justified
 
 /-- Rule 1111: failed combinations retained, not re-explored. -/
 def retainFailedCombinations : Rule where
   number := 1111
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom reexploresFailedCombinations) ∨ₗ atom justified
 
 /-- Rule 1112: exhaustion apart from a limit; methods reconciled by a rule. -/
 def exhaustionAndReconciliation : Rule where
   number := 1112
   keyword := .should
-  domain := .softwareEngineering
   formula := (never (ev editing ∧ₗ atom conflatesExhaustionAndLimit) ∧ₗ
       never (ev editing ∧ₗ atom votesWithoutReconciliation)) ∨ₗ atom justified
 
@@ -1603,14 +1472,12 @@ def exhaustionAndReconciliation : Rule where
 def stateShape : Rule where
   number := 1113
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom mismatchedStateShape) ∨ₗ atom justified
 
 /-- Rule 1114: valid states shown constructible beside invalid ones excluded. -/
 def validStatesConstructible : Rule where
   number := 1114
   keyword := .should
-  domain := .softwareEngineering
   formula := ev editing ∧ₗ atom excludesInvalidStates ⟹
     atom showsValidConstructible ∨ₗ around (ev editing ∧ₗ link showsValidStatesConstructible) ∨ₗ
       atom justified
@@ -1619,42 +1486,36 @@ def validStatesConstructible : Rule where
 def explicitMapping : Rule where
   number := 1115
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom mapsByCardinality) ∨ₗ atom justified
 
 /-- Rule 1116: partiality accounted for before types-as-propositions. -/
 def accountForPartiality : Rule where
   number := 1116
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom ignoresPartiality) ∨ₗ atom justified
 
 /-- Rule 1117: identifiers, units and states told apart. -/
 def distinguishSharedRepresentation : Rule where
   number := 1117
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom conflatesSharedRepresentation) ∨ₗ atom justified
 
 /-- Rule 1118: a constructor establishes what its consumers rely on. -/
 def constructorEvidence : Rule where
   number := 1118
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom constructorLeavesInvariant) ∨ₗ atom justified
 
 /-- Rule 1119: a tag and its payload in one package. -/
 def tagWithPayload : Rule where
   number := 1119
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom splitsTagFromPayload) ∨ₗ atom justified
 
 /-- Rule 1120: an invariant about a past observation revalidated before acting. -/
 def revalidateObservation : Rule where
   number := 1120
   keyword := .should
-  domain := .softwareEngineering
   formula := never (ev editing ∧ₗ atom actsOnStaleObservation) ∨ₗ atom justified
 
 def rules : List Rule :=

@@ -863,7 +863,6 @@ branch of several commits. -/
 def r701 : Rule where
   number := 701
   keyword := .must
-  domain := .tasks
   formula := (ev gitCommit ⟹ atom oneLogicalChange) ∧ₗ
     (ev reply ∧ₗ atom offersMultiCommitBranch ⟹
       once (ev coverLetterEdit ∧ₗ atom inCoverLetterFormat) ∧ₗ once (ev gitCommit ∧ₗ link commitsCoverLetter))
@@ -873,7 +872,6 @@ rework. -/
 def r702 : Rule where
   number := 702
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∧ₗ atom offersCoverLetter ⟹ once (ev ledgerEdit)) ∧ₗ
     (ev reply ∧ₗ atom offersReworkedBranch ⟹
       once (ev coverLetterEdit ∧ₗ atom addsVersionNote) ∧ₗ once (ev ledgerEdit ∧ₗ atom addsVersionNoteRows))
@@ -882,7 +880,6 @@ def r702 : Rule where
 def r703 : Rule where
   number := 703
   keyword := .must
-  domain := .tasks
   formula := (ev reply ∧ₗ atom reportsOtherArtifactDone ⟹ once (ev gitCommit ∧ₗ link commitsArtifact)) ∧ₗ
     (ev editing ∧ₗ atom writesOtherArtifact ⟹ atom statesWhatWasNotAchieved)
 
@@ -890,7 +887,6 @@ def r703 : Rule where
 def r704 : Rule where
   number := 704
   keyword := .must
-  domain := .tasks
   formula := (atom writesConfluencePage ⟹ ev confluencePush) ∧ₗ
     (ev confluencePush ⟹ once (ev editing ∧ₗ link writesPushedDocument))
 
@@ -899,7 +895,6 @@ the write-up removed once tracked elsewhere. -/
 def r705 : Rule where
   number := 705
   keyword := .must
-  domain := .discipline
   formula := (ev reply ∧ₗ atom findsTangentialBug ⟹ eventually (ev bugDocEdit)) ∧ₗ
     (ev bugDocEdit ⟹ eventually (ev gitCommit ∧ₗ link commitsBugDoc) ∧ₗ
       eventually (ev planEdit ∧ₗ link referencesBugDoc) ∧ₗ eventually (atom worksOnTask)) ∧ₗ
@@ -910,35 +905,30 @@ ecosystem's parallel runner. -/
 def r707 : Rule where
   number := 707
   keyword := .must
-  domain := .tasks
   formula := never (ev pytestRun ∧ₗ atom runsWholeSuite) ∧ₗ never (atom runsSuiteSerially)
 
 /-- Rule 708: tests using a service get one per worker with `--isolate`. -/
 def r708 : Rule where
   number := 708
   keyword := .must
-  domain := .tasks
   formula := ev pytestQueue ∧ₗ atom suiteUsesService ⟹ ev pytestQueueIsolated
 
 /-- Rule 709: each test checks one thing. -/
 def r709 : Rule where
   number := 709
   keyword := .must
-  domain := .tasks
   formula := never (ev testEdit ∧ₗ atom testChecksSeveralThings)
 
 /-- Rule 710: the list of slow tests read at each checkpoint. -/
 def r710 : Rule where
   number := 710
   keyword := .should
-  domain := .tasks
   formula := ev taskCheckpoint ⟹ once (ev reply ∧ₗ link weighsSlowTests) ∨ₗ atom justified
 
 /-- Rule 711: a suite budget near one and a half times the measured parallel time. -/
 def r711 : Rule where
   number := 711
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom setsSuiteBudget ⟹
     atom budgetNearOneAndHalf ∧ₗ once (ev passingResult ∧ₗ link measuresParallelSuiteTime)
 
@@ -947,7 +937,6 @@ than a fifth. -/
 def r712 : Rule where
   number := 712
   keyword := .must
-  domain := .tasks
   formula := ev taskCheckpoint ⟹
     ev checkpointWithSuite ∧ₗ (atom suiteGrewOverFifth ⟹ ev checkpointSlowReason)
 
@@ -955,7 +944,6 @@ def r712 : Rule where
 def r713 : Rule where
   number := 713
   keyword := .should
-  domain := .tasks
   formula := ev reply ∧ₗ atom claimsSpeedFix ⟹
     once (ev passingResult ∧ₗ link smallestTimingOfFix) ∧ₗ once (ev passingResult ∧ₗ link fullSuiteRunOfFix) ∨ₗ
       atom justified
@@ -964,7 +952,6 @@ def r713 : Rule where
 def r714 : Rule where
   number := 714
   keyword := .should
-  domain := .tasks
   formula := (atom runsUntouchedTests ⟹ atom justified) ∧ₗ
     (ev taskCheckpoint ⟹ once (atom runsWholeSuite) ∨ₗ atom justified)
 
@@ -972,14 +959,12 @@ def r714 : Rule where
 def r715 : Rule where
   number := 715
   keyword := .must
-  domain := .tasks
   formula := (atom runsMutants ⟹ ev mutationBatch) ∧ₗ (ev mutationBatch ⟹ atom specsWithEvidence)
 
 /-- Rule 716: the queue counts task entries, with backpressure off. -/
 def r716 : Rule where
   number := 716
   keyword := .must
-  domain := .tasks
   formula := never (ev notebookEdit ∧ₗ atom changesQueueCounting)
 
 /-! Rules 717 to 756: restoration and the research discipline. -/
@@ -988,7 +973,6 @@ def r716 : Rule where
 def r717 : Rule where
   number := 717
   keyword := .must
-  domain := .discipline
   formula := (ev user ∧ₗ atom asksToRestoreContext ⟹ eventually (ev resumeRun)) ∧ₗ
     (ev resumeRun ⟹ eventually (ev resumePartRead))
 
@@ -996,28 +980,24 @@ def r717 : Rule where
 def r718 : Rule where
   number := 718
   keyword := .must
-  domain := .discipline
   formula := atom actsOnNamedPrompt ⟹ once (ev promptsRead ∧ₗ link readsNamedPromptSection)
 
 /-- Rule 719: no wholesale load of the record or the index. -/
 def r719 : Rule where
   number := 719
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev wholeRecordRead ∨ₗ atom loadsRecordWholesale)
 
 /-- Rule 720: the task protocol read before a task's work and after every resume. -/
 def r720 : Rule where
   number := 720
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom taskInProgress ⟹ since (ev protocolRead) (ev resumeRun)
 
 /-- Rule 721: AIFI.md read before an AiFi task's work. -/
 def r721 : Rule where
   number := 721
   keyword := .must
-  domain := .tasks
   formula := ev editing ∧ₗ atom aifiTaskInProgress ⟹ once (ev aifiRead)
 
 /-- Rule 722: a research cycle opens by stating its missing implication and its test: the reply
@@ -1025,7 +1005,6 @@ stating them comes before the cycle's first edit. -/
 def r722 : Rule where
   number := 722
   keyword := .must
-  domain := .mathematics
   formula := ev cycleStart ∧ₗ atom startsResearchCycle ⟹
     eventually (ev reply ∧ₗ link statesCycleTest ∧ₗ since (ev cycleStart) (ev editing))
 
@@ -1034,7 +1013,6 @@ it advances. -/
 def r723 : Rule where
   number := 723
   keyword := .must
-  domain := .mathematics
   formula :=
     (ev entryAppend ∧ₗ atom isResearchEntry ⟹
       since (atom readsOpenStatements) (ev cycleStart) ∧ₗ atom namesAdvancedStatement) ∧ₗ
@@ -1044,21 +1022,18 @@ def r723 : Rule where
 def r724 : Rule where
   number := 724
   keyword := .should
-  domain := .mathematics
   formula := ev reply ∧ₗ atom choosesNextStep ⟹ atom choosesByObligationThenRisk ∨ₗ atom justified
 
 /-- Rule 725: the items Proposed next step names, read in full. -/
 def r725 : Rule where
   number := 725
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹ once (ev anyCall ∧ₗ link readsNextStepItems)
 
 /-- Rule 726: later links to an older question searched and read before reopening it. -/
 def r726 : Rule where
   number := 726
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom reopensOlderQuestion ⟹
     once (ev backlinksSearch ∧ₗ link searchesReopenedAnchor) ∧ₗ once (ev anyCall ∧ₗ link readsLaterEntries)
 
@@ -1066,14 +1041,12 @@ def r726 : Rule where
 def r727 : Rule where
   number := 727
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom reportsRestrictedExamples ⟹ atom namesGeneralHypothesis
 
 /-- Rule 728: a General statement paragraph citing the all-parameter claim. -/
 def r728 : Rule where
   number := 728
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹ atom hasGeneralStatement
 
 /-- Rule 729: no two finite-check-only entries in a row on a route, nor finite checks in more than
@@ -1081,7 +1054,6 @@ three of five. -/
 def r729 : Rule where
   number := 729
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev entryAppend ∧ₗ atom finiteCheckOnly ∧ₗ
       since (entryOnRoute ∧ₗ atom finiteCheckOnly) entryOnRoute) ∧ₗ
     never (ev entryAppend ∧ₗ atom exceedsFiniteCheckShare)
@@ -1091,7 +1063,6 @@ the review. -/
 def r730 : Rule where
   number := 730
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom leavesImplicationUntouched ∧ₗ
       since (entryOnRoute ∧ₗ atom leavesImplicationUntouched) entryOnRoute ⟹
     eventually (entryOnRoute ∧ₗ atom usesDifferentMechanism ∧ₗ atom recordsForScheduledReview)
@@ -1100,14 +1071,12 @@ def r730 : Rule where
 def r731 : Rule where
   number := 731
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹ atom rechecksStandingHypotheses
 
 /-- Rule 732: an excluding upper bound's structural reason, its reach and its lesson. -/
 def r732 : Rule where
   number := 732
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom reportsUpperBoundExclusion ⟹
     atom extractsStructuralReason ∧ₗ atom checksOtherCandidates ∧ₗ atom recordsBoundLesson
 
@@ -1115,7 +1084,6 @@ def r732 : Rule where
 def r733 : Rule where
   number := 733
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom adoptsSpecRefinement ⟹
     atom provesNonVacuityWitness ∨ₗ atom marksRefinementProvisional
 
@@ -1123,7 +1091,6 @@ def r733 : Rule where
 def r734 : Rule where
   number := 734
   keyword := .should
-  domain := .mathematics
   formula := ev reply ∧ₗ atom choosesNextStep ⟹ once (ev reply ∧ₗ link comparesStepOptions) ∨ₗ atom justified
 
 /-- Rule 735: no larger size once the series' prediction is decided, unless a new question needs
@@ -1131,7 +1098,6 @@ it. -/
 def r735 : Rule where
   number := 735
   keyword := .must
-  domain := .mathematics
   formula := atom runsLargerSize ⟹
     ¬ₗ once (ev anyResult ∧ₗ link decidesSeriesPrediction) ∨ₗ atom namesQuestionChangingImplication
 
@@ -1139,21 +1105,18 @@ def r735 : Rule where
 def r736 : Rule where
   number := 736
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom fitsFormula ⟹ once (ev anyCall ∧ₗ link combinesWitnessesForFit)
 
 /-- Rule 737: the claims searched before a next step is proposed or a result named. -/
 def r737 : Rule where
   number := 737
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom proposesStepOrNamesResult ⟹ once (ev searchClaims ∧ₗ link searchesForProposal)
 
 /-- Rule 738: a new lemma searched four ways and tested against recorded obstructions. -/
 def r738 : Rule where
   number := 738
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom formulatesNewLemma ⟹
     once (ev searchClaims ∧ₗ link searchesLemmaByTechnique) ∧ₗ
     once (ev searchClaims ∧ₗ link searchesLemmaBySynonyms) ∧ₗ
@@ -1166,7 +1129,6 @@ before drafting. -/
 def r739 : Rule where
   number := 739
   keyword := .must
-  domain := .mathematics
   formula := (ev editing ∧ₗ atom draftsLemmaProof ⟹ once (ev anyCall ∧ₗ link checksRecordImpliesLemma)) ∧ₗ
     (ev editing ∧ₗ atom draftsCorollary ⟹ once (ev anyCall ∧ₗ link checksFewerHypothesisResult))
 
@@ -1174,42 +1136,36 @@ def r739 : Rule where
 def r740 : Rule where
   number := 740
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom writesComposition ⟹ atom compositionIsCompleteLemma
 
 /-- Rule 741: the claim graph inspected before committing to a direction. -/
 def r741 : Rule where
   number := 741
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom commitsToDirection ⟹ once (ev claimGraph ∧ₗ link inspectsDirectionClaims)
 
 /-- Rule 742: rediscoveries and refinements labelled and linked. -/
 def r742 : Rule where
   number := 742
   keyword := .must
-  domain := .mathematics
   formula := ev editing ∧ₗ atom recordsRediscoveryOrRefinement ⟹ atom labelsAndLinksOriginal
 
 /-- Rule 743: at most one fresh reviewer a cycle, given only stable drafts and excerpts. -/
 def r743 : Rule where
   number := 743
   keyword := .must
-  domain := .mathematics
   formula := reviewerSpawn ⟹ ¬ₗ since reviewerSpawn (ev cycleStart) ∧ₗ atom givenOnlyStableDrafts
 
 /-- Rule 744: reviewers at medium effort, the medium-reviewer type in Claude Code. -/
 def r744 : Rule where
   number := 744
   keyword := .must
-  domain := .mathematics
   formula := reviewerSpawn ⟹ ev reviewerRun ∨ₗ atom spawnsCodexMediumReviewer
 
 /-- Rule 745: no higher-effort substitute; the gate left incomplete and a request filed. -/
 def r745 : Rule where
   number := 745
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev agentRun ∧ₗ atom isHigherEffortReviewer) ∧ₗ
     (ev reply ∧ₗ atom saysMediumUnavailable ⟹
       eventually (ev entryAppend ∧ₗ link marksGateIncomplete) ∧ₗ eventually (ev userRequestFiled))
@@ -1218,14 +1174,12 @@ def r745 : Rule where
 def r746 : Rule where
   number := 746
   keyword := .mustNot
-  domain := .mathematics
   formula := never (atom startsRootSessionForReview)
 
 /-- Rule 747: a narrow reviewer brief asking for a process audit. -/
 def r747 : Rule where
   number := 747
   keyword := .must
-  domain := .mathematics
   formula := reviewerSpawn ⟹ atom briefNamesExactAnchors ∧ₗ atom briefAtMostTwoSearches ∧ₗ
     atom briefExcerptsInScratchFile ∧ₗ atom briefChangesAsBullets ∧ₗ atom briefAsksProcessAudit
 
@@ -1233,7 +1187,6 @@ def r747 : Rule where
 def r748 : Rule where
   number := 748
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev agentRun ∧ₗ atom isNoveltyReviewer) ∧ₗ
     never (reviewerSpawn ∧ₗ since reviewerSpawn (ev cycleStart))
 
@@ -1241,7 +1194,6 @@ def r748 : Rule where
 def r749 : Rule where
   number := 749
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom hasReviewerSuggestions ⟹
     atom suggestionsUnderUnverifiedHeading ∧ₗ atom eachSuggestionEndsRecord ∧ₗ
       once (ev searchClaims ∧ₗ link searchesForSuggestion)
@@ -1250,7 +1202,6 @@ def r749 : Rule where
 def r750 : Rule where
   number := 750
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹ atom hasVerificationGate
 
 /-- Rule 751: the checkpoint batch one step at a time, stopped at a failure, finished before the
@@ -1258,7 +1209,6 @@ next result. -/
 def r751 : Rule where
   number := 751
   keyword := .must
-  domain := .mathematics
   formula := never (sameMessage checkpointStepsTogether) ∧ₗ
     (ev checkpointStepCall ⟹ ¬ₗ since (ev failedResult ∧ₗ link answersEarlierCheckpointStep) (ev editing)) ∧ₗ
     (ev editing ∧ₗ atom developsNextResult ⟹
@@ -1268,21 +1218,18 @@ def r751 : Rule where
 def r752 : Rule where
   number := 752
   keyword := .must
-  domain := .mathematics
   formula := ev gitCommit ∧ₗ atom isResearchCheckpointCommit ⟹ since (ev checkRecordsDiff) (ev gitCommit)
 
 /-- Rule 753: a research turn's computation measured from a `compute.sh start`. -/
 def r753 : Rule where
   number := 753
   keyword := .must
-  domain := .mathematics
   formula := atom runsComputation ∧ₗ atom inResearchTurn ⟹ once (ev cycleStart)
 
 /-- Rule 754: work before the instrumentation disclosed. -/
 def r754 : Rule where
   number := 754
   keyword := .must
-  domain := .mathematics
   formula := ev cycleStart ∧ₗ once (ev anyCall ∧ₗ link isWorkOfStartedTurn) ⟹
     eventually (ev entryAppend ∧ₗ link disclosesUninstrumentedWork)
 
@@ -1290,7 +1237,6 @@ def r754 : Rule where
 def r755 : Rule where
   number := 755
   keyword := .must
-  domain := .mathematics
   formula := never (atom discardsFullOutput ∨ₗ atom displaysUnboundedOutput) ∧ₗ
     (ev pngRead ⟹ once (ev user ∧ₗ atom requestsPngPreview))
 
@@ -1298,7 +1244,6 @@ def r755 : Rule where
 def r756 : Rule where
   number := 756
   keyword := .should
-  domain := .mathematics
   formula := atom runsRenderingCheck ⟹ atom hasLayoutChangeOrConcern ∨ₗ atom justified
 
 /-! Rules 757 to 806: goal progress, reviews, the notebook. -/
@@ -1307,7 +1252,6 @@ def r756 : Rule where
 def r757 : Rule where
   number := 757
   keyword := .must
-  domain := .mathematics
   formula := never (ev entryAppend ∧ₗ atom breaksReviewCadence) ∧ₗ
     never (ev agentRun ∧ₗ atom isExtraCadenceReviewer)
 
@@ -1315,14 +1259,12 @@ def r757 : Rule where
 def r758 : Rule where
   number := 758
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchOrReviewEntry ⟹ atom hasObligationAndProgressAttrs
 
 /-- Rule 759: separate New mathematics and Goal progress paragraphs. -/
 def r759 : Rule where
   number := 759
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchOrReviewEntry ⟹ atom hasNewMathAndGoalProgress
 
 /-- Rule 760: from the third unchanged entry in a row on a route, a Bearing with a matching
@@ -1330,7 +1272,6 @@ attribute, and Not covered for some bearing. -/
 def r760 : Rule where
   number := 760
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom reportsRouteUnchanged ∧ₗ
       since (entryOnRoute ∧ₗ atom reportsRouteUnchanged ∧ₗ
         since (entryOnRoute ∧ₗ atom reportsRouteUnchanged) entryOnRoute) entryOnRoute ⟹
@@ -1340,7 +1281,6 @@ def r760 : Rule where
 def r761 : Rule where
   number := 761
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ⟹ ¬ₗ since (noBearingOnItem ∧ₗ since noBearingOnItem (ev entryAppend))
     (ev entryAppend)
 
@@ -1348,7 +1288,6 @@ def r761 : Rule where
 def r762 : Rule where
   number := 762
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom declaresBearingNone ∧ₗ atom followUpContinuing ∧ₗ
       since noBearingOnItem (ev entryAppend) ⟹ atom statesRecordSearch
 
@@ -1356,7 +1295,6 @@ def r762 : Rule where
 def r763 : Rule where
   number := 763
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ⟹ atom hasArchitectureReview
 
 /-- Rule 764: the Independent alternative's medium reviewer given only the goal and excerpts, and
@@ -1364,7 +1302,6 @@ no second reviewer for it. -/
 def r764 : Rule where
   number := 764
   keyword := .must
-  domain := .mathematics
   formula := ev agentRun ∧ₗ atom isIndependentAlternativeBrief ⟹
     ev reviewerRun ∧ₗ atom withholdsPreferredRoute ∧ₗ
       ¬ₗ once (ev agentRun ∧ₗ atom isIndependentAlternativeBrief ∧ₗ link sameReview)
@@ -1373,7 +1310,6 @@ def r764 : Rule where
 def r765 : Rule where
   number := 765
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ⟹
     once (ev reviewTestsRead) ∧ₗ atom decisiveTestHasPowerAndRecordSearch
 
@@ -1381,7 +1317,6 @@ def r765 : Rule where
 def r766 : Rule where
   number := 766
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ
       since (entryOnRoute ∧ₗ atom isRouteReview) entryOnRoute ⟹ atom reportsArchitectureTest
 
@@ -1389,28 +1324,24 @@ def r766 : Rule where
 def r767 : Rule where
   number := 767
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev notebookEdit ∧ₗ atom rewritesHistoricalEntry)
 
 /-- Rule 768: the living sections reviewed in every research turn, before its finisher. -/
 def r768 : Rule where
   number := 768
   keyword := .must
-  domain := .mathematics
   formula := ev finishTurn ⟹ since (atom reviewsLivingSections) (ev finishTurn)
 
 /-- Rule 769: Open statements at most about five, each with status and instances. -/
 def r769 : Rule where
   number := 769
   keyword := .must
-  domain := .mathematics
   formula := ev notebookEdit ∧ₗ atom editsOpenStatements ⟹ atom openStatementsWellFormed
 
 /-- Rule 770: an entry for every research turn, with its mathematics in full. -/
 def r770 : Rule where
   number := 770
   keyword := .must
-  domain := .mathematics
   formula := (ev finishTurn ⟹ since (ev entryAppend) (ev finishTurn)) ∧ₗ
     (ev entryAppend ⟹ atom holdsFullMathematics)
 
@@ -1419,7 +1350,6 @@ raised only on the user's override. -/
 def r771 : Rule where
   number := 771
   keyword := .must
-  domain := .mathematics
   formula := (ev entryAppend ⟹ since (ev notebookContext) (ev finishTurn)) ∧ₗ
     never (ev reply ∧ₗ atom asksUserToConsolidate) ∧ₗ
     (ev editing ∧ₗ atom raisesHardBudget ⟹ once (ev user ∧ₗ atom overridesBudget))
@@ -1429,56 +1359,48 @@ goal. -/
 def r772 : Rule where
   number := 772
   keyword := .must
-  domain := .mathematics
   formula := never (ev editing ∧ₗ (atom replacesMainWithSideGoal ∨ₗ atom editsNotebookCopy))
 
 /-- Rule 773: data-kind, data-route and data-claims on each article. -/
 def r773 : Rule where
   number := 773
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ⟹ atom hasKindRouteClaimsTags
 
 /-- Rule 774: a review's scope set by its line's open-item count. -/
 def r774 : Rule where
   number := 774
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ⟹ atom scopeMatchesOpenItemCount
 
 /-- Rule 775: a review's required parts and Obstacle heading. -/
 def r775 : Rule where
   number := 775
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ⟹ atom reviewHasRequiredParts
 
 /-- Rule 776: a non-draining review's leads and bridges. -/
 def r776 : Rule where
   number := 776
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ∧ₗ ¬ₗ atom queueDraining ⟹ atom hasLeadsAndBridges
 
 /-- Rule 777: the review's cheap tests run in its cycle. -/
 def r777 : Rule where
   number := 777
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ⟹ atom cheapTestsRun
 
 /-- Rule 778: the picks marked. -/
 def r778 : Rule where
   number := 778
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isRouteReview ⟹ atom marksPicks
 
 /-- Rule 779: picks queued with `lead_queue.py`, never by hand. -/
 def r779 : Rule where
   number := 779
   keyword := .must
-  domain := .mathematics
   formula := (ev entryAppend ∧ₗ atom reviewHasPicks ⟹ eventually (ev leadQueueAppend)) ∧ₗ
     never (ev notebookEdit ∧ₗ atom editsQueueByHand)
 
@@ -1486,7 +1408,6 @@ def r779 : Rule where
 def r780 : Rule where
   number := 780
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹
     ¬ₗ atom developsSeveralItems ∧ₗ (atom developsNonHeadItem ⟹ atom hasChosenParagraph)
 
@@ -1495,7 +1416,6 @@ refused work re-filed. -/
 def r781 : Rule where
   number := 781
   keyword := .must
-  domain := .mathematics
   formula := never (ev entryAppend ∧ₗ
     ((atom continuesItemPastSpell ∧ₗ ¬ₗ (atom recordsSpellExtension ∧ₗ atom extensionEarnedByProgress)) ∨ₗ
       atom refilesRefusedWork))
@@ -1504,21 +1424,18 @@ def r781 : Rule where
 def r782 : Rule where
   number := 782
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom developsQueueItem ⟹ atom hasLeadTagAndFollowUp
 
 /-- Rule 783: a closure's Stakes, record link and Sources read. -/
 def r783 : Rule where
   number := 783
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom closesQueueItem ⟹ atom closureHasStakesLinkSources
 
 /-- Rule 784: a closure for a found reason, made without asking the user. -/
 def r784 : Rule where
   number := 784
   keyword := .must
-  domain := .mathematics
   formula := (ev entryAppend ∧ₗ atom closesQueueItem ⟹ atom closureReasonFoundByAttempt) ∧ₗ
     (ev reply ∧ₗ atom asksUserToCloseItem ⟹ atom justified)
 
@@ -1526,7 +1443,6 @@ def r784 : Rule where
 def r786 : Rule where
   number := 786
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom developsQueueItem ⟹
     ¬ₗ since (ev entryAppend ∧ₗ atom leavesItemUnfinished ∧ₗ ¬ₗ link sameQueueItem) (ev entryAppend)
 
@@ -1537,7 +1453,6 @@ def leavesUndoneOutsideSubIdeas : Atom := ⟨"leavesUndoneOutsideSubIdeas",
 def r787 : Rule where
   number := 787
   keyword := .mustNot
-  domain := .mathematics
   formula := never (ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ atom hasOwnLeadsSections) ∧ₗ
     never (ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ atom leavesUndoneOutsideSubIdeas)
 
@@ -1545,14 +1460,12 @@ def r787 : Rule where
 def r788 : Rule where
   number := 788
   keyword := .must
-  domain := .mathematics
   formula := atom reopensClosedItem ⟹ atom hasReopenedFollowUp ∧ₗ eventually (ev leadQueueAppend)
 
 /-- Rule 789: Sub-ideas only for undone work that will be done. -/
 def r789 : Rule where
   number := 789
   keyword := .must
-  domain := .mathematics
   formula := never (ev entryAppend ∧ₗ atom listsUnfitSubIdea)
 
 /-- Rule 790: a check or build filed with Problem and Must parts, readable alone, compared with
@@ -1560,7 +1473,6 @@ what was said. -/
 def r790 : Rule where
   number := 790
   keyword := .must
-  domain := .mathematics
   formula := ev leadQueueAdd ⟹ ev queueTextHasProblemMust ∧ₗ atom queueTextReadableAlone ∧ₗ
     once (ev reply ∧ₗ link comparesQueueTextWithDiscussion)
 
@@ -1568,7 +1480,6 @@ def r790 : Rule where
 def r791 : Rule where
   number := 791
   keyword := .must
-  domain := .mathematics
   formula := (atom closesQueueItemOtherwise ⟹ ev leadQueueClose) ∧ₗ
     (ev leadQueueClose ∧ₗ atom closesDuplicate ⟹ ev closeSaysMergedInto)
 
@@ -1576,7 +1487,6 @@ def r791 : Rule where
 def r792 : Rule where
   number := 792
   keyword := .must
-  domain := .mathematics
   formula := (atom marksCheckDeveloped ⟹ atom citesResolvingEvidence) ∧ₗ
     (atom marksBuildDeveloped ⟹ atom citesTaskOrPath)
 
@@ -1584,7 +1494,6 @@ def r792 : Rule where
 def r793 : Rule where
   number := 793
   keyword := .must
-  domain := .mathematics
   formula := (ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ atom queueDraining ⟹ atom developsHeadOrFirstSubIdea) ∧ₗ
     never (ev entryAppend ∧ₗ atom isRouteReview ∧ₗ atom queueDraining ∧ₗ atom hasOwnLeadsSections)
 
@@ -1593,7 +1502,6 @@ new idea, tested. -/
 def r794 : Rule where
   number := 794
   keyword := .must
-  domain := .mathematics
   formula := (ev notebookEdit ∧ₗ atom editsProposedNextStep ⟹ atom namesRouteItemResearchStep) ∧ₗ
     (ev reply ∧ₗ atom saysRoutesClosed ⟹ eventually (ev anyCall ∧ₗ link testsNewIdea))
 
@@ -1601,14 +1509,12 @@ def r794 : Rule where
 def r795 : Rule where
   number := 795
   keyword := .must
-  domain := .mathematics
   formula := ev reply ∧ₗ atom spinActive ∧ₗ atom endsTurn ⟹ atom goalProved
 
 /-- Rule 796: after a low-yield cycle, a correction or a hard step, the latest review's leads. -/
 def r796 : Rule where
   number := 796
   keyword := .should
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ since (ev entryAppend ∧ₗ atom lowYieldCorrectionOrHardStep) (ev entryAppend) ⟹
     atom developsReviewLead ∨ₗ atom justified
 
@@ -1616,7 +1522,6 @@ def r796 : Rule where
 def r797 : Rule where
   number := 797
   keyword := .must
-  domain := .mathematics
   formula := (atom registersClaim ⟹ ev claimAuthorBuild) ∧ₗ never (ev claimViewEdit) ∧ₗ
     (ev claimIndexEdit ⟹ eventually (ev claimRender))
 
@@ -1624,7 +1529,6 @@ def r797 : Rule where
 def r798 : Rule where
   number := 798
   keyword := .must
-  domain := .mathematics
   formula := (atom writesClaimMetadata ⟹ atom claimMetadataComplete) ∧ₗ
     (atom raisesSignificanceCandidate ⟹ eventually (ev reply ∧ₗ link surfacesCandidate))
 
@@ -1632,14 +1536,12 @@ def r798 : Rule where
 def r799 : Rule where
   number := 799
   keyword := .must
-  domain := .mathematics
   formula := never (atom addsRefinesWithoutImplication)
 
 /-- Rule 800: the pattern index searched before a pattern; the gate passed before its status. -/
 def r800 : Rule where
   number := 800
   keyword := .must
-  domain := .mathematics
   formula := (ev reply ∧ₗ atom proposesPattern ⟹ once (ev patternIndexRead)) ∧ₗ
     (ev editing ∧ₗ atom writesPatternStatus ⟹ once (ev anyCall ∧ₗ link passesPatternGate))
 
@@ -1647,7 +1549,6 @@ def r800 : Rule where
 def r801 : Rule where
   number := 801
   keyword := .must
-  domain := .mathematics
   formula := ev resumeRun ∧ₗ atom notebookHasFormalizationGaps ⟹
     eventually (ev anyCall ∧ₗ link readsFormalizationGaps)
 
@@ -1656,7 +1557,6 @@ workers append records and send their proposals. -/
 def r802 : Rule where
   number := 802
   keyword := .must
-  domain := .mathematics
   formula := never (ev notebookEdit ∧ₗ atom isFormalizationWorker ∧ₗ atom editsLivingSection) ∧ₗ
     (ev entryAppend ∧ₗ atom isFormalizationWorker ⟹ eventually (ev anyCall ∧ₗ link sendsProposedOverviewChange))
 
@@ -1667,7 +1567,6 @@ commit follows it with the finisher's checks not rerun since. -/
 def r803 : Rule where
   number := 803
   keyword := .must
-  domain := .mathematics
   formula := never (ev finishTurnViaLauncher) ∧ₗ
     (ev gitCommit ⟹ ¬ₗ since editAfterFinisher (atom rerunsFinisherChecks))
 
@@ -1675,7 +1574,6 @@ def r803 : Rule where
 def r804 : Rule where
   number := 804
   keyword := .must
-  domain := .mathematics
   formula := ev gitCommit ⟹ ¬ₗ since editAfterFinisher (atom rerunsFinisherChecks) ∧ₗ
     ¬ₗ since editAfterFinisher (ev notebookContextAll) ∧ₗ ¬ₗ since editAfterFinisher (ev claimCheck)
 
@@ -1683,14 +1581,12 @@ def r804 : Rule where
 def r805 : Rule where
   number := 805
   keyword := .must
-  domain := .mathematics
   formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹ atom endsWithTimingTable
 
 /-- Rule 806: the entry committed with its fragment, archive and results. -/
 def r806 : Rule where
   number := 806
   keyword := .must
-  domain := .mathematics
   formula := ev gitCommit ∧ₗ atom commitsResearchEntry ⟹ atom commitHoldsEntryBundle
 
 /-! Rules 807 to 821: commits, worktrees, merges, requests. -/
@@ -1699,21 +1595,18 @@ def r806 : Rule where
 def r807 : Rule where
   number := 807
   keyword := .must
-  domain := .softwareEngineering
   formula := ev cycleStart ∧ₗ atom startsResearchCycle ⟹ eventually (ev gitCommit ∧ₗ link commitsTurnRecords)
 
 /-- Rule 808: no result left only in scratch. -/
 def r808 : Rule where
   number := 808
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev entryAppend ∧ₗ atom citesScratchOnlyResult)
 
 /-- Rule 809: scratch deleted by the cycle's end, after promotion. -/
 def r809 : Rule where
   number := 809
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev finishTurn ⟹ ¬ₗ since (ev scratchWrite) (atom deletesScratch)) ∧ₗ
     never (atom deletesScratch ∧ₗ atom deletesUnpromotedResult)
 
@@ -1721,7 +1614,6 @@ def r809 : Rule where
 def r810 : Rule where
   number := 810
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev worktreeAdd ⟹ ev worktreeAddTracked ∧ₗ ¬ₗ once (ev worktreeAdd)) ∧ₗ
     never (ev editing ∧ₗ atom inSharedCheckoutInBackground)
 
@@ -1729,7 +1621,6 @@ def r810 : Rule where
 def r811 : Rule where
   number := 811
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev gitCommit ∧ₗ atom inWorktree ⟹ eventually (ev ffBase)) ∧ₗ
     (ev gitCommit ⟹ ¬ₗ since (ev gitCommit ∧ₗ atom inWorktree) (ev ffBase))
 
@@ -1737,7 +1628,6 @@ def r811 : Rule where
 def r812 : Rule where
   number := 812
   keyword := .must
-  domain := .softwareEngineering
   formula := atom ffBaseReportsConflict ⟹ eventually (ev anyCall ∧ₗ link resolvesReportedConflict)
 
 /-- Rule 813: a source's framework through `merge_main.py`, its changes read and key tests rerun
@@ -1745,7 +1635,6 @@ before the commit. -/
 def r813 : Rule where
   number := 813
   keyword := .must
-  domain := .softwareEngineering
   formula := (atom bringsSourceFramework ⟹ ev mergeMain) ∧ₗ
     (ev gitCommitNoEdit ⟹ ¬ₗ since (ev mergeMain) (ev anyCall ∧ₗ link readsSourceFrameworkDiff) ∧ₗ
       ¬ₗ since (ev mergeMain) (ev anyCall ∧ₗ link rerunsKeyFrameworkTests))
@@ -1754,7 +1643,6 @@ def r813 : Rule where
 def r814 : Rule where
   number := 814
   keyword := .should
-  domain := .softwareEngineering
   formula := ev gitCommitNoEdit ⟹
     ¬ₗ since (ev mergeMain ∧ₗ atom bringsLargeFrameworkChange) (ev agentRun) ∨ₗ atom justified
 
@@ -1763,7 +1651,6 @@ call right before it), refreshed if it advanced. -/
 def r815 : Rule where
   number := 815
   keyword := .must
-  domain := .softwareEngineering
   formula := ev fastForward ⟹ atom ffTargetPinned ∧ₗ
     since (ev anyCall ∧ₗ link checksDestinationHeadAndTree) (ev anyCall) ∧ₗ
     ¬ₗ since (ev anyResult ∧ₗ link showsDestinationAdvanced) (ev gitRebase)
@@ -1773,7 +1660,6 @@ with `notebook_rebase.py`. -/
 def r816 : Rule where
   number := 816
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev gitRebase ∧ₗ atom rebasesOntoMovedRemote ⟹
       atom inTemporaryWorktree ∧ₗ once (ev gitBranch ∧ₗ link backsUpRebasedBranch)) ∧ₗ
     (atom continuesRebase ⟹ ev notebookRebaseContinue)
@@ -1782,14 +1668,12 @@ def r816 : Rule where
 def r817 : Rule where
   number := 817
   keyword := .must
-  domain := .softwareEngineering
   formula := never (atom resolvesConflictByScratchLoop)
 
 /-- Rule 818: every request to the user filed, with its need, reason, attempts and default. -/
 def r818 : Rule where
   number := 818
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev reply ∧ₗ atom asksUserSomething ⟹ once (ev userRequestFiled ∧ₗ link filesThisRequest)) ∧ₗ
     (ev userRequestFiled ⟹ atom requestHasNeedWhyTriedDefault)
 
@@ -1797,7 +1681,6 @@ def r818 : Rule where
 def r819 : Rule where
   number := 819
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev userRequestFiled ⟹ before (ev reply ∧ₗ link mentionsRequest) (ev user)) ∧ₗ
     (ev user ∧ₗ atom answersOpenRequest ⟹
       before (ev anyCall ∧ₗ link marksRequestFulfilled) (ev user))
@@ -1807,7 +1690,6 @@ review cadence. -/
 def r820 : Rule where
   number := 820
   keyword := .must
-  domain := .tasks
   formula := ev reply ∧ₗ atom reportsTaskProgress ⟹
     atom reportsAgainstArtifact ∧ₗ ¬ₗ atom declaresMathClaimsInReport
 
@@ -1816,7 +1698,6 @@ message, active work continues unasked. -/
 def r821 : Rule where
   number := 821
   keyword := .mustNot
-  domain := .discipline
   formula := never (ev anyCall ∧ₗ since (ev user ∧ₗ atom isRestartNotification) (ev user)) ∧ₗ
     (ev reply ∧ₗ since (ev user ∧ₗ atom isRestartNotification) (ev user) ⟹ atom isAtMostOneSentence) ∧ₗ
     never (ev reply ∧ₗ atom asksToContinueActiveWork)
@@ -1828,7 +1709,6 @@ the turn. -/
 def r822 : Rule where
   number := 822
   keyword := .must
-  domain := .discipline
   formula := ev reply ∧ₗ atom answersShownMistake ⟹
     atom hasPreventionAndMeta ∧ₗ since (ev editing ∧ₗ link makesNamedPrevention) (ev user)
 
@@ -1836,21 +1716,18 @@ def r822 : Rule where
 def r823 : Rule where
   number := 823
   keyword := .must
-  domain := .discipline
   formula := ev frustratedUser ⟹ eventually (ev gitCommit ∧ₗ link commitsFixForFrustration)
 
 /-- Rule 824: a Meta paragraph for each mistake, reviewer report and right objection. -/
 def r824 : Rule where
   number := 824
   keyword := .must
-  domain := .discipline
   formula := ev entryAppend ∧ₗ atom admitsMistakeOrReviewer ⟹ atom hasMetaForEach
 
 /-- Rule 825: AGENTS.md holds rules for every notebook only. -/
 def r825 : Rule where
   number := 825
   keyword := .must
-  domain := .discipline
   formula := never (ev agentsMdEdit ∧ₗ atom addsGoalSpecificRule)
 
 /-- Rule 826: an instruction change removes as much as it adds, keeps every constraint, and is
@@ -1858,7 +1735,6 @@ reviewed fresh old against new. -/
 def r826 : Rule where
   number := 826
   keyword := .must
-  domain := .discipline
   formula := ev gitCommit ∧ₗ atom commitsInstructionChange ⟹ atom removesAsMuchAsAdds ∧ₗ
     atom keepsEveryConstraint ∧ₗ once (ev agentRun ∧ₗ link reviewsOldAgainstNew)
 
@@ -1866,21 +1742,18 @@ def r826 : Rule where
 def r827 : Rule where
   number := 827
   keyword := .must
-  domain := .discipline
   formula := never (ev instructionEdit ∧ₗ (atom restatesRuleElsewhere ∨ₗ atom restatesSkillRule))
 
 /-- Rule 828: an added rule raises its file's cap with a raised entry. -/
 def r828 : Rule where
   number := 828
   keyword := .must
-  domain := .discipline
   formula := ev gitCommit ∧ₗ atom commitsAddedRule ⟹ since (ev budgetsEdit ∧ₗ link raisesCapForRule) (ev gitCommit)
 
 /-- Rule 829: one call per job, wrong calls refused first, refusals saying what to do. -/
 def r829 : Rule where
   number := 829
   keyword := .must
-  domain := .discipline
   formula := ev toolEdit ⟹ atom keepsOneCallPerJob ∧ₗ atom refusesWrongCallFirst ∧ₗ atom refusalSaysWhatToDo
 
 /-- Rule 830: committed tools extended, no scratch rebuilds; a script whose output is committed
@@ -1888,7 +1761,6 @@ becomes a tested tool first. -/
 def r830 : Rule where
   number := 830
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev scratchWrite ∧ₗ atom rebuildsRecurringHelper) ∧ₗ
     (ev gitCommit ∧ₗ atom commitsScratchOutput ⟹ once (ev toolEdit ∧ₗ link turnsScriptIntoTool))
 
@@ -1896,7 +1768,6 @@ def r830 : Rule where
 def r831 : Rule where
   number := 831
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev toolRead ∧ₗ atom readsBodyToLearn) ∧ₗ
     (ev reply ∧ₗ atom saysToolFallsShort ⟹ eventually (ev toolEdit ∧ₗ link improvesThatTool))
 
@@ -1904,7 +1775,6 @@ def r831 : Rule where
 def r832 : Rule where
   number := 832
   keyword := .must
-  domain := .softwareEngineering
   formula := ev reply ∧ₗ atom proposesToolReplacement ⟹ atom listsWhatEachDoes ∧ₗ
     once (ev toolEdit ∧ₗ link buildsSmallestGapChange) ∧ₗ once (ev anyResult ∧ₗ link measuresBothTools) ∧ₗ
     atom offersKeepingOurs
@@ -1913,28 +1783,24 @@ def r832 : Rule where
 def r833 : Rule where
   number := 833
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev testBesideCode)
 
 /-- Rule 834: a suite over its limit is a defect, fixed. -/
 def r834 : Rule where
   number := 834
   keyword := .must
-  domain := .softwareEngineering
   formula := atom suiteRunOverLimit ⟹ eventually (ev editing ∧ₗ link fixesSuiteSlowness)
 
 /-- Rule 835: collected data in a tracked, append-only, one-record-per-line file. -/
 def r835 : Rule where
   number := 835
   keyword := .must
-  domain := .softwareEngineering
   formula := never (atom storesCollectedDataElsewhere)
 
 /-- Rule 836: files written with Write and Edit, never through the shell. -/
 def r836 : Rule where
   number := 836
   keyword := .must
-  domain := .softwareEngineering
   formula := never (ev shellFileWrite ∨ₗ atom changesFileThroughShell)
 
 /-- Rule 837: a file a command needs written with Write before it; a heredoc only as a program's
@@ -1942,7 +1808,6 @@ input in the last step. -/
 def r837 : Rule where
   number := 837
   keyword := .must
-  domain := .softwareEngineering
   formula := (atom readsPreparedFile ⟹ once (ev editing ∧ₗ link writesFileTheCallReads)) ∧ₗ
     never (ev heredocCall ∧ₗ atom heredocNotFinalInput)
 
@@ -1950,7 +1815,6 @@ def r837 : Rule where
 def r839 : Rule where
   number := 839
   keyword := .must
-  domain := .softwareEngineering
   formula := (ev scheduleWakeup ∧ₗ ¬ₗ atom waitsOnBlockedJob ⟹ atom delayAboutSixty) ∧ₗ
     never (ev scheduleWakeup ∧ₗ atom idlesUntilWakeup)
 
@@ -1958,7 +1822,6 @@ def r839 : Rule where
 def r840 : Rule where
   number := 840
   keyword := .should
-  domain := .softwareEngineering
   formula := ev scheduleWakeup ∧ₗ atom delayIsLong ⟹ atom waitsOnBlockedJob ∨ₗ atom justified
 
 def rules : List Rule :=
