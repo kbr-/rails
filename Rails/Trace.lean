@@ -166,10 +166,24 @@ theorem isPush_isPublish (e : Event) (h : isPush e = true) : isPublish e = true 
          simp [hp]
        · simp at hp)
 
-/-- A commit whose message carries Claude attribution. -/
+/-- A line of `cs` says Claude attribution, read in lower case as the commit-msg hook
+(`tools/git-hooks/commit-msg`) reads it: a `co-authored-by:` naming Claude or Anthropic,
+Anthropic's no-reply address, the "generated with Claude Code" footer, or a `claude-session:`
+link, which the hook leaves to the rule. -/
+def saysAttribution (cs : List Char) : Bool :=
+  let lower := cs.map Char.toLower
+  let has (s : String) (l : List Char) := occursIn s.toList l
+  (lower.splitOn '\n').any (fun l => has "co-authored-by:" l && (has "claude" l || has "anthropic" l)) ||
+    has "noreply@anthropic.com" lower || has "generated with claude code" lower ||
+    has "generated with [claude code" lower || has "claude-session:" lower
+
+/-- A commit whose command carries Claude attribution in its text; a message from a file, an
+editor or an amended commit is outside the trace. -/
 def isAttributedCommit (e : Event) : Bool :=
   runs "git" (hasWord "commit") e &&
-    (commandHas "Co-Authored-By: Claude" e || commandHas "Claude-Session:" e)
+    match command e with
+    | some c => saysAttribution c.toList
+    | none => false
 
 /-- A file edit: Claude Code's Edit or Write, or a Codex command running `apply_patch`. -/
 def isEdit (e : Event) : Bool := isTool "Edit" e || isTool "Write" e || runs "apply_patch" (fun _ => true) e

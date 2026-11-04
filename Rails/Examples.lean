@@ -70,6 +70,18 @@ theorem script_naming_commit : isAttributedCommit
   decide
 theorem heredoc_commit : isAttributedCommit
     (bash "git commit -F - <<'EOF'\nfix\n\nCo-Authored-By: Claude\nEOF") = true := by decide
+/-- The commit-msg hook's forms, in any case, and the session link count; a co-author who is a
+person, and "claude" off a co-author line, don't. -/
+theorem attribution_forms :
+    ["git commit -m 'x\n\nco-authored-by: Claude Opus <noreply@anthropic.com>'",
+      "git commit -m 'x\n\nCo-authored-by: Anthropic bot'", "git commit -m 'x\n\nnoreply@anthropic.com'",
+      "git commit -m 'x\n\nGenerated with [Claude Code](https://claude.ai)'",
+      "git commit -m 'x\n\nClaude-Session: https://claude.ai/code/s'"].all
+      (fun c => isAttributedCommit (bash c)) = true := by decide
+theorem attribution_non_forms :
+    ["git commit -m 'x\n\nCo-authored-by: Ann <ann@x.org>'", "git commit -m 'ask claude later'",
+      "git log --grep 'Co-Authored-By: Claude'"].all
+      (fun c => !isAttributedCommit (bash c)) = true := by decide
 theorem request_add_via_python : isRequestAdd (bash "python3 tools/task_index.py request add x") = true := by
   decide
 /-- A Codex `apply_patch` is an edit; its plain shell commands are not. -/
