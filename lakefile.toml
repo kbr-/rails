@@ -1,6 +1,6 @@
 name = "rails"
 version = "0.1.0"
-defaultTargets = ["Rails", "rails-extract", "rails-check"]
+defaultTargets = ["Rails", "rails-extract", "rails-check", "rails-label"]
 testDriver = "rails_tests"
 
 [[require]]
@@ -17,6 +17,10 @@ root = "RailsExtract"
 [[lean_exe]]
 name = "rails-check"
 root = "RailsCheck"
+
+[[lean_exe]]
+name = "rails-label"
+root = "RailsLabel"
 
 [[lean_exe]]
 name = "rails_tests"
