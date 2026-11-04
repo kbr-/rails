@@ -26,10 +26,18 @@ open Query Atom Link
 
 theorem r1_kept : run pushNeedsAuthorization (seq [.user "push it", bash "git push"])
     [(atom authorizesPush 0, true)] = .kept := by decide
-theorem r1_broken : run pushNeedsAuthorization (seq [bash "git push"]) [] = .broken := by decide
-/-- Codex's pushes are read too. -/
-theorem r1_codex_broken : run pushNeedsAuthorization (seq [exec "git push origin main"]) [] = .broken := by
+theorem r1_broken : run pushNeedsAuthorization (seq [bash "git push"])
+    [(atom grantCoversPush 0, false)] = .broken := by decide
+/-- A push no user message authorized is undecided while the grant question is unanswered, never
+broken: the grant may be held outside the trace. -/
+theorem r1_unanswered : run pushNeedsAuthorization (seq [bash "git push"]) [] = .undecided := by
   decide
+/-- A standing grant covering it keeps a push no message authorized. -/
+theorem r1_granted : run pushNeedsAuthorization (seq [bash "git push", bash "git push"])
+    [(atom grantCoversPush 0, true), (atom grantCoversPush 1, true)] = .kept := by decide
+/-- Codex's pushes are read too. -/
+theorem r1_codex_broken : run pushNeedsAuthorization (seq [exec "git push origin main"])
+    [(atom grantCoversPush 0, false)] = .broken := by decide
 theorem r1_codex_kept : run pushNeedsAuthorization (seq [.user "push it", exec "git push"])
     [(atom authorizesPush 0, true)] = .kept := by decide
 /-- A Codex `apply_patch` is an edit; its plain shell commands are not. -/

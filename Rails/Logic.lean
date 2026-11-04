@@ -20,6 +20,7 @@ inductive Atom where
   | taskInProgress | inventsProgress | needsUserAction | onlyAsks | claimsCheckPasses | pushDeploys
   | checksRunningSystem | reliesOnClaim | isFix | floatingPointOverFiniteField | writesKernel
   | asksUserAndStops | nothingUnblocked | addsCaseToList | generalClaimStated | justified
+  | grantCoversPush
   deriving Repr, DecidableEq
 
 inductive Link where
@@ -38,7 +39,7 @@ def Atom.decide : Atom → Event → Option Bool
   | .inventsProgress, e | .needsUserAction, e | .claimsCheckPasses, e | .reliesOnClaim, e
   | .asksUserAndStops, e | .addsCaseToList, e => onReply e
   | .isFix, e | .floatingPointOverFiniteField, e | .writesKernel, e => onEdit e
-  | .pushDeploys, e => if isPush e then none else some false
+  | .pushDeploys, e | .grantCoversPush, e => if isPush e then none else some false
   | .changesRunningState, e => match e with
     | .call _ _ _ => if isRequestAdd e then some false else none
     | _ => some false
