@@ -12,6 +12,8 @@ def bash (c : String) : Event := .call "c" "Bash" [("command", c)]
 def edit (p : String) : Event := .call "e" "Edit" [("file_path", p)]
 def read (p : String) : Event := .call "r" "Read" [("file_path", p)]
 def reviewer : Event := .call "a" "Agent" [("subagent_type", "medium-reviewer")]
+/-- A Codex shell call, as the extractor reads its string input. -/
+def exec (c : String) : Event := .call "x" "exec" [("input", c)]
 
 /-- Events one per message, a second apart. -/
 def seq (es : List Event) : Array Step :=
@@ -25,6 +27,14 @@ open Query Atom Link
 theorem r1_kept : run pushNeedsAuthorization (seq [.user "push it", bash "git push"])
     [(atom authorizesPush 0, true)] = .kept := by decide
 theorem r1_broken : run pushNeedsAuthorization (seq [bash "git push"]) [] = .broken := by decide
+/-- Codex's pushes are read too. -/
+theorem r1_codex_broken : run pushNeedsAuthorization (seq [exec "git push origin main"]) [] = .broken := by
+  decide
+theorem r1_codex_kept : run pushNeedsAuthorization (seq [.user "push it", exec "git push"])
+    [(atom authorizesPush 0, true)] = .kept := by decide
+/-- A Codex `apply_patch` is an edit; its plain shell commands are not. -/
+theorem codex_patch_is_edit : isEdit (exec "apply_patch <<'EOF'\n*** Begin Patch") = true := by decide
+theorem codex_ls_is_no_edit : isEdit (exec "ls -la") = false := by decide
 
 theorem r23_kept : run runningStateNeedsAsk (seq [.user "restart it", bash "systemctl restart x"])
     [(atom changesRunningState 1, true), (atom asksForThisChange 0, true)] = .kept := by decide

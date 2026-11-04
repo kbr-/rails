@@ -7,6 +7,9 @@ every event becomes a step, and the parsers of times, file names and positions r
 
 namespace Rails.Extract
 
+/-- A string input, every Codex call's, is kept whole as the field `input`. -/
+theorem fields_str (s : String) : fields (.str s) = [("input", s)] := rfl
+
 /-- Every line is counted under exactly one kind. -/
 theorem tally_partition (ls : List Line) :
     (tally ls).lines = (tally ls).events + (tally ls).labels + (tally ls).metas +

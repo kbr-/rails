@@ -43,9 +43,11 @@ def isTool (name : String) : Event → Bool
   | .call _ tool _ => tool == name
   | _ => false
 
-/-- A shell call's command. -/
+/-- A shell call's command: Claude Code's `Bash` `command`, or Codex's `exec` input. -/
 def command (e : Event) : Option String :=
-  if isTool "Bash" e then e.field "command" else none
+  if isTool "Bash" e then e.field "command"
+  else if isTool "exec" e then e.field "input"
+  else none
 
 /-- The first list is a prefix of the second; structural, so the kernel evaluates it and verdicts
 on sample traces are proved by `decide`. -/
@@ -70,7 +72,8 @@ def isPush (e : Event) : Bool := commandHas "git push" e || commandHas "checked-
 def isAttributedCommit (e : Event) : Bool :=
   commandHas "git commit" e && (commandHas "Co-Authored-By: Claude" e || commandHas "Claude-Session:" e)
 
-def isEdit (e : Event) : Bool := isTool "Edit" e || isTool "Write" e
+/-- A file edit: Claude Code's Edit or Write, or a Codex command calling `apply_patch`. -/
+def isEdit (e : Event) : Bool := isTool "Edit" e || isTool "Write" e || commandHas "apply_patch" e
 
 def isRead (e : Event) : Bool := isTool "Read" e
 

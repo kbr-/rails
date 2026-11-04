@@ -62,11 +62,13 @@ inductive Line where
   | unparsable
   deriving Inhabited
 
-/-- A call's input as its fields, a string field as itself and any other value as its JSON. -/
+/-- A call's input as its fields, a string field as itself and any other value as its JSON. An input
+that is a string (every Codex call's, its `exec` command text among them) is the field `input`. -/
 def fields : Json → List (String × String)
   | .obj kvs => kvs.toList.map fun (k, v) => (k, match v with
       | .str s => s
       | other => other.compress)
+  | .str s => [("input", s)]
   | _ => []
 
 /-- A parsed record as a line of the trace. -/
