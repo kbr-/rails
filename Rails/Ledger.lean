@@ -16,8 +16,8 @@ model for the gaps between the clauses and the statements.
 namespace Rails.Ledger
 open Rails Rules Formula SpecTools.Ledger
 
-theorem r1_formula : pushNeedsAuthorization.formula = (ev isPush ⟹
-    (since (ev isUser ∧ₗ atom .authorizesPush) (ev isPush) ∨ₗ atom .grantCoversPush)) := rfl
+theorem r1_formula : pushNeedsAuthorization.formula = (ev isPublish ⟹
+    (since (ev isUser ∧ₗ atom .authorizesPush) (ev isPublish) ∨ₗ atom .grantCoversPush)) := rfl
 theorem r23_formula : runningStateNeedsAsk.formula =
     (atom .changesRunningState ⟹ since (ev isUser ∧ₗ atom .asksForThisChange) (ev isUser)) := rfl
 theorem r38_formula : noAttribution.formula = never (ev isAttributedCommit) := rfl
@@ -55,7 +55,8 @@ theorem r926_formula : generalOverCases.formula = (ev isReply ∧ₗ atom .addsC
 def formulaRows : List (Rule × List Lean.Name) := [
   (pushNeedsAuthorization, [``r1_formula, ``Examples.r1_kept, ``Examples.r1_broken,
     ``Examples.r1_unanswered, ``Examples.r1_granted, ``Examples.r1_codex_broken,
-    ``Examples.r1_codex_kept]),
+    ``Examples.r1_codex_kept, ``Examples.r1_publish_broken, ``Examples.r1_publish_kept,
+    ``Examples.publish_forms, ``Examples.reading_forms_no_publish]),
   (runningStateNeedsAsk, [``r23_formula, ``Examples.r23_kept, ``Examples.r23_broken]),
   (noAttribution, [``r38_formula, ``Examples.r38_kept, ``Examples.r38_broken]),
   (exploreBeforeEditing, [``r56_formula, ``Examples.r56_kept, ``Examples.r56_broken]),

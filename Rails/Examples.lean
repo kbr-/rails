@@ -47,6 +47,24 @@ theorem grep_push_no_push : isPush (bash "grep -n 'git push' f") = false := by d
 theorem chained_push : isPush (bash "make && git push origin b") = true := by decide
 theorem dash_c_push : isPush (bash "git -C /r push origin b") = true := by decide
 theorem checked_push : isPush (bash "tools/checked-push.sh main") = true := by decide
+/-- Rule 1 reads every form of publishing it names, and none of their reading forms. -/
+theorem publish_forms :
+    ["git push origin b", "docker push r/i:1", "podman push i", "buildah push i",
+      "skopeo copy a b", "npm publish", "twine upload dist/*", "gh release upload v1 f.pdf",
+      "gh repo create kbr-/d --private", "gh pr create --fill", "gh api -X POST repos/a/b/issues",
+      "gh api repos/a/b/pulls --method=PATCH", "glab mr update 3 --description x",
+      "glab mr note 3 -m hi", "glab api -XPUT projects/1", "glab release create v1",
+      "python3 tools/confluence_page.py push D.md", "helm upgrade r c", "kubectl apply -f m.yaml"
+      ].all (fun c => isPublish (bash c)) = true := by decide
+theorem reading_forms_no_publish :
+    ["gh pr view 3", "glab mr view 3", "gh api repos/a/b", "glab api projects/1 -X GET",
+      "kubectl get pods", "docker build .", "helm template r c", "grep 'glab mr create' f",
+      "git log --oneline"].all (fun c => !isPublish (bash c)) = true := by decide
+theorem r1_publish_broken : run pushNeedsAuthorization (seq [bash "glab mr update 3 --description x"])
+    [(atom grantCoversPush 0, false)] = .broken := by decide
+theorem r1_publish_kept : run pushNeedsAuthorization
+    (seq [.user "update the MR description", bash "glab mr update 3 --description x"])
+    [(atom authorizesPush 0, true)] = .kept := by decide
 theorem script_naming_commit : isAttributedCommit
     (bash "python3 -c \"if 'git commit' in x and 'Co-Authored-By: Claude' in x: pass\"") = false := by
   decide

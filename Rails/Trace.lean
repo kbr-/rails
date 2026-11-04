@@ -112,6 +112,33 @@ private def hasWord (s : String) (ws : List (List Char)) : Bool := ws.contains s
 /-- A push: `git ... push` (with options such as `-C PATH` between) or the checked-push script. -/
 def isPush (e : Event) : Bool := runs "git" (hasWord "push") e || runs "checked-push.sh" (fun _ => true) e
 
+private def hasAny (ss : List String) (ws : List (List Char)) : Bool := ss.any (hasWord · ws)
+
+/-- An API call writing: `-X` or `--method` with a writing method, or `-XPOST` and the like. -/
+private def writes (ws : List (List Char)) : Bool :=
+  let methods := ["POST", "PUT", "PATCH", "DELETE"]
+  (hasAny ["-X", "--method"] ws && hasAny methods ws) ||
+    hasAny (methods.map ("-X" ++ ·)) ws || hasAny (methods.map ("--method=" ++ ·)) ws
+
+/-- A push, publish or deploy (rule 1): a git push; a container or package push (`docker`,
+`podman` or `buildah push`, `skopeo copy`, `npm publish`, `twine upload`); a hosted-service write
+(`gh` or `glab` creating or changing a release, a repository, a pull or merge request, or calling
+their API with a writing method; `confluence_page.py`); a cluster deploy (`helm upgrade` or
+`install`, `kubectl apply`). A write through another client stays unseen. -/
+def isPublish (e : Event) : Bool :=
+  isPush e ||
+  runs "docker" (hasWord "push") e || runs "podman" (hasWord "push") e ||
+  runs "buildah" (hasWord "push") e || runs "skopeo" (hasWord "copy") e ||
+  runs "npm" (hasWord "publish") e || runs "twine" (hasWord "upload") e ||
+  runs "gh" (fun ws => (hasWord "release" ws && hasAny ["create", "upload", "edit"] ws) ||
+    (hasWord "repo" ws && hasWord "create" ws) ||
+    (hasWord "pr" ws && hasAny ["create", "edit", "comment"] ws) ||
+    (hasWord "api" ws && writes ws)) e ||
+  runs "glab" (fun ws => (hasWord "mr" ws && hasAny ["create", "update", "note"] ws) ||
+    (hasWord "release" ws && hasWord "create" ws) || (hasWord "api" ws && writes ws)) e ||
+  runs "confluence_page.py" (fun _ => true) e ||
+  runs "helm" (hasAny ["upgrade", "install"]) e || runs "kubectl" (hasWord "apply") e
+
 /-- A commit whose message carries Claude attribution. -/
 def isAttributedCommit (e : Event) : Bool :=
   runs "git" (hasWord "commit") e &&
