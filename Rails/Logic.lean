@@ -119,13 +119,17 @@ inductive Formula where
   | atom (a : Atom)
   | link (l : Link)
   | sameMessage (r : Rel)
-  | gapAtMost (ms : Nat)
   | not (φ : Formula)
   | and (φ ψ : Formula)
   | or (φ ψ : Formula)
   | once (φ : Formula)
   | eventually (φ : Formula)
   | since (φ χ : Formula)
+  /-- φ at a later position, with no χ strictly between: `since`'s mirror, a future bounded by an
+  event ("in the same turn": before the next user message). -/
+  | before (φ χ : Formula)
+  /-- φ at a later position whose time is at most `ms` after this one's (a deadline). -/
+  | within (ms : Nat) (φ : Formula)
 
 namespace Formula
 def implies (φ ψ : Formula) : Formula := .or (.not φ) ψ
@@ -134,26 +138,26 @@ def never (φ : Formula) : Formula := .not φ
 /-- What a formula names: its atoms, links, event predicates and relations, with repeats. -/
 def atoms : Formula → List Atom
   | atom a => [a]
-  | .not φ | once φ | eventually φ => atoms φ
-  | .and φ ψ | .or φ ψ | since φ ψ => atoms φ ++ atoms ψ
+  | .not φ | once φ | eventually φ | within _ φ => atoms φ
+  | .and φ ψ | .or φ ψ | since φ ψ | before φ ψ => atoms φ ++ atoms ψ
   | _ => []
 
 def links : Formula → List Link
   | link l => [l]
-  | .not φ | once φ | eventually φ => links φ
-  | .and φ ψ | .or φ ψ | since φ ψ => links φ ++ links ψ
+  | .not φ | once φ | eventually φ | within _ φ => links φ
+  | .and φ ψ | .or φ ψ | since φ ψ | before φ ψ => links φ ++ links ψ
   | _ => []
 
 def preds : Formula → List Pred
   | ev p => [p]
-  | .not φ | once φ | eventually φ => preds φ
-  | .and φ ψ | .or φ ψ | since φ ψ => preds φ ++ preds ψ
+  | .not φ | once φ | eventually φ | within _ φ => preds φ
+  | .and φ ψ | .or φ ψ | since φ ψ | before φ ψ => preds φ ++ preds ψ
   | _ => []
 
 def rels : Formula → List Rel
   | sameMessage r => [r]
-  | .not φ | once φ | eventually φ => rels φ
-  | .and φ ψ | .or φ ψ | since φ ψ => rels φ ++ rels ψ
+  | .not φ | once φ | eventually φ | within _ φ => rels φ
+  | .and φ ψ | .or φ ψ | since φ ψ | before φ ψ => rels φ ++ rels ψ
   | _ => []
 end Formula
 
@@ -226,9 +230,6 @@ def eval (ctx : Ctx) (anchor i : Nat) : Formula → Tri
     match ctx.step? i, ctx.step? j with
     | some s, some t => ofBool (j != i && s.message == t.message && r.test s t)
     | _, _ => broken
-  | gapAtMost ms => match ctx.step? i, ctx.step? (i + 1) with
-    | some s, some t => ofBool (decide (t.time ≤ s.time + ms))
-    | _, _ => undecided
   | .not φ => (eval ctx anchor i φ).not
   | .and φ ψ => (eval ctx anchor i φ).and (eval ctx anchor i ψ)
   | .or φ ψ => (eval ctx anchor i φ).or (eval ctx anchor i ψ)
@@ -238,6 +239,18 @@ def eval (ctx : Ctx) (anchor i : Nat) : Formula → Tri
     if found == broken && !ctx.complete then undecided else found
   | since φ χ => anyT (List.range i) fun j =>
     (eval ctx i j φ).and (allT ((List.range i).filter (j < ·)) fun k => (eval ctx i k χ).not)
+  | before φ χ =>
+    let later := List.range' (i + 1) (ctx.size - (i + 1))
+    let found := anyT later fun j =>
+      (eval ctx i j φ).and (allT (later.filter (· < j)) fun k => (eval ctx i k χ).not)
+    if found == broken && !ctx.complete then undecided else found
+  | within ms φ =>
+    let later := List.range' (i + 1) (ctx.size - (i + 1))
+    let found := anyT later fun j =>
+      match ctx.step? i, ctx.step? j with
+      | some s, some t => (eval ctx i j φ).and (ofBool (decide (t.time ≤ s.time + ms)))
+      | _, _ => broken
+    if found == broken && !ctx.complete then undecided else found
 
 /-- The formula's meaning at position `i` under a reading `val` of every question. -/
 def Holds (ctx : Ctx) (val : Query → Bool) (anchor i : Nat) : Formula → Prop
@@ -246,13 +259,16 @@ def Holds (ctx : Ctx) (val : Query → Bool) (anchor i : Nat) : Formula → Prop
   | link l => val (.link l.name anchor i) = true
   | sameMessage r => ∃ j ∈ ctx.peers i, ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧
       (j != i && s.message == t.message && r.test s t) = true
-  | gapAtMost ms => ∃ s t, ctx.step? i = some s ∧ ctx.step? (i + 1) = some t ∧ t.time ≤ s.time + ms
   | .not φ => ¬ Holds ctx val anchor i φ
   | .and φ ψ => Holds ctx val anchor i φ ∧ Holds ctx val anchor i ψ
   | .or φ ψ => Holds ctx val anchor i φ ∨ Holds ctx val anchor i ψ
   | once φ => ∃ j, j < i ∧ Holds ctx val i j φ
   | eventually φ => ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ
   | since φ χ => ∃ j, j < i ∧ Holds ctx val i j φ ∧ ∀ k, k < i → j < k → ¬ Holds ctx val i k χ
+  | before φ χ => ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ ∧
+      ∀ k, i < k → k < j → ¬ Holds ctx val i k χ
+  | within ms φ => ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ ∧
+      ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧ t.time ≤ s.time + ms
 
 /-- A reading agrees with the answers given. -/
 def Agrees (ctx : Ctx) (val : Query → Bool) : Prop := ∀ q b, ctx.answer q = some b → val q = b

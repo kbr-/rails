@@ -53,4 +53,26 @@ theorem namesKeyAnswers :
       Measures.sameQuestion allAtoms = [] := by
   native_decide
 
+/-- A rule's text's keywords, from the table generated from RULES.md. -/
+def textKeywords (n : Nat) : List RuleTextParse.Keyword :=
+  ((RuleText.entries.find? (·.number == n)).map (·.keywords)).getD []
+
+/-- The rules whose SHOULD clause only restates the alternative their MUST clause leaves, so an
+exception to it would excuse nothing: 719, "You MUST NOT load the growing record or index
+wholesale; you SHOULD use targeted source passages." -/
+def shouldRestatesMust : List Nat := [719]
+
+/-- A rule names the exception `justified` exactly when its text holds a SHOULD or SHOULD NOT,
+outside `shouldRestatesMust`: the keyword and the formula can't disagree. Read from the text's
+keywords, not the rule's first one, since a MUST rule may carry a SHOULD clause (rule 1302). Over
+generated data, by `native_decide`. -/
+theorem exceptionsMatchKeywords :
+    allRules.all (fun r =>
+      shouldRestatesMust.contains r.number ||
+        (r.formula.atoms.any (·.name == "justified")) ==
+          ((textKeywords r.number).contains .should ||
+            (textKeywords r.number).contains .shouldNot)) =
+      true := by
+  native_decide
+
 end Rails.Ruleset

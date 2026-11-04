@@ -1798,8 +1798,9 @@ def r819 : Rule where
   number := 819
   keyword := .must
   domain := .softwareEngineering
-  formula := (ev userRequestFiled ⟹ eventually (ev reply ∧ₗ link mentionsRequest)) ∧ₗ
-    (ev user ∧ₗ atom answersOpenRequest ⟹ eventually (ev anyCall ∧ₗ link marksRequestFulfilled))
+  formula := (ev userRequestFiled ⟹ before (ev reply ∧ₗ link mentionsRequest) (ev user)) ∧ₗ
+    (ev user ∧ₗ atom answersOpenRequest ⟹
+      before (ev anyCall ∧ₗ link marksRequestFulfilled) (ev user))
 
 /-- Rule 820: a task's progress reported against its artifact, without mathematical claims or a
 review cadence. -/

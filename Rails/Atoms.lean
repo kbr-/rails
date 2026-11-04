@@ -11,17 +11,11 @@ only runs the questions.
 namespace Rails.Atoms
 open Rails Lean SpecTools.Model
 
-/-- The atoms a formula mentions. -/
-def atomsOf : Formula → List Atom
-  | .atom a => [a]
-  | .not φ | .once φ | .eventually φ => atomsOf φ
-  | .and φ ψ | .or φ ψ | .since φ ψ => atomsOf φ ++ atomsOf ψ
-  | _ => []
-
 /-- The atoms of a formula at the positions where neither their decider nor the context answers
-them, each once. -/
+them, each once. The formula's atoms are `Formula.atoms`'s, the one recursion over formulas that
+lists them, so an operator added to `Formula` reaches the queries. -/
 def openQueries (ctx : Ctx) (φ : Formula) : List (Atom × Nat) :=
-  let atoms := (atomsOf φ).eraseDups
+  let atoms := φ.atoms.eraseDups
   (List.range ctx.size).flatMap fun i =>
     atoms.filterMap fun a => if (ctx.atomAnswer a i).isNone then some (a, i) else none
 

@@ -751,7 +751,8 @@ def podStopConditions : Rule where
   keyword := .must
   domain := .softwareEngineering
   formula := ev podStop ⟹ once (ev user ∧ₗ link authorizesThisPodAction) ∨ₗ
-    (atom podIdle ∧ₗ once (ev podRead) ∧ₗ once (ev reply ∧ₗ atom asksAboutPod ∧ₗ ¬ₗ gapAtMost 120000))
+    (atom podIdle ∧ₗ once (ev podRead) ∧ₗ
+      since (ev reply ∧ₗ atom asksAboutPod ∧ₗ ¬ₗ within 120000 (ev user ∨ₗ ev podStop)) (ev user))
 
 /-- Rule 20: stock and price are read, and the hourly price quoted, before a Pod is created. -/
 def stockAndPriceBeforePod : Rule where
@@ -1002,7 +1003,7 @@ def sideQuestionKeepsWork : Rule where
   keyword := .must
   domain := .discipline
   formula := ev user ∧ₗ atom asksSideQuestion ⟹
-    eventually (ev reply) ∧ₗ eventually (atom continuesActiveRequest)
+    before (ev reply) (ev user) ∧ₗ before (atom continuesActiveRequest) (ev user)
 
 /-- Rule 58: work stops or switches only when the user pauses or replaces it, or its end
 condition holds. -/
@@ -1065,7 +1066,7 @@ def agreedProposalIsDone : Rule where
   number := 65
   keyword := .must
   domain := .discipline
-  formula := ev reply ∧ₗ atom agreesWithProposal ⟹ eventually (link carriesOutProposal)
+  formula := ev reply ∧ₗ atom agreesWithProposal ⟹ before (link carriesOutProposal) (ev user)
 
 /-- Rule 66: no waiting for a decision while the goal is open; the default is followed. -/
 def noWaitingWhileGoalOpen : Rule where

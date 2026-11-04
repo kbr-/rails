@@ -314,8 +314,10 @@ def controlRunOfScript : Link := ⟨"controlRunOfScript",
   "Is this result a run of the anchored call's script on a control input whose answer is known?"⟩
 def writesClassTheorem : Link := ⟨"writesClassTheorem",
   "Does this edit turn the anchored reply's bug into a theorem over all inputs excluding its class, or a property test, stating what the system must still assume?"⟩
-def listsClosableGap : Atom := ⟨"listsClosableGap",
-  "Does this reply list a gap the agent could close in this turn?", .reply⟩
+def findsClosableGap : Atom := ⟨"findsClosableGap",
+  "Does this step find a gap the agent could close in this turn?", .any⟩
+def closesFoundGap : Link := ⟨"closesFoundGap",
+  "Does this step close the gap the anchored step found?"⟩
 def listsGapWithoutReason : Atom := ⟨"listsGapWithoutReason",
   "Does this reply list a gap without a reason it can't be closed?", .reply⟩
 def judgesTestOtherwise : Atom := ⟨"judgesTestOtherwise",
@@ -1074,7 +1076,8 @@ def closeGapsNow : Rule where
   number := 194
   keyword := .must
   domain := .discipline
-  formula := never (ev reply ∧ₗ atom listsClosableGap) ∧ₗ never (ev reply ∧ₗ atom listsGapWithoutReason)
+  formula := (atom findsClosableGap ⟹ before (link closesFoundGap) (ev user)) ∧ₗ
+    never (ev reply ∧ₗ atom listsGapWithoutReason)
 
 /-- Rule 195: a test is judged by the wrong versions it rejects. -/
 def judgeTestByRejections : Rule where

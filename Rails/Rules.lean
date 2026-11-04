@@ -158,8 +158,8 @@ def noLongWait : Rule where
   number := 677
   keyword := .shouldNot
   domain := .tasks
-  formula := ev reply ∧ₗ atom asksUserAndStops ⟹ (gapAtMost 120000 ∨ₗ atom nothingUnblocked) ∨ₗ
-    atom justified
+  formula := ev reply ∧ₗ atom asksUserAndStops ⟹
+    (within 120000 (ev anyStep) ∨ₗ atom nothingUnblocked) ∨ₗ atom justified
 
 /-- Rule 926: no growing list of cases where a general claim could be stated. -/
 def generalOverCases : Rule where

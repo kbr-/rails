@@ -320,8 +320,8 @@ def reportsSlowToolCause : Link := ⟨"reportsSlowToolCause",
   "Does this reply report the investigated cause of the anchored result's slow-tool warning?"⟩
 def sshToRentedMachine : Atom := ⟨"sshToRentedMachine",
   "Does this call connect to a rented container?", .call⟩
-def withinMinuteOfSsh : Link := ⟨"withinMinuteOfSsh",
-  "Is this read of the delivered CPUs and RAM on the anchored call's container, within a minute of it?"⟩
+def readsSshContainerLimits : Link := ⟨"readsSshContainerLimits",
+  "Is this read of the delivered CPUs and RAM on the anchored call's container?"⟩
 def judgesCapacityFromNproc : Atom := ⟨"judgesCapacityFromNproc",
   "Does this reply state a rented container's CPUs or RAM from nproc or MemTotal?", .reply⟩
 def claimsCpuQuota : Atom := ⟨"claimsCpuQuota",
@@ -975,7 +975,7 @@ def deliveredLimitsRead : Rule where
   keyword := .must
   domain := .softwareEngineering
   formula := (ev ssh ∧ₗ atom sshToRentedMachine ∧ₗ ¬ₗ once (ev ssh ∧ₗ atom sshToRentedMachine) ⟹
-      eventually (ev cgroupLimitRead ∧ₗ link withinMinuteOfSsh)) ∧ₗ
+      within 60000 (ev cgroupLimitRead ∧ₗ link readsSshContainerLimits)) ∧ₗ
     never (ev reply ∧ₗ atom judgesCapacityFromNproc)
 
 /-- Rule 444: a CPU quota proved under load from cpuacct.usage and cpu.stat. -/

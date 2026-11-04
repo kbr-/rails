@@ -17,22 +17,25 @@ def constructors : Formula → List String
   | .atom _ => ["atom"]
   | .link _ => ["link"]
   | .sameMessage _ => ["sameMessage"]
-  | .gapAtMost _ => ["gapAtMost"]
   | .not φ => "not" :: constructors φ
   | .and φ ψ => "and" :: (constructors φ ++ constructors ψ)
   | .or φ ψ => "or" :: (constructors φ ++ constructors ψ)
   | .once φ => "once" :: constructors φ
   | .eventually φ => "eventually" :: constructors φ
   | .since φ ψ => "since" :: (constructors φ ++ constructors ψ)
+  | .before φ ψ => "before" :: (constructors φ ++ constructors ψ)
+  | .within _ φ => "within" :: constructors φ
 
 /-- A formula that is one judgement of one event: `never (ev p ∧ₗ atom a)` or `never (atom a)`. -/
 def isOneJudgement : Formula → Bool
   | .not (.and (.ev _) (.atom _)) | .not (.atom _) => true
   | _ => false
 
-/-- A formula with no temporal operator (no `once`, `eventually`, `since`, `gapAtMost`). -/
-def isStatic (φ : Formula) : Bool :=
-  !(constructors φ).any (fun c => c == "once" || c == "eventually" || c == "since" || c == "gapAtMost")
+/-- The temporal operators, by their names in `constructors`. -/
+def temporal : List String := ["once", "eventually", "since", "before", "within"]
+
+/-- A formula with no temporal operator. -/
+def isStatic (φ : Formula) : Bool := !(constructors φ).any (temporal.contains ·)
 
 /-- Each key with how many times it occurs, most frequent first. -/
 def tally (keys : List String) : List (String × Nat) :=

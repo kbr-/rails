@@ -89,10 +89,6 @@ theorem eval_sound (ctx : Ctx) (val : Query → Bool) (agrees : Agrees ctx val) 
     · intro hb ⟨j, hj, s, t, hs, ht, hr⟩
       have := hb j hj
       simp_all
-  | gapAtMost ms =>
-    intro anchor i
-    simp only [eval, Holds]
-    cases hs : ctx.step? i <;> cases ht : ctx.step? (i + 1) <;> simp
   | not φ ih =>
     intro anchor i
     have := ih anchor i
@@ -152,6 +148,82 @@ theorem eval_sound (ctx : Ctx) (val : Query → Bool) (agrees : Agrees ctx val) 
       rcases hb j hj with h | ⟨k, ⟨hk, hjk⟩, hχ⟩
       · exact (ihφ i j).2 h hφ
       · exact hnone k hk hjk ((ihχ i k).1 hχ)
+  | before φ χ ihφ ihχ =>
+    intro anchor i
+    have mem : ∀ j, j ∈ List.range' (i + 1) (ctx.size - (i + 1)) ↔ j < ctx.size ∧ i < j := by
+      intro j; simp only [List.mem_range'_1]; omega
+    simp only [eval, Holds]
+    generalize hF : (anyT (List.range' (i + 1) (ctx.size - (i + 1))) fun j =>
+      (eval ctx i j φ).and (allT ((List.range' (i + 1) (ctx.size - (i + 1))).filter (· < j))
+        fun k => (eval ctx i k χ).not)) = F
+    have hk : F = kept → ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ ∧
+        ∀ k, i < k → k < j → ¬ Holds ctx val i k χ := by
+      intro h
+      rw [← hF, anyT_kept] at h
+      obtain ⟨j, hj, hk⟩ := h
+      simp only [Tri.and_kept, allT_kept, List.mem_filter, decide_eq_true_eq, Tri.not_kept] at hk
+      refine ⟨j, ((mem j).mp hj).1, ((mem j).mp hj).2, (ihφ i j).1 hk.1, ?_⟩
+      intro k hik hkj
+      have hkm : k ∈ List.range' (i + 1) (ctx.size - (i + 1)) :=
+        (mem k).mpr ⟨by have := ((mem j).mp hj).1; omega, hik⟩
+      exact (ihχ i k).2 (hk.2 k ⟨hkm, hkj⟩)
+    have hb : F = broken → ¬ ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ ∧
+        ∀ k, i < k → k < j → ¬ Holds ctx val i k χ := by
+      intro h ⟨x, hx, hix, hφ, hnone⟩
+      rw [← hF, anyT_broken] at h
+      have hxb := h x ((mem x).mpr ⟨hx, hix⟩)
+      simp only [Tri.and_broken, allT_broken, List.mem_filter, decide_eq_true_eq,
+        Tri.not_broken] at hxb
+      rcases hxb with hb1 | ⟨k, ⟨hkm, hkx⟩, hχ⟩
+      · exact (ihφ i x).2 hb1 hφ
+      · exact hnone k ((mem k).mp hkm).2 hkx ((ihχ i k).1 hχ)
+    by_cases hc : ctx.complete = true
+    · simp only [hc, Bool.not_true, Bool.and_false, Bool.false_eq_true, ite_false]
+      exact ⟨hk, hb⟩
+    · by_cases hfb : F = broken
+      · subst hfb
+        simp [hc]
+      · have : (F == broken) = false := by cases F <;> simp_all
+        simp only [this, Bool.false_and, Bool.false_eq_true, ite_false]
+        exact ⟨hk, hb⟩
+  | within ms φ ih =>
+    intro anchor i
+    have mem : ∀ j, j ∈ List.range' (i + 1) (ctx.size - (i + 1)) ↔ j < ctx.size ∧ i < j := by
+      intro j; simp only [List.mem_range'_1]; omega
+    simp only [eval, Holds]
+    generalize hF : (anyT (List.range' (i + 1) (ctx.size - (i + 1))) fun j =>
+      match ctx.step? i, ctx.step? j with
+      | some s, some t => (eval ctx i j φ).and (ofBool (decide (t.time ≤ s.time + ms)))
+      | _, _ => broken) = F
+    have hk : F = kept → ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ ∧
+        ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧ t.time ≤ s.time + ms := by
+      intro h
+      rw [← hF, anyT_kept] at h
+      obtain ⟨j, hj, hk⟩ := h
+      cases hs : ctx.step? i <;> cases ht : ctx.step? j <;> simp only [hs, ht] at hk
+      · simp at hk
+      · simp at hk
+      · simp at hk
+      · simp only [Tri.and_kept, Tri.ofBool_kept, decide_eq_true_eq] at hk
+        exact ⟨j, ((mem j).mp hj).1, ((mem j).mp hj).2, (ih i j).1 hk.1, _, _, rfl, ht, hk.2⟩
+    have hb : F = broken → ¬ ∃ j, j < ctx.size ∧ i < j ∧ Holds ctx val i j φ ∧
+        ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧ t.time ≤ s.time + ms := by
+      intro h ⟨x, hx, hix, hφ, s, t, hs, ht, htime⟩
+      rw [← hF, anyT_broken] at h
+      have hxb := h x ((mem x).mpr ⟨hx, hix⟩)
+      simp only [hs, ht, Tri.and_broken, Tri.ofBool_broken, decide_eq_false_iff_not] at hxb
+      rcases hxb with hb1 | hb2
+      · exact (ih i x).2 hb1 hφ
+      · exact hb2 htime
+    by_cases hc : ctx.complete = true
+    · simp only [hc, Bool.not_true, Bool.and_false, Bool.false_eq_true, ite_false]
+      exact ⟨hk, hb⟩
+    · by_cases hfb : F = broken
+      · subst hfb
+        simp [hc]
+      · have : (F == broken) = false := by cases F <;> simp_all
+        simp only [this, Bool.false_and, Bool.false_eq_true, ite_false]
+        exact ⟨hk, hb⟩
 
 /-- A rule's verdict over a whole trace is sound in the same sense. -/
 theorem evalAlways_sound (ctx : Ctx) (val : Query → Bool) (agrees : Agrees ctx val) (φ : Formula) :

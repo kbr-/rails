@@ -27,6 +27,8 @@ def passingResult : Pred := ⟨"passingResult", isPassingResult, [.result "c" "o
 def reviewerRun : Pred := ⟨"reviewerRun", isReviewerRun, [reviewer]⟩
 def promptsUser : Pred :=
   ⟨"promptsUser", isTool "AskUserQuestion", [.call "q" "AskUserQuestion" []]⟩
+/-- Every step: `within ms (ev anyStep)` says something happens within `ms`. -/
+def anyStep : Pred := ⟨"anyStep", fun _ => true, [.user "x", .reply "y"]⟩
 /-! Relations between steps of one message. -/
 
 def readsWrittenFile : Rel :=
@@ -36,7 +38,7 @@ def readsWrittenFile : Rel :=
 in a theorem of its own (`Rails.WellFormed`). -/
 wellFormedPreds preds
   [user, reply, publish, push, editing, reading, requestAdd, attributedCommit, passingResult,
-   reviewerRun, promptsUser]
+   reviewerRun, promptsUser, anyStep]
 
 wellFormedRels rels [readsWrittenFile]
 

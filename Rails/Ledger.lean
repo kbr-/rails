@@ -46,7 +46,7 @@ theorem r605_formula : oneReviewerPerRound.formula = (ev reviewerRun ⟹
 theorem r844_formula : algebraSystemFirst.formula = (ev editing ∧ₗ atom writesKernel ⟹
     once (ev reply ∧ₗ link weighsAlgebraSystems) ∨ₗ atom justified) := rfl
 theorem r677_formula : noLongWait.formula = (ev reply ∧ₗ atom asksUserAndStops ⟹
-    (gapAtMost 120000 ∨ₗ atom nothingUnblocked) ∨ₗ atom justified) := rfl
+    (within 120000 (ev anyStep) ∨ₗ atom nothingUnblocked) ∨ₗ atom justified) := rfl
 theorem r926_formula : generalOverCases.formula = (ev reply ∧ₗ atom addsCaseToList ⟹
     atom generalClaimStated ∨ₗ atom justified) := rfl
 

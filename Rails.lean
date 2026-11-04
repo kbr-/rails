@@ -21,3 +21,4 @@ import Rails.RuleText
 import Rails.RuleTextFacts
 import Rails.Witness
 import Rails.WellFormed
+import Rails.OperatorExamples
