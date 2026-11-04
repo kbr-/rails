@@ -557,7 +557,6 @@ def developsListedIdea : Link := ⟨"developsListedIdea", "Does this reply devel
 def waitsForUserIdeas : Atom := ⟨"waitsForUserIdeas",
   "Does this reply wait for the user to propose ideas rather than originate them, other fields included?", .reply⟩
 def changesPattern : Atom := ⟨"changesPattern", "Does this edit change a pattern in research/REPORT.md?", .edit⟩
-def movesChanges : Atom := ⟨"movesChanges", "Does this call move changes between commits?", .call⟩
 def pureLogicOutsideLean : Atom := ⟨"pureLogicOutsideLean",
   "Does this edit, in the user's own project, put pure logic outside Lean or unproved, or impure logic outside Lean where Lean can run it?", .edit⟩
 def nonLeanUndemanded : Atom := ⟨"nonLeanUndemanded",
@@ -661,7 +660,7 @@ def hashOrUntimedCount : Atom := ⟨"hashOrUntimedCount",
   "Does this edit include a commit hash or a count of tests without its time?", .edit⟩
 def unresolvableReference : Atom := ⟨"unresolvableReference",
   "Does this edit give a reference with no referent the reader can look up or act on?", .edit⟩
-def correctsAgent : Atom := ⟨"correctsAgent",
+def correctsAgentOrStatesPreference : Atom := ⟨"correctsAgentOrStatesPreference",
   "Does this user message correct the agent or state a preference about how it works?", .user⟩
 def writesStandingRule : Link := ⟨"writesStandingRule",
   "Does this edit write the anchored correction as a general standing rule in its durable home, without the case's jargon?"⟩
@@ -1627,7 +1626,7 @@ def correctionsBecomeRules : Rule where
   number := 966
   keyword := .must
   domain := .discipline
-  formula := (ev user ∧ₗ atom correctsAgent ⟹ eventually (ev editing ∧ₗ link writesStandingRule)) ∧ₗ
+  formula := (ev user ∧ₗ atom correctsAgentOrStatesPreference ⟹ eventually (ev editing ∧ₗ link writesStandingRule)) ∧ₗ
     never (ev memoryWrite)
 
 /-- Rule 967: the owning rule found before a rule is added; a rule added only for what nothing

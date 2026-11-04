@@ -282,7 +282,7 @@ def statesNonGoals : Atom := ⟨"statesNonGoals",
   "Does this reply state the change's non-goals?", .reply⟩
 def asksOutsideParty : Atom := ⟨"asksOutsideParty",
   "Does this request ask something of someone outside the agent and the user (a colleague, another team)?", .call⟩
-def runsCheck : Atom := ⟨"runsCheck",
+def runsCheckOrLinter : Atom := ⟨"runsCheckOrLinter",
   "Does this call run a check (a test, a build, a linter, a review)?", .call⟩
 def proposesRiskyProcedure : Atom := ⟨"proposesRiskyProcedure",
   "Does this reply propose a risky manual operator procedure (a revert, a migration)?", .reply⟩
@@ -423,8 +423,6 @@ def untimedIndirectCall : Atom := ⟨"untimedIndirectCall",
   "Does this command run a framework CLI command outside the automatic hooks or behind dynamic shell indirection without tools/tool_runtime.py?", .call⟩
 def inspectsJobOtherwise : Atom := ⟨"inspectsJobOtherwise",
   "Does this command inspect a running job or its samples other than with tools/job_metrics.py inspect or summarize?", .call⟩
-def reportsControlsInactive : Atom := ⟨"reportsControlsInactive",
-  "Does this result report the resource controls inactive (after a reboot or login)?", .result⟩
 def setupOutsideProject : Atom := ⟨"setupOutsideProject",
   "Does this call run resource-controls/setup.py from outside the project directory?", .call⟩
 def longRunWithoutBridge : Atom := ⟨"longRunWithoutBridge",
@@ -435,7 +433,7 @@ def reliesOnPageCacheDrop : Atom := ⟨"reliesOnPageCacheDrop",
   "Does this rely on a container dropping the host's page cache?", .any⟩
 def cookieFileMisplaced : Atom := ⟨"cookieFileMisplaced",
   "Does this command write a cookie file other than at ~/.cache/cookies-HOST.json, or readable by others than its owner?", .call⟩
-def addsRule : Atom := ⟨"addsRule", "Does this edit add or change a rule?", .edit⟩
+def addsOrChangesRule : Atom := ⟨"addsOrChangesRule", "Does this edit add or change a rule?", .edit⟩
 def scriptNamedGenerically : Atom := ⟨"scriptNamedGenerically",
   "Does this edit give a script serving one library, tool or service a generic name, or generic code a specific one?", .edit⟩
 def usesLovely : Atom := ⟨"usesLovely",
@@ -865,7 +863,7 @@ def noCheckWithoutDiff : Rule where
   number := 1307
   keyword := .mustNot
   domain := .softwareEngineering
-  formula := never (ev anyCall ∧ₗ atom runsCheck ∧ₗ once (ev anyCall ∧ₗ link checkedActionHasNoDiff))
+  formula := never (ev anyCall ∧ₗ atom runsCheckOrLinter ∧ₗ once (ev anyCall ∧ₗ link checkedActionHasNoDiff))
 
 /-- Rule 1308: a risky manual procedure gets a runbook and a test. -/
 def runbookForRiskyProcedure : Rule where
@@ -1405,7 +1403,7 @@ def rereadRuleFile : Rule where
   number := 1382
   keyword := .should
   domain := .discipline
-  formula := ev editsRuleFile ∧ₗ atom addsRule ⟹ once (ev readsRuleFile ∧ₗ link readsWholeEditedFile) ∨ₗ
+  formula := ev editsRuleFile ∧ₗ atom addsOrChangesRule ⟹ once (ev readsRuleFile ∧ₗ link readsWholeEditedFile) ∨ₗ
     atom justified
 
 /-- Rule 1383: a script serving one library named after it. -/

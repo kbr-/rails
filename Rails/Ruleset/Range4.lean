@@ -620,7 +620,7 @@ def handsOffManuscript : Atom := ⟨"handsOffManuscript",
   "Does this reply hand off changes to a manuscript?", .reply⟩
 def separatesSubstanceFromPresentation : Atom := ⟨"separatesSubstanceFromPresentation",
   "Does this reply separate substantive mathematical corrections from presentation changes?", .reply⟩
-def correctsStatement : Atom := ⟨"correctsStatement",
+def correctsMathStatement : Atom := ⟨"correctsMathStatement",
   "Does this edit correct a mathematical statement?", .edit⟩
 def correctsProofToo : Atom := ⟨"correctsProofToo",
   "Does this edit correct the statement's proof with it?", .edit⟩
@@ -779,8 +779,6 @@ def stepsConcreteOrdered : Atom := ⟨"stepsConcreteOrdered",
   "Are the Path steps this edit writes concrete and ordered, provisional where they depend on an earlier finding?", .edit⟩
 def theoryStableHere : Atom := ⟨"theoryStableHere",
   "Was the theory stable (no open question, the last reread changing nothing) when this edit was made?", .edit⟩
-def editsTheory : Atom := ⟨"editsTheory",
-  "Does this plan edit change Theory building?", .edit⟩
 def stableSucceeded : Link := ⟨"stableSucceeded",
   "Did this stable check succeed for the anchored edit's task?"⟩
 def quotesUserOrder : Atom := ⟨"quotesUserOrder",
@@ -1438,7 +1436,7 @@ def statementAndProofTogether : Rule where
   number := 503
   keyword := .must
   domain := .mathematics
-  formula := ev editing ∧ₗ atom correctsStatement ⟹
+  formula := ev editing ∧ₗ atom correctsMathStatement ⟹
     atom correctsProofToo ∧ₗ eventually (ev toolCall ∧ₗ link checksNearbyConstructions)
 
 /-- Rule 504: a defect isn't resolved by only removing its warning. -/

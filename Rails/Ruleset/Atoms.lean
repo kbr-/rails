@@ -86,6 +86,18 @@ def grantCoversPush : Atom := ⟨"grantCoversPush",
 def justified : Atom := ⟨"justified",
   "Does the agent give a reason, at this point, for departing from the rule that would otherwise apply?", .any⟩
 
+/-! Atoms several ranges ask, merged from the ranges' own copies. -/
+
+def isCompactionSummary : Atom := ⟨"isCompactionSummary",
+  "Is this message a compaction's summary continuing an earlier conversation?", .user⟩
+def requestsPush : Atom := ⟨"requestsPush", "Does this request ask the user to push a branch?", .call⟩
+def reportsControlsInactive : Atom := ⟨"reportsControlsInactive",
+  "Does this result report the resource controls inactive?", .result⟩
+def editsTheory : Atom := ⟨"editsTheory",
+  "Does this edit change the Theory building section of a task plan?", .edit⟩
+def movesChanges : Atom := ⟨"movesChanges", "Does this call move changes between commits?", .call⟩
+def fixesReviewFinding : Atom := ⟨"fixesReviewFinding", "Does this edit fix a review finding?", .edit⟩
+
 /-! Links. -/
 
 def runOfClaimedCheck : Link := ⟨"runOfClaimedCheck",

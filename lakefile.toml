@@ -31,5 +31,9 @@ name = "rails-witness"
 root = "RailsWitness"
 
 [[lean_exe]]
+name = "rails-measures"
+root = "RailsMeasures"
+
+[[lean_exe]]
 name = "rails_tests"
 root = "RailsTests"

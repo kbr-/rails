@@ -8,6 +8,7 @@ import Rails.Ruleset.Range7
 import Rails.Ruleset.Range8
 import Rails.Ruleset.Range9
 import Rails.Ruleset.Range10
+import Rails.Measures
 
 /-!
 The whole ruleset: the sample's rules (`Rails.Rules.all`) and every range's, and the MAY rules'
@@ -37,6 +38,19 @@ number occurs once and the list holds 1403. A fact about generated data, so it t
 evaluation (`native_decide`): the kernel's evaluation of the 1403 rules ran out of memory. -/
 theorem coverage :
     ((List.range' 1 1403).all fun n => allNumbers.count n == 1) && allNumbers.length == 1403 := by
+  native_decide
+
+/-- Every atom and every link the rules name. -/
+def allAtoms : List Atom := allRules.flatMap (·.formula.atoms)
+def allLinks : List Link := allRules.flatMap (·.formula.links)
+
+/-- No name carries two questions: a model's answers are keyed by name (`Query.atom`,
+`Query.link`), so two atoms or two links sharing a name would share one answer to different
+questions. And no two atoms ask one question under two names. Over generated data, so by
+`native_decide`, as `coverage`. -/
+theorem namesKeyAnswers :
+    Measures.nameClashes allAtoms = [] ∧ Measures.linkClashes allLinks = [] ∧
+      Measures.sameQuestion allAtoms = [] := by
   native_decide
 
 end Rails.Ruleset

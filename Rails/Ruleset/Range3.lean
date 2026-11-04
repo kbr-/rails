@@ -348,7 +348,7 @@ def waitingTestUnforced : Atom := ⟨"waitingTestUnforced",
   "Does this edit write a test that waits with a real-time bound or a sleep that is not the behaviour under test, rather than fixing the time or ordering events with a barrier, an event or a condition variable?", .edit⟩
 def keepsRealTimeBound : Atom := ⟨"keepsRealTimeBound",
   "Does this edit keep a real-time bound in a test as the behaviour under test?", .edit⟩
-def reviewsBranch : Atom := ⟨"reviewsBranch",
+def reviewsBranchBeforePush : Atom := ⟨"reviewsBranchBeforePush",
   "Is this subagent run a review of a branch before its push?", .call⟩
 def leavesFlaggedTimeBound : Atom := ⟨"leavesFlaggedTimeBound",
   "Does this reply leave a test time_bound_tests.py flagged neither rewritten nor kept with `--allow`?", .reply⟩
@@ -370,8 +370,6 @@ def usesEvidenceTool : Atom := ⟨"usesEvidenceTool",
   "Does this reply use the output of a tool written to produce evidence?", .reply⟩
 def toolHidesUnread : Atom := ⟨"toolHidesUnread",
   "Does this edit write a tool producing evidence that doesn't report what it couldn't read?", .edit⟩
-def fixesReviewFinding : Atom := ⟨"fixesReviewFinding",
-  "Does this edit fix a review finding?", .edit⟩
 def rejectsFinding : Atom := ⟨"rejectsFinding",
   "Does this reply find a review finding not holding, or a matter of taste?", .reply⟩
 def buildsForRejectedFinding : Atom := ⟨"buildsForRejectedFinding",
@@ -384,8 +382,6 @@ def findsDefectInFix : Atom := ⟨"findsDefectInFix",
   "Does this reply find a defect in a fix made for an earlier finding?", .reply⟩
 def caveatsMissingAsk : Atom := ⟨"caveatsMissingAsk",
   "Does this reply caveat something the user asked for that the branch lacks, instead of building it?", .reply⟩
-def requestsPush : Atom := ⟨"requestsPush",
-  "Does this request ask the user to push a branch?", .call⟩
 def briefHasDescriptionAndAccess : Atom := ⟨"briefHasDescriptionAndAccess",
   "Does this subagent's brief give the branch's description and read access to its repositories?", .call⟩
 def reportsReviewWithoutKind : Atom := ⟨"reportsReviewWithoutKind",
@@ -538,15 +534,11 @@ def undocumentedOrder : Atom := ⟨"undocumentedOrder",
   "Does this reply count on an order of lines the tool doesn't document?", .reply⟩
 def checkShortOfDepth : Atom := ⟨"checkShortOfDepth",
   "Does this reply end or report a check before the depth set before its first result (a replay count, a sample)?", .reply⟩
-def isCompactionSummary : Atom := ⟨"isCompactionSummary",
-  "Is this message a compaction's summary continuing an earlier conversation?", .user⟩
 def rewriteJustified : Atom := ⟨"rewriteJustified",
   "Does this history rewrite have a concrete justification (an MR's history cleanup, removing committed private data)?", .call⟩
 def tagIsBackup : Atom := ⟨"tagIsBackup", "Is this tag made as a backup of a branch?", .call⟩
 def deletesBackupEarly : Atom := ⟨"deletesBackupEarly",
   "Does this call delete a backup branch before the work it backs up is done?", .call⟩
-def movesChanges : Atom := ⟨"movesChanges",
-  "Does this rewrite move changes between commits?", .call⟩
 def movedCheckFails : Atom := ⟨"movedCheckFails",
   "Does this result show a check of moved changes failing?", .result⟩
 def callsIncompatible : Atom := ⟨"callsIncompatible",
@@ -630,8 +622,6 @@ def dropsAvailableRam : Atom := ⟨"dropsAvailableRam",
   "Does this call run work that brings the machine's available RAM below 5% of MemTotal?", .call⟩
 def controllerOutputSkimmed : Atom := ⟨"controllerOutputSkimmed",
   "Does this reply act on a controller's output (compute.sh start or run, finish-turn.py, resume.py) having read only part of it?", .reply⟩
-def reportsControlsInactive : Atom := ⟨"reportsControlsInactive",
-  "Does this result report the resource controls inactive?", .result⟩
 def asksToRunSetup : Atom := ⟨"asksToRunSetup",
   "Does this reply ask the user before rerunning resource-controls/setup.py?", .reply⟩
 def toResumeWork : Atom := ⟨"toResumeWork",
@@ -1010,7 +1000,7 @@ def r302 : Rule where
   number := 302
   keyword := .must
   domain := .tasks
-  formula := (ev agentRun ∧ₗ atom reviewsBranch ⟹ once (ev timeBoundTests)) ∧ₗ
+  formula := (ev agentRun ∧ₗ atom reviewsBranchBeforePush ⟹ once (ev timeBoundTests)) ∧ₗ
     never (ev reply ∧ₗ atom leavesFlaggedTimeBound)
 
 /-- Rule 303: `pytest_queue.py --repeat` passes no test. -/

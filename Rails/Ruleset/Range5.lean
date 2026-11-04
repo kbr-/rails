@@ -181,15 +181,12 @@ theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
 /-! Atoms and links several rules of the range share. -/
 
-def editsTheory : Atom := ⟨"editsTheory",
-  "Does this edit change the Theory building section of a task plan?", .edit⟩
 def writesPath : Atom := ⟨"writesPath", "Does this edit change the Path section of a task plan?", .edit⟩
 def implementationEdit : Atom := ⟨"implementationEdit",
   "Does this edit change what a task delivers (code, configuration, a migration) rather than its records?", .edit⟩
 def bringsTheoryGaps : Atom := ⟨"bringsTheoryGaps",
   "Does this reply bring the user gaps a theory reread found?", .reply⟩
 def givesGoalPrompt : Atom := ⟨"givesGoalPrompt", "Does this reply give a /goal prompt for a loop?", .reply⟩
-def fixesFinding : Atom := ⟨"fixesFinding", "Does this edit fix a review finding?", .edit⟩
 def writesReconciliation : Atom := ⟨"writesReconciliation",
   "Does this edit write a review round's reconciliation?", .edit⟩
 def reviewsPath : Atom := ⟨"reviewsPath",
@@ -925,8 +922,8 @@ def recheckBetweenRounds : Rule where
   number := 619
   keyword := .must
   domain := .tasks
-  formula := ev reviewerRun ∧ₗ atom startsNewRound ∧ₗ once (ev editing ∧ₗ atom fixesFinding) ⟹
-    since (ev sendMessage ∧ₗ link rechecksFixes) (ev editing ∧ₗ atom fixesFinding)
+  formula := ev reviewerRun ∧ₗ atom startsNewRound ∧ₗ once (ev editing ∧ₗ atom fixesReviewFinding) ⟹
+    since (ev sendMessage ∧ₗ link rechecksFixes) (ev editing ∧ₗ atom fixesReviewFinding)
 
 def recordsFinalReviewFailure : Atom := ⟨"recordsFinalReviewFailure",
   "Does this edit record a Failure in the final fresh review?", .edit⟩
@@ -942,7 +939,7 @@ def finalFailureFixed : Rule where
   domain := .tasks
   formula :=
     (ev reviewFileEdit ∧ₗ atom recordsFinalReviewFailure ⟹
-      eventually (ev editing ∧ₗ atom fixesFinding) ∧ₗ
+      eventually (ev editing ∧ₗ atom fixesReviewFinding) ∧ₗ
       eventually (ev sendMessage ∧ₗ link rechecksFixes) ∧ₗ
       eventually (ev reviewerRun ∧ₗ link freshReviewAfterFix)) ∧ₗ
     never (ev reviewFileEdit ∧ₗ atom downgradesWithoutRejected)
@@ -961,14 +958,13 @@ def noteFixRecheck : Rule where
     eventually (ev sendMessage ∧ₗ link rechecksFixes) ∧ₗ
     ¬ₗ eventually (ev reviewerRun ∧ₗ link freshReviewOfNoteFix)
 
-def asksForPush : Atom := ⟨"asksForPush", "Does this request ask the user to push a branch?", .call⟩
 
 /-- Rule 622: ledgers kept current with `ledger_at_tip.py` and `reader_check.py`. -/
 def ledgersCurrent : Rule where
   number := 622
   keyword := .should
   domain := .tasks
-  formula := ev requestAdd ∧ₗ atom asksForPush ⟹
+  formula := ev requestAdd ∧ₗ atom requestsPush ⟹
     (once (ev ledgerAtTip) ∧ₗ once (ev readerCheck)) ∨ₗ atom justified
 
 /-! Rules 623 to 658, later cycles. -/

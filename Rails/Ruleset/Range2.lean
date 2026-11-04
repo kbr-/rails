@@ -287,7 +287,7 @@ def namesCheapestWrong : Link := ⟨"namesCheapestWrong",
   "Does this event name the cheapest wrong thing satisfying what the anchored event relies on, and exclude it by what is stated?"⟩
 def casesNotFromDefinition : Atom := ⟨"casesNotFromDefinition",
   "Does this edit pick the cases it examines otherwise than from the space's definition (the most different, the boundaries, the coincidences, the whole space where small)?", .edit⟩
-def writesGenerator : Atom := ⟨"writesGenerator",
+def writesPredictableConstruction : Atom := ⟨"writesPredictableConstruction",
   "Does this edit write a generator or another construction making outcomes predictable?", .edit⟩
 def showsGeneratorReach : Link := ⟨"showsGeneratorReach",
   "Does this result show that the anchored edit's generator produces only valid inputs and reaches every case?"⟩
@@ -353,11 +353,11 @@ def addsGuardTest : Atom := ⟨"addsGuardTest",
   "Does this edit add a test guarding a defect?", .edit⟩
 def mutatesGuardedDefect : Link := ⟨"mutatesGuardedDefect",
   "Does this mutation run show the anchored edit's test failing on the defect it guards?"⟩
-def reviewsBranch : Atom := ⟨"reviewsBranch",
+def reviewsCode : Atom := ⟨"reviewsCode",
   "Does this reviewer run review code (a branch or a change)?", .call⟩
 def runsSpecsAtTip : Link := ⟨"runsSpecsAtTip",
   "Does this mutation run run the branch's applicable specs together at its tip, stale exact-text edits updated first?"⟩
-def readsMutationReport : Link := ⟨"readsMutationReport",
+def readsBranchMutationSurvivors : Link := ⟨"readsBranchMutationSurvivors",
   "Does this read open the mutation report's survivors and incomplete scopes for the branch the anchored reviewer run reviews?"⟩
 def testsTableByEntries : Atom := ⟨"testsTableByEntries",
   "Does this edit test a lookup table by examples of its own entries?", .edit⟩
@@ -413,7 +413,7 @@ def readsModelOutputBesideBaseline : Atom := ⟨"readsModelOutputBesideBaseline"
   "Does this call read a trained model's output (rank, scale, gradient) beside a plain baseline?", .call⟩
 def writesNonLeanTestScript : Atom := ⟨"writesNonLeanTestScript",
   "Does this edit write a test or measurement script in a language other than Lean, in the user's own work where no project demands another language?", .edit⟩
-def runsCheck : Atom := ⟨"runsCheck",
+def runsCheckOrBenchmark : Atom := ⟨"runsCheckOrBenchmark",
   "Does this call run a check (a test, a review, an audit, a benchmark)?", .call⟩
 def namesCheckMechanism : Link := ⟨"namesCheckMechanism",
   "Does this reply name the mechanism by which the action taken could change the anchored check's result, and what the result would change?"⟩
@@ -461,7 +461,7 @@ def partialCheckStandsInForRule : Atom := ⟨"partialCheckStandsInForRule",
   "Does this reply treat a check covering part of what a rule names as standing in for any of it?", .reply⟩
 def blamesSlownessOnEnvironment : Atom := ⟨"blamesSlownessOnEnvironment",
   "Does this reply blame slowness on a mode or an environment?", .reply⟩
-def measuresSlowness : Link := ⟨"measuresSlowness",
+def measuresBlamedSlowness : Link := ⟨"measuresBlamedSlowness",
   "Is this result a measurement of the slowness the anchored reply blames?"⟩
 def claimsIntermittentFixed : Atom := ⟨"claimsIntermittentFixed",
   "Does this reply claim a failure that comes and goes is reproduced or fixed?", .reply⟩
@@ -1013,7 +1013,7 @@ def generatorReachesAll : Rule where
   number := 188
   keyword := .must
   domain := .discipline
-  formula := (ev editing ∧ₗ atom writesGenerator ⟹ eventually (ev toolResult ∧ₗ link showsGeneratorReach)) ∧ₗ
+  formula := (ev editing ∧ₗ atom writesPredictableConstruction ⟹ eventually (ev toolResult ∧ₗ link showsGeneratorReach)) ∧ₗ
     never (ev editing ∧ₗ atom observesPartOutcome)
 
 /-- Rule 189: a failure reported as its smallest counterexample. -/
@@ -1134,8 +1134,8 @@ def mutationSpecsAtTip : Rule where
   number := 204
   keyword := .must
   domain := .tasks
-  formula := ev reviewerRun ∧ₗ atom reviewsBranch ⟹
-    once (ev mutationRun ∧ₗ link runsSpecsAtTip) ∧ₗ once (ev reading ∧ₗ link readsMutationReport)
+  formula := ev reviewerRun ∧ₗ atom reviewsCode ⟹
+    once (ev mutationRun ∧ₗ link runsSpecsAtTip) ∧ₗ once (ev reading ∧ₗ link readsBranchMutationSurvivors)
 
 /-- Rule 205: no lookup table tested by its own entries. -/
 def noTableEntryTests : Rule where
@@ -1149,7 +1149,7 @@ def generatorValidAndComplete : Rule where
   number := 206
   keyword := .must
   domain := .discipline
-  formula := ev editing ∧ₗ atom writesGenerator ⟹ eventually (ev toolResult ∧ₗ link showsGeneratorReach)
+  formula := ev editing ∧ₗ atom writesPredictableConstruction ⟹ eventually (ev toolResult ∧ₗ link showsGeneratorReach)
 
 /-- Rule 207: a failure test raises the real library's error; a constructed one only where the state
 can't be produced, built from the library's source, recorded in the plan. -/
@@ -1252,7 +1252,7 @@ def mechanismBeforeCheck : Rule where
   number := 219
   keyword := .must
   domain := .discipline
-  formula := ev toolCall ∧ₗ atom runsCheck ⟹ once (ev reply ∧ₗ link namesCheckMechanism)
+  formula := ev toolCall ∧ₗ atom runsCheckOrBenchmark ⟹ once (ev reply ∧ₗ link namesCheckMechanism)
 
 /-- Rule 220: a check's cheapest wrong pass found before relying on it; its verdict from an
 independent account. -/
@@ -1293,7 +1293,7 @@ def reviewDigest : Rule where
   number := 224
   keyword := .must
   domain := .discipline
-  formula := (ev reviewerRun ∧ₗ atom reviewsBranch ⟹ eventually (ev editing ∧ₗ link recordsReviewedDigest)) ∧ₗ
+  formula := (ev reviewerRun ∧ₗ atom reviewsCode ⟹ eventually (ev editing ∧ₗ link recordsReviewedDigest)) ∧ₗ
     never (ev editing ∧ₗ atom referencesUnpushedByHash)
 
 /-- Rule 225: a decision's or setting's run-time effect stated. -/
@@ -1345,7 +1345,7 @@ def measureSlowness : Rule where
   number := 231
   keyword := .must
   domain := .discipline
-  formula := ev reply ∧ₗ atom blamesSlownessOnEnvironment ⟹ once (ev toolResult ∧ₗ link measuresSlowness)
+  formula := ev reply ∧ₗ atom blamesSlownessOnEnvironment ⟹ once (ev toolResult ∧ₗ link measuresBlamedSlowness)
 
 /-- Rule 232: an intermittent failure forced (failing old, passing new), its forcing kept, never
 decided by repetition. -/
@@ -1673,7 +1673,7 @@ def writersPassFirst : Rule where
   number := 275
   keyword := .must
   domain := .tasks
-  formula := ev reviewerRun ∧ₗ atom reviewsBranch ⟹ once (ev toolCall ∧ₗ link readsDiffAgainstModes)
+  formula := ev reviewerRun ∧ₗ atom reviewsCode ⟹ once (ev toolCall ∧ₗ link readsDiffAgainstModes)
 
 /-- Rule 276: a commit's claims checked against its tree, and again after a rewrite. -/
 def commitClaimsChecked : Rule where

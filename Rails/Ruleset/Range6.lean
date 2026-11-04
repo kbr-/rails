@@ -305,7 +305,7 @@ def changesQueueCounting : Atom := ⟨"changesQueueCounting",
 
 /-! Atoms: restoration and the research discipline (717 to 756). -/
 
-def asksToResume : Atom := ⟨"asksToResume",
+def asksToRestoreContext : Atom := ⟨"asksToRestoreContext",
   "Does this message from the user ask the agent to resume or restore context?", .user⟩
 def actsOnNamedPrompt : Atom := ⟨"actsOnNamedPrompt",
   "Does this tool call act on a named prompt (Resume, Task, Spin, Formalize and the like) the user gave?", .call⟩
@@ -991,7 +991,7 @@ def r717 : Rule where
   number := 717
   keyword := .must
   domain := .discipline
-  formula := (ev user ∧ₗ atom asksToResume ⟹ eventually (ev resumeRun)) ∧ₗ
+  formula := (ev user ∧ₗ atom asksToRestoreContext ⟹ eventually (ev resumeRun)) ∧ₗ
     (ev resumeRun ⟹ eventually (ev resumePartRead))
 
 /-- Rule 718: the named prompt's PROMPTS.md section read before acting on it. -/

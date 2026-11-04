@@ -607,7 +607,7 @@ def smallDomainsWhole : Rule where
   formula := never (ev testEdit ∧ₗ (atom samplesSmallDomain ∨ₗ atom leavesBoundaryUntested)) ∨ₗ
     atom justified
 
-def writesGenerator : Atom := ⟨"writesGenerator",
+def writesInputGenerator : Atom := ⟨"writesInputGenerator",
   "Does this edit write a generator of test inputs with independently chosen parts?", .edit⟩
 def weightsTowardCoincidences : Atom := ⟨"weightsTowardCoincidences",
   "Does the generator this edit writes weight toward coincidences between its independently chosen parts?", .edit⟩
@@ -617,7 +617,7 @@ def generatorsHitCoincidences : Rule where
   number := 1155
   keyword := .should
   domain := .softwareEngineering
-  formula := ev testEdit ∧ₗ atom writesGenerator ⟹ atom weightsTowardCoincidences ∨ₗ atom justified
+  formula := ev testEdit ∧ₗ atom writesInputGenerator ⟹ atom weightsTowardCoincidences ∨ₗ atom justified
 
 def assertsPartOfResult : Atom := ⟨"assertsPartOfResult",
   "Does this edit assert on only part of the result the code under test returns?", .edit⟩
@@ -1229,8 +1229,6 @@ def mrUrlRecorded : Rule where
 
 /-! Moving changes between commits (rules 1205 to 1213). -/
 
-def movesChanges : Atom := ⟨"movesChanges",
-  "Does this rebase move changes between commits?", .call⟩
 def mapsEveryMove : Link := ⟨"mapsEveryMove",
   "Does this step map every move of the anchored rebase: source commit, target commit and each piece's exact text?"⟩
 
@@ -1656,7 +1654,7 @@ def repositoryWorkflow : Rule where
   domain := .mathematics
   formula := never (ev anyCall ∧ₗ atom buildsOutsideWorkflow)
 
-def runsCheck : Atom := ⟨"runsCheck",
+def runsBuildOrValidation : Atom := ⟨"runsBuildOrValidation",
   "Does this call run a check (a build, a validation, a test)?", .call⟩
 def passOfSameCheck : Link := ⟨"passOfSameCheck",
   "Is this passing result a run of the same check the anchored call runs?"⟩
@@ -1666,7 +1664,7 @@ def reusePassedChecks : Rule where
   number := 1242
   keyword := .should
   domain := .mathematics
-  formula := ev anyCall ∧ₗ atom runsCheck ⟹
+  formula := ev anyCall ∧ₗ atom runsBuildOrValidation ⟹
     ¬ₗ since (ev passingResult ∧ₗ link passOfSameCheck) (ev editing) ∨ₗ atom justified
 
 def closesManuscriptWork : Atom := ⟨"closesManuscriptWork",
