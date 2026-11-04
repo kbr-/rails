@@ -107,6 +107,15 @@ def runs (prog : String) (p : List (List Char) → Bool) (e : Event) : Bool :=
     | [] => false
   | none => false
 
+/-- Each command of the call as its program word (launcher words skipped) and its words, the
+command text tokenized once: a predicate testing many programs reads this. -/
+def programs (e : Event) : List (List Char × List (List Char)) :=
+  match command e with
+  | some c => (shellCommands c.toList).filterMap fun ws => match ws.dropWhile isLauncher with
+    | w :: _ => some (w, ws)
+    | [] => none
+  | none => []
+
 private def hasWord (s : String) (ws : List (List Char)) : Bool := ws.contains s.toList
 
 /-- A push: `git ... push` (with options such as `-C PATH` between) or the checked-push script. -/
@@ -126,18 +135,36 @@ private def writes (ws : List (List Char)) : Bool :=
 their API with a writing method; `confluence_page.py`); a cluster deploy (`helm upgrade` or
 `install`, `kubectl apply`). A write through another client stays unseen. -/
 def isPublish (e : Event) : Bool :=
-  isPush e ||
-  runs "docker" (hasWord "push") e || runs "podman" (hasWord "push") e ||
-  runs "buildah" (hasWord "push") e || runs "skopeo" (hasWord "copy") e ||
-  runs "npm" (hasWord "publish") e || runs "twine" (hasWord "upload") e ||
-  runs "gh" (fun ws => (hasWord "release" ws && hasAny ["create", "upload", "edit"] ws) ||
-    (hasWord "repo" ws && hasWord "create" ws) ||
-    (hasWord "pr" ws && hasAny ["create", "edit", "comment"] ws) ||
-    (hasWord "api" ws && writes ws)) e ||
-  runs "glab" (fun ws => (hasWord "mr" ws && hasAny ["create", "update", "note"] ws) ||
-    (hasWord "release" ws && hasWord "create" ws) || (hasWord "api" ws && writes ws)) e ||
-  runs "confluence_page.py" (fun _ => true) e ||
-  runs "helm" (hasAny ["upgrade", "install"]) e || runs "kubectl" (hasWord "apply") e
+  (programs e).any fun (w, ws) =>
+    let is (p : String) := endsWith p.toList w
+    (is "git" && hasWord "push" ws) || is "checked-push.sh" ||
+    ((is "docker" || is "podman" || is "buildah") && hasWord "push" ws) ||
+    (is "skopeo" && hasWord "copy" ws) || (is "npm" && hasWord "publish" ws) ||
+    (is "twine" && hasWord "upload" ws) ||
+    (is "gh" && ((hasWord "release" ws && hasAny ["create", "upload", "edit"] ws) ||
+      (hasWord "repo" ws && hasWord "create" ws) ||
+      (hasWord "pr" ws && hasAny ["create", "edit", "comment"] ws) ||
+      (hasWord "api" ws && writes ws))) ||
+    (is "glab" && ((hasWord "mr" ws && hasAny ["create", "update", "note"] ws) ||
+      (hasWord "release" ws && hasWord "create" ws) || (hasWord "api" ws && writes ws))) ||
+    is "confluence_page.py" || (is "helm" && hasAny ["upgrade", "install"] ws) ||
+    (is "kubectl" && hasWord "apply" ws)
+
+/-- `isPublish` holds of every push. -/
+theorem isPush_isPublish (e : Event) (h : isPush e = true) : isPublish e = true := by
+  simp only [isPush, runs, Bool.or_eq_true] at h
+  simp only [isPublish, programs, List.any_eq_true]
+  cases hc : command e with
+  | none => simp [hc] at h
+  | some c =>
+    simp only [hc] at h
+    rcases h with h | h <;> obtain ⟨ws, hws, hp⟩ := List.any_eq_true.mp h <;>
+      (split at hp
+       · rename_i w rest hd
+         refine ⟨(w, ws), List.mem_filterMap.mpr ⟨ws, hws, by simp [hd]⟩, ?_⟩
+         simp at hp
+         simp [hp]
+       · simp at hp)
 
 /-- A commit whose message carries Claude attribution. -/
 def isAttributedCommit (e : Event) : Bool :=
