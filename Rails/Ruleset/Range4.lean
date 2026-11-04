@@ -56,6 +56,8 @@ def scriptRun : Pred := ⟨"scriptRun",
   [bash "python3 count.py --out r.json", bash "./compute.sh python3 calc.py"]⟩
 def commit : Pred := ⟨"commit", runs "git" (word "commit"), [bash "git commit -m fix"]⟩
 def gitDiff : Pred := ⟨"gitDiff", runs "git" (word "diff"), [bash "git diff orig HEAD"]⟩
+/-- A `git reset`: during a rebase's edit stop, the start of splitting the stopped commit. -/
+def gitReset : Pred := ⟨"gitReset", runs "git" (word "reset"), [bash "git reset HEAD^"]⟩
 def gitRebase : Pred := ⟨"gitRebase",
   runs "git" fun ws => word "rebase" ws && !word "--continue" ws && !word "--abort" ws &&
     !word "--skip" ws,
@@ -171,7 +173,7 @@ def defaultSkills : List String :=
    "software-design-flexibility", "type-driven-design", "algebra-driven-design", "property-testing"]
 
 def preds : List Pred :=
-  [toolCall, anyResult, hookRefusal, compactionSummary, scriptRun, commit, gitDiff, gitRebase,
+  [toolCall, anyResult, hookRefusal, compactionSummary, scriptRun, commit, gitDiff, gitReset, gitRebase,
    rebaseContinue, forcePush, readsApprovals, mrOpen, mrView, mrDescription, postsReviewComment, ssh,
    cgroupLimitRead, readsCpuacctUsage, readsCpuStat, nvidiaSmi, marchNativeBuild, hostCpuCheck,
    disablesAvx512Fp16, aria2Download, hfDownload, aria2FilesListed, interfaceBytesRead, podCreate,
@@ -551,8 +553,6 @@ def draftsChatMessage : Atom := ⟨"draftsChatMessage",
   "Does this edit draft a chat message for the user to send?", .edit⟩
 def sentencesCapitalized : Atom := ⟨"sentencesCapitalized",
   "Does every sentence of that draft start with a capital letter?", .edit⟩
-def continuesAfterSplit : Atom := ⟨"continuesAfterSplit",
-  "Does this rebase continue after splitting a commit?", .call⟩
 def diffsSplitAgainstOriginal : Link := ⟨"diffsSplitAgainstOriginal",
   "Does this diff check that the anchored rebase's split reproduces the original tree?"⟩
 def rebaseAppliesCutSpecs : Atom := ⟨"rebaseAppliesCutSpecs",
@@ -777,8 +777,6 @@ def recordsAnswerPair : Link := ⟨"recordsAnswerPair",
   "Does this plan edit move the anchored message's answer into Resolved as its pair?"⟩
 def stepsConcreteOrdered : Atom := ⟨"stepsConcreteOrdered",
   "Are the Path steps this edit writes concrete and ordered, provisional where they depend on an earlier finding?", .edit⟩
-def theoryStableHere : Atom := ⟨"theoryStableHere",
-  "Was the theory stable (no open question, the last reread changing nothing) when this edit was made?", .edit⟩
 def stableSucceeded : Link := ⟨"stableSucceeded",
   "Did this stable check succeed for the anchored edit's task?"⟩
 def quotesUserOrder : Atom := ⟨"quotesUserOrder",
@@ -1520,13 +1518,15 @@ def proofNotReopened : Rule where
 
 /-! Rules 515 to 527: moving changes between commits and reviewing merge requests. -/
 
-/-- Rule 515: each split diffed against the original before the rebase continues. -/
+/-- Rule 515: each split diffed against the original before the rebase continues. A split is a
+`git reset` at the stop, which the trace holds, so it is a formula: a continue with a reset since the
+last continue needs a diff against the original since the last reset. -/
 def splitDiffedBeforeContinue : Rule where
   number := 515
   keyword := .must
   domain := .softwareEngineering
-  formula := ev rebaseContinue ∧ₗ atom continuesAfterSplit ⟹
-    since (ev gitDiff ∧ₗ link diffsSplitAgainstOriginal) (ev rebaseContinue)
+  formula := ev rebaseContinue ∧ₗ since (ev gitReset) (ev rebaseContinue) ⟹
+    since (ev gitDiff ∧ₗ link diffsSplitAgainstOriginal) (ev gitReset ∨ₗ ev rebaseContinue)
 
 /-- Rule 516: cut specs dry-run before the rebase. -/
 def cutSpecsDryRun : Rule where
@@ -1831,12 +1831,15 @@ def answersRecorded : Rule where
   domain := .tasks
   formula := ev user ∧ₗ atom userAnswersQuestion ⟹ eventually (ev planEdit ∧ₗ link recordsAnswerPair)
 
-/-- Rule 556: the Path written once the theory is stable, as concrete ordered steps. -/
+/-- Rule 556: the Path written once the theory is stable, as concrete ordered steps. Stability is
+an order between events the trace holds (a passing stable check, no theory edit since), as rule 557
+states it, not a question asked of the edit. -/
 def pathAfterStableTheory : Rule where
   number := 556
   keyword := .must
   domain := .tasks
-  formula := ev planEdit ∧ₗ atom writesFirstPathSteps ⟹ atom stepsConcreteOrdered ∧ₗ atom theoryStableHere
+  formula := ev planEdit ∧ₗ atom writesFirstPathSteps ⟹ atom stepsConcreteOrdered ∧ₗ
+    since (ev stableCheck ∧ₗ link stableSucceeded) (ev planEdit ∧ₗ atom editsTheory)
 
 /-- Rule 557: no first Path steps without a passing stable check since the theory last changed,
 unless the Path quotes the user's order. -/

@@ -683,13 +683,16 @@ def correctsReport : Link := ⟨"correctsReport",
 def doesRefusalWork : Link := ⟨"doesRefusalWork",
   "Does this call do the work the anchored refusal names, or add a request with a corrected /goal prompt?"⟩
 
-/-- Rule 600: a refused report corrected once; refused again, a call. -/
+/-- Rule 600: a refused report corrected once; refused again, a call. The correction answers the
+first refusal only (`once` reads strictly earlier positions), so a second refusal asks the call
+alone. -/
 def judgeRefusal : Rule where
   number := 600
   keyword := .must
   domain := .tasks
   formula :=
-    (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition ⟹
+    (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition ∧ₗ
+        ¬ₗ once (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition) ⟹
       eventually (ev reply ∧ₗ link correctsReport)) ∧ₗ
     (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition ∧ₗ
         once (ev refusalEvent ∧ₗ atom judgeRefusesHeldCondition) ⟹

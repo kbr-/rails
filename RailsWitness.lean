@@ -1,5 +1,6 @@
 import Rails.Witness
 import Rails.Ruleset.All
+import Rails.Ruleset.Permissions
 
 /-!
 `rails-witness`: every rule's witness search over the whole ruleset (`Ruleset.allRules`) (`Rails.Witness.search`), printing each rule with no

@@ -1653,12 +1653,16 @@ def r802 : Rule where
   formula := never (ev notebookEdit ∧ₗ atom isFormalizationWorker ∧ₗ atom editsLivingSection) ∧ₗ
     (ev entryAppend ∧ₗ atom isFormalizationWorker ⟹ eventually (ev anyCall ∧ₗ link sendsProposedOverviewChange))
 
-/-- Rule 803: notebook and claim edits finished before the finisher, which runs directly. -/
+/-- Rule 803: notebook and claim edits finished before the finisher, which runs directly. AGENTS.md
+allows an edit after the finisher when its checks are rerun ("an edit after it needs the finisher's
+checks rerun"), which rule 804 details, so an edit after the finisher breaks this rule only when a
+commit follows it with the finisher's checks not rerun since. -/
 def r803 : Rule where
   number := 803
   keyword := .must
   domain := .mathematics
-  formula := never (ev finishTurnViaLauncher) ∧ₗ never editAfterFinisher
+  formula := never (ev finishTurnViaLauncher) ∧ₗ
+    (ev gitCommit ⟹ ¬ₗ since editAfterFinisher (atom rerunsFinisherChecks))
 
 /-- Rule 804: an edit after the finisher followed by its checks rerun. -/
 def r804 : Rule where
