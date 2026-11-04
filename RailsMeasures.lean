@@ -30,4 +30,12 @@ def main (_ : List String) : IO UInt32 := do
   IO.println s!"rules that are one judgement of one event: {(rules.filter (isOneJudgement ·.formula)).length}"
   IO.println s!"rules with no temporal operator: {(rules.filter (isStatic ·.formula)).length}"
   IO.println s!"rules by keyword: {tally (rules.map fun r => reprStr r.keyword)}"
+  let names (r : Rule) : List String := r.formula.atoms.map (·.name)
+  let isShould (r : Rule) : Bool := r.keyword == .should || r.keyword == .shouldNot
+  let lacking := rules.filter fun r => isShould r && !(names r).contains "justified"
+  let excused := rules.filter fun r => !isShould r && (names r).contains "justified"
+  IO.println s!"SHOULD rules without justified: {lacking.length} {lacking.map (·.number)}"
+  IO.println s!"MUST and MUST NOT rules naming justified: {excused.length} {excused.map (·.number)}"
+  IO.println s!"rules naming a link (the fast evaluator's exclusion): {(rules.filter fun r => !r.formula.links.isEmpty).length}"
+  IO.println s!"atoms by kind: {tally (allAtoms.eraseDups.map fun a => reprStr a.on)}"
   return 0

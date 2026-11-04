@@ -276,6 +276,10 @@ def historyRewrite : Pred := ⟨"historyRewrite",
 def forcePush : Pred := ⟨"forcePush", runs "git" fun ws =>
     has "push" ws && (has "--force" ws || has "-f" ws || ws.any (hasPrefix "--force-with-lease".toList)),
   [bash "git push --force-with-lease origin b"]⟩
+/-- A cycle's end: the research finisher or a task checkpoint. -/
+def cycleEnd : Pred := ⟨"cycleEnd",
+  fun e => invokes "finish-turn.py" (fun _ => true) e || invokes "task_checkpoint.py" (fun _ => true) e,
+  [bash "./tools/finish-turn.py t1", bash "python3 tools/task_checkpoint.py --entry e.html"]⟩
 
 def preds : List Pred :=
   [anyCall, resultEvent, refusalEvent, commit, ffBase, computeRun, bareAlgebraRun,
@@ -289,7 +293,7 @@ def preds : List Pred :=
    watchFilterDropsQuiet, mentionsQueueLock, editsMcpConfig, rsyncWorkspaceWrongFlags,
    aria2ManyConnections, editsReport, editsMainSkill, editsPersonalSkill, skillSubmoduleCommit,
    loadsMoveSkill, caretMessage, cookieCopy, createsBranch, delegates, memoryWrite,
-   editsTasksOrResearch, autosquashRebase, historyRewrite, forcePush]
+   editsTasksOrResearch, autosquashRebase, historyRewrite, forcePush, cycleEnd]
 
 theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide
 
@@ -706,13 +710,14 @@ def deploymentSpecificDesign : Atom := ⟨"deploymentSpecificDesign",
 
 /-! Rules. -/
 
-/-- Rule 841: a worktree commit is followed by the base synchronization; a background session edits
-its own worktree, and the branch's own rules hold. -/
+/-- Rule 841: a worktree commit is followed by the base synchronization, before the next commit; a
+background session edits its own worktree, and the branch's own rules hold. -/
 def worktreeDiscipline : Rule where
   number := 841
   keyword := .must
   domain := .tasks
   formula := (ev commit ∧ₗ atom commitInWorktree ⟹ eventually (ev ffBase)) ∧ₗ
+    (ev commit ⟹ ¬ₗ since (ev commit ∧ₗ atom commitInWorktree) (ev ffBase)) ∧ₗ
     never (ev editing ∧ₗ atom editsSharedCheckout) ∧ₗ never (ev anyCall ∧ₗ atom breaksBranchTaskRules)
 
 /-- Rule 842: no heavy numerical loop in pure Python. -/
@@ -774,13 +779,15 @@ def stagesBeforeLaunch : Rule where
   formula := (ev computeRun ∧ₗ atom longRun ⟹ once (ev reply ∧ₗ link listsStagesOfRun)) ∧ₗ
     never (ev computeRun ∧ₗ atom runsSettledParameters)
 
-/-- Rule 851: a slow needed computation gets a faster implementation, and the line goes on. -/
+/-- Rule 851: a slow needed computation gets a faster implementation in the same cycle (with no
+cycle's end between the report and the edit), and the line goes on. -/
 def slowCallsForKernel : Rule where
   number := 851
   keyword := .must
   domain := .mathematics
   formula := (ev reply ∧ₗ atom reportsSlowNeededComputation ⟹
-      eventually (ev editing ∧ₗ link buildsFasterImplementation)) ∧ₗ
+      eventually (ev editing ∧ₗ link buildsFasterImplementation ∧ₗ
+        since (ev reply ∧ₗ atom reportsSlowNeededComputation) (ev cycleEnd))) ∧ₗ
     never (ev reply ∧ₗ atom defersLineForSlowness)
 
 /-- Rule 852: a long Python computation names its kernel and reuse in six words or more. -/
@@ -1018,12 +1025,17 @@ def jpegImages : Rule where
   domain := .mathematics
   formula := never (ev writesPngFile ∨ₗ (ev editing ∧ₗ atom savesNonJpegImage))
 
-/-- Rule 883: another producer's raw output packed before it is committed. -/
+def commitsUnpackedPaths : Atom := ⟨"commitsUnpackedPaths",
+  "Does this commit stage a raw path whose packed copy exists, or keep a link naming the raw path?", .call⟩
+
+/-- Rule 883: another producer's raw output packed before it is committed, the compressed paths
+staged and the links updated. -/
 def packBeforeCommit : Rule where
   number := 883
   keyword := .must
   domain := .mathematics
-  formula := ev commit ∧ₗ atom commitsOthersRawOutput ⟹ once (ev evidencePack)
+  formula := (ev commit ∧ₗ atom commitsOthersRawOutput ⟹ once (ev evidencePack)) ∧ₗ
+    never (ev commit ∧ₗ atom commitsUnpackedPaths)
 
 /-- Rule 884: a data-producing script takes `--out` to a tracked location. -/
 def scriptsTakeOut : Rule where
@@ -1133,13 +1145,18 @@ def leanInCategory : Rule where
   domain := .mathematics
   formula := never (ev leanCheckOutsideCategory)
 
-/-- Rule 899: no guessed model label; no `--model` on a Codex start. -/
+def startNeedsModelLabel : Atom := ⟨"startNeedsModelLabel",
+  "Is this timing start made where no session metadata gives the model and no MATH_AGENT_MODEL is set?", .call⟩
+
+/-- Rule 899: no guessed model label; no `--model` on a Codex start; without metadata, a `--model`
+label. -/
 def honestModelLabel : Rule where
   number := 899
   keyword := .mustNot
   domain := .mathematics
   formula := never (ev timingStart ∧ₗ atom guessedModelLabel) ∧ₗ
-    never (ev timingStartWithModel ∧ₗ atom codexSession)
+    never (ev timingStartWithModel ∧ₗ atom codexSession) ∧ₗ
+    never (ev timingStart ∧ₗ ¬ₗ ev timingStartWithModel ∧ₗ atom startNeedsModelLabel)
 
 /-- Rule 900: a failing or quarter-budget job's summary reports its memory peak. -/
 def jobReportsPeak : Rule where
@@ -1211,12 +1228,14 @@ def runAsIfAway : Rule where
   formula := never (ev reply ∧ₗ atom asksWhatRunsOnRented) ∧ₗ
     (ev refusalEvent ∧ₗ atom refusalBlocksRentedWork ⟹ eventually (ev reply ∧ₗ link asksStandingGrant))
 
-/-- Rule 909: a job measuring nothing is stopped. -/
+/-- Rule 909: a job measuring nothing is stopped the moment that is known: the call after the
+result showing it is a stop. -/
 def stopUselessJobs : Rule where
   number := 909
   keyword := .must
   domain := .softwareEngineering
-  formula := ev resultEvent ∧ₗ atom showsJobMeasuresNothing ⟹ eventually (ev stopRun ∧ₗ link stopsThatRun)
+  formula := (ev resultEvent ∧ₗ atom showsJobMeasuresNothing ⟹ eventually (ev stopRun ∧ₗ link stopsThatRun)) ∧ₗ
+    (ev anyCall ∧ₗ ¬ₗ ev stopRun ⟹ ¬ₗ since (ev resultEvent ∧ₗ atom showsJobMeasuresNothing) (ev anyCall))
 
 /-- Rule 910: a watcher's filter keeps JOB QUIET, and a quiet job is looked into. -/
 def keepQuietWord : Rule where
@@ -1226,13 +1245,17 @@ def keepQuietWord : Rule where
   formula := never (ev watchFilterDropsQuiet) ∧ₗ
     (ev resultEvent ∧ₗ atom reportsQuietJob ⟹ eventually (ev anyCall ∧ₗ link inspectsQuietJob))
 
-/-- Rule 911: a monitor on pod watch armed when a machine is in use, and re-armed at expiry. -/
+/-- Rule 911: a monitor on pod watch armed as soon as a machine is in use, and re-armed at each
+expiry: the next call is the arming. -/
 def armPodWatch : Rule where
   number := 911
   keyword := .must
   domain := .softwareEngineering
   formula := (ev anyCall ∧ₗ atom startsUsingRented ⟹ eventually (ev armsPodWatch)) ∧ₗ
-    (ev resultEvent ∧ₗ atom monitorExpired ⟹ eventually (ev armsPodWatch))
+    (ev resultEvent ∧ₗ atom monitorExpired ⟹ eventually (ev armsPodWatch)) ∧ₗ
+    (ev anyCall ∧ₗ ¬ₗ ev armsPodWatch ⟹
+      ¬ₗ since ((ev anyCall ∧ₗ atom startsUsingRented) ∨ₗ (ev resultEvent ∧ₗ atom monitorExpired))
+        (ev armsPodWatch))
 
 /-- Rule 912: a free slot gets the next job; no turn ends with work left beside the runs. -/
 def fillFreeSlots : Rule where
@@ -1334,14 +1357,21 @@ def originateIdeas : Rule where
   formula := never (ev reply ∧ₗ atom waitsForUserIdeas) ∧ₗ
     (ev reply ∧ₗ atom listsOwnIdea ⟹ eventually (ev reply ∧ₗ link developsListedIdea))
 
-/-- Rule 927: a pattern change in REPORT.md carried to both skills, committed in the submodule. -/
+/-- Rule 927: a pattern change in REPORT.md carried to both skills in the same step (before the next
+commit, the skills' own commit first), committed in the submodule, and the bumped pointer committed
+after it. -/
 def skillsFollowReport : Rule where
   number := 927
   keyword := .must
   domain := .discipline
-  formula := ev editsReport ∧ₗ atom changesPattern ⟹
-    eventually (ev editsMainSkill) ∧ₗ eventually (ev editsPersonalSkill) ∧ₗ
-      eventually (ev skillSubmoduleCommit)
+  formula := (ev editsReport ∧ₗ atom changesPattern ⟹
+      eventually (ev editsMainSkill) ∧ₗ eventually (ev editsPersonalSkill) ∧ₗ
+        eventually (ev skillSubmoduleCommit)) ∧ₗ
+    (ev commit ⟹ ¬ₗ since (ev editsReport ∧ₗ atom changesPattern) (ev editsMainSkill) ∧ₗ
+      ¬ₗ since (ev editsReport ∧ₗ atom changesPattern) (ev editsPersonalSkill)) ∧ₗ
+    (ev commit ∧ₗ ¬ₗ ev skillSubmoduleCommit ⟹
+      ¬ₗ since (ev editsReport ∧ₗ atom changesPattern) (ev skillSubmoduleCommit)) ∧ₗ
+    (ev skillSubmoduleCommit ⟹ eventually (ev commit ∧ₗ ¬ₗ ev skillSubmoduleCommit))
 
 /-- Rule 928: changes moved between commits under the move-changes-between-commits skill. -/
 def moveSkill : Rule where
@@ -1653,12 +1683,14 @@ def answerHowWorkWasMade : Rule where
   formula := (ev user ∧ₗ atom correctsAnalysis ⟹ eventually (ev reply ∧ₗ link answersHowMade)) ∧ₗ
     never (ev editing ∧ₗ atom undoesSoundWork)
 
-/-- Rule 970: an idea recorded in its durable home. -/
+/-- Rule 970: an idea recorded in its durable home as soon as it comes up: the recording edit is the
+first edit after the reply raising it. -/
 def recordIdeas : Rule where
   number := 970
   keyword := .must
   domain := .discipline
-  formula := ev reply ∧ₗ atom raisesIdea ⟹ eventually (ev editing ∧ₗ link recordsIdea)
+  formula := ev reply ∧ₗ atom raisesIdea ⟹
+    eventually (ev editing ∧ₗ link recordsIdea ∧ₗ since (ev reply ∧ₗ atom raisesIdea) (ev editing))
 
 /-- Rule 971: prose compressed without losing substance. -/
 def compressProse : Rule where

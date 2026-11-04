@@ -1674,13 +1674,15 @@ def r389 : Rule where
   domain := .discipline
   formula := never (ev editing ∧ₗ atom guardPassesUnclassified)
 
-/-- Rule 390: a guard over a language opens the language's definition, and its test names it. -/
+/-- Rule 390: a guard over a language opens the language's definition in the step writing the fix
+(since the last commit, which ends a step), and its test names it. -/
 def r390 : Rule where
   number := 390
   keyword := .must
   domain := .discipline
   formula := ev editing ∧ₗ atom fixesLanguageGuard ⟹
-    once (ev anyCall ∧ₗ link opensLanguageDefinition) ∧ₗ eventually (ev editing ∧ₗ link testNamesDefinition)
+    since (ev anyCall ∧ₗ link opensLanguageDefinition) (ev gitCommit) ∧ₗ
+      eventually (ev editing ∧ₗ link testNamesDefinition)
 
 /-- Rule 391: the guard lessons reach every guard a change adds. -/
 def r391 : Rule where

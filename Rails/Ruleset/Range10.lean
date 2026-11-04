@@ -102,6 +102,8 @@ def runsCheckpoint : Pred := ⟨"runsCheckpoint", runs "task_checkpoint.py" (fun
   [bash "python3 tools/task_checkpoint.py x --suite python3.12=3:40"]⟩
 def runsRewrap : Pred := ⟨"runsRewrap", runsAny ["rewrap_md.py", "rewrap_comment.py"] (fun _ => true),
   [bash "python3 tools/rewrap_md.py a.md", bash "python3 tools/rewrap_comment.py a.py 10"]⟩
+def runsCommentRewrap : Pred := ⟨"runsCommentRewrap", runs "rewrap_comment.py" (fun _ => true),
+  [bash "python3 tools/rewrap_comment.py a.py 10"]⟩
 def shellInPlaceEdit : Pred := ⟨"shellInPlaceEdit",
   fun e => runs "sed" (hasW "-i") e || runs "perl" (fun ws => hasW "-pi" ws || hasW "-i" ws) e,
   [bash "sed -i s/a/b/ f.md", bash "perl -pi -e s/a/b/ f.md"]⟩
@@ -170,7 +172,7 @@ def preds : List Pred :=
    writesMessage, writesPrivate, writesDocument, writesReviewFile, writesPlan, editsNotebook,
    editsPaper, editsLean, editsPython, editsRuleFile, readsRuleFile, writesResultFile,
    writesHyphenatedPython, writesEmDashInDescription, writesDiacriticsInMessage, commits,
-   commitNoVerify, runsCheckpoint, runsRewrap, shellInPlaceEdit, runsNotebookExcerpt,
+   commitNoVerify, runsCheckpoint, runsRewrap, runsCommentRewrap, shellInPlaceEdit, runsNotebookExcerpt,
    symlinkIntoScratch, codexExec, runsCompute, runsComputePhase, browses, bareTestRun,
    runsVenvPythonBare, runsAria2c, aria2cDiskCache, aria2cContinue, runsSetup, compilesC,
    rendersPaper, runsShake, gitSwitch, worktreeAdd, worktreeRemove, sonnetReviewer,
@@ -203,6 +205,8 @@ def runsOldPython : Atom := ⟨"runsOldPython",
   "Does this command run a Python interpreter older than 3.12?", .call⟩
 def rewrapsByHand : Atom := ⟨"rewrapsByHand",
   "Does this edit rewrap prose or a comment by hand-placed line breaks rather than with the rewrap tool?", .edit⟩
+def writesCommentParagraph : Atom := ⟨"writesCommentParagraph",
+  "Does this edit write or change a paragraph of a code or configuration comment?", .edit⟩
 def replacesProsePassage : Atom := ⟨"replacesProsePassage",
   "Does this edit replace a passage of prose (rather than make an exact edit) without tools/replace_text.py?", .edit⟩
 def appendsEntryByHand : Atom := ⟨"appendsEntryByHand",
@@ -599,12 +603,15 @@ def recentPython : Rule where
   domain := .softwareEngineering
   formula := judged shellCall runsOldPython
 
-/-- Rule 1268: every Markdown file written is rewrapped by the tool, never by hand. -/
+/-- Rule 1268: every Markdown file written is rewrapped by the tool, a code comment's paragraph by
+`tools/rewrap_comment.py`, never by hand. -/
 def rewrapWithTool : Rule where
   number := 1268
   keyword := .must
   domain := .softwareEngineering
-  formula := (ev writesDocument ⟹ eventually (ev runsRewrap)) ∧ₗ judged editing rewrapsByHand
+  formula := (ev writesDocument ⟹ eventually (ev runsRewrap)) ∧ₗ
+    (ev editing ∧ₗ atom writesCommentParagraph ⟹ eventually (ev runsCommentRewrap)) ∧ₗ
+    judged editing rewrapsByHand
 
 /-- Rule 1269: prose passages through `tools/replace_text.py`, exact edits with the editing tool. -/
 def proseReplacedByTool : Rule where
@@ -742,12 +749,16 @@ def tailBytes : Rule where
   domain := .softwareEngineering
   formula := judged runsCompute wantsOutputWithoutTailBytes
 
-/-- Rule 1288: the defined phase categories, the work phase restored after browsing. -/
+/-- Rule 1288: the defined phase categories, the work phase restored after browsing: the first call
+after a browse that is neither a browse nor a phase marker has a phase marker between it and the
+browse. -/
 def phaseCategories : Rule where
   number := 1288
   keyword := .must
   domain := .discipline
-  formula := judged runsComputePhase unknownPhase ∧ₗ (ev browses ⟹ eventually (ev runsComputePhase))
+  formula := judged runsComputePhase unknownPhase ∧ₗ
+    (ev anyCall ∧ₗ ¬ₗ ev browses ∧ₗ ¬ₗ ev runsComputePhase ⟹
+      ¬ₗ since (ev browses) (ev runsComputePhase))
 
 /-- Rule 1289: a project venv's interpreter through the launcher. -/
 def venvThroughLauncher : Rule where

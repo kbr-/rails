@@ -208,17 +208,19 @@ def editsFramework : Atom := ⟨"editsFramework",
   "Does this edit change a framework file of the workspace (a tool, hook, rule file, skill or test)?", .edit⟩
 def passCoversEdit : Link := ⟨"passCoversEdit",
   "Does this framework-pass record cover the change the anchored edit belongs to?"⟩
-def presentsRecordedPass : Link := ⟨"presentsRecordedPass",
-  "Does this reply give the user the theory pass the anchored call recorded?"⟩
+def givenInAnchoredReply : Link := ⟨"givenInAnchoredReply",
+  "Does the anchored reply give the user the theory pass this call recorded?"⟩
 
-/-- Rule 561: a framework change starts with a recorded theory pass, given to the user. -/
+/-- Rule 561: a framework change starts with a recorded theory pass, given to the user in the
+reply: the first reply after the record gives it, and one follows. -/
 def frameworkPassFirst : Rule where
   number := 561
   keyword := .must
   domain := .tasks
   formula :=
     (ev editing ∧ₗ atom editsFramework ⟹ once (ev frameworkPassRecord ∧ₗ link passCoversEdit)) ∧ₗ
-    (ev frameworkPassRecord ⟹ eventually (ev reply ∧ₗ link presentsRecordedPass))
+    (ev frameworkPassRecord ⟹ eventually (ev reply)) ∧ₗ
+    (ev reply ⟹ ¬ₗ since (ev frameworkPassRecord ∧ₗ ¬ₗ link givenInAnchoredReply) (ev reply))
 
 def outsideTaskBeyondBoundedFix : Atom := ⟨"outsideTaskBeyondBoundedFix",
   "Is this edit part of a change outside any task that is larger than a bounded fix?", .edit⟩
@@ -243,12 +245,14 @@ def rereadBeforePlan : Rule where
   formula := ev planEdit ∧ₗ atom writesPath ⟹
     once (ev planRead ∧ₗ link readsWholeTheory) ∧ₗ once (ev agentText ∧ₗ link batchesReread)
 
-/-- Rule 564: the Theory building section is rewrapped after every edit to it. -/
+/-- Rule 564: the Theory building section is rewrapped after every edit to it, before the next. -/
 def rewrapTheory : Rule where
   number := 564
   keyword := .must
   domain := .tasks
-  formula := ev planEdit ∧ₗ atom editsTheory ⟹ eventually (ev theoryRewrap)
+  formula :=
+    (ev planEdit ∧ₗ atom editsTheory ⟹ eventually (ev theoryRewrap)) ∧ₗ
+    (ev planEdit ∧ₗ atom editsTheory ⟹ ¬ₗ since (ev planEdit ∧ₗ atom editsTheory) (ev theoryRewrap))
 
 def checksEntriesAgainstChecklist : Link := ⟨"checksEntriesAgainstChecklist",
   "Does this text check every theory entry against the protocol's checklist, before the anchored reread?"⟩
@@ -290,14 +294,16 @@ def sharedObjectCheck : Rule where
   domain := .tasks
   formula := ev reread ⟹ once (ev agentText ∧ₗ link readsEntriesByObject)
 
-/-- Rule 568: `theory_check.py` at each pass's start and before gaps are brought. -/
+/-- Rule 568: `theory_check.py` at each pass's start (before its first theory edit since the last
+reread) and before gaps are brought (after the pass's last theory edit). -/
 def theoryCheckEachPass : Rule where
   number := 568
   keyword := .must
   domain := .tasks
   formula :=
     (ev reread ⟹ since (ev theoryCheck) (ev reread)) ∧ₗ
-    (ev reply ∧ₗ atom bringsTheoryGaps ⟹ once (ev theoryCheck))
+    (ev planEdit ∧ₗ atom editsTheory ⟹ since (ev theoryCheck) (ev reread)) ∧ₗ
+    (ev reply ∧ₗ atom bringsTheoryGaps ⟹ since (ev theoryCheck) (ev planEdit ∧ₗ atom editsTheory))
 
 /-- Rule 569: the theory check's loop runs in the background, watched. -/
 def theoryLoopWatched : Rule where
@@ -436,13 +442,15 @@ def rewordsCase : Atom := ⟨"rewordsCase", "Does this edit reword a numbered ca
 def reopensCitingRows : Link := ⟨"reopensCitingRows",
   "Does this edit reopen the audit of the rows citing the case the anchored edit reworded?"⟩
 
-/-- Rule 580: cases numbered at once, cited by id, and a reworded case's rows reopened. -/
+/-- Rule 580: cases numbered as soon as there are any (before the table's next edit), cited by id,
+and a reworded case's rows reopened. -/
 def caseIds : Rule where
   number := 580
   keyword := .must
   domain := .tasks
   formula :=
-    (ev clauseTableEdit ∧ₗ atom addsCases ⟹ anytime (ev clauseTableNumber)) ∧ₗ
+    (ev clauseTableEdit ∧ₗ atom addsCases ⟹ eventually (ev clauseTableNumber)) ∧ₗ
+    (ev clauseTableEdit ⟹ ¬ₗ since (ev clauseTableEdit ∧ₗ atom addsCases) (ev clauseTableNumber)) ∧ₗ
     never (ev clauseTableEdit ∧ₗ atom citesCaseByQuote) ∧ₗ
     (ev clauseTableEdit ∧ₗ atom rewordsCase ⟹ anytime (ev clauseTableEdit ∧ₗ link reopensCitingRows))
 
@@ -505,13 +513,18 @@ def recordsRiskyIncrements : Link := ⟨"recordsRiskyIncrements",
 def auditsRiskyRowsFully : Link := ⟨"auditsRiskyRowsFully",
   "Does this text audit in full the rows of the risky increments before the anchored review?"⟩
 
-/-- Rule 585: before the first review, the risky increments named, audited first and in full. -/
+def auditsRiskyFullOthersSampled : Atom := ⟨"auditsRiskyFullOthersSampled",
+  "Does this reviewer run audit the risky increments' rows in full and the other rows in one sampled batch?", .call⟩
+
+/-- Rule 585: before the first review, the risky increments named and recorded, their rows audited
+first and in full; the review takes them in full and the other rows in one sampled batch. -/
 def riskyIncrementsFirst : Rule where
   number := 585
   keyword := .must
   domain := .tasks
   formula := ev reviewerRun ∧ₗ atom firstPathReview ⟹
-    anytime (ev editing ∧ₗ link recordsRiskyIncrements) ∧ₗ once (ev agentText ∧ₗ link auditsRiskyRowsFully)
+    once (ev editing ∧ₗ link recordsRiskyIncrements) ∧ₗ once (ev agentText ∧ₗ link auditsRiskyRowsFully) ∧ₗ
+    atom auditsRiskyFullOthersSampled
 
 def needDeliveredLater : Atom := ⟨"needDeliveredLater",
   "Does this edit leave a Path step needing what only a later step delivers, with no interim rule stated?", .edit⟩
@@ -886,13 +899,14 @@ def reconciliation : Rule where
 def assessesEveryFinding : Link := ⟨"assessesEveryFinding",
   "Does this edit record the agent's own assessment of every finding of the anchored reconciliation under the bar?"⟩
 
-/-- Rule 616: every finding assessed by the writer after the reconciliation. -/
+/-- Rule 616: every finding assessed by the writer after the reconciliation (in its edit or a later
+one). -/
 def assessFindings : Rule where
   number := 616
   keyword := .must
   domain := .tasks
   formula := ev reviewFileEdit ∧ₗ atom writesReconciliation ⟹
-    anytime (ev reviewFileEdit ∧ₗ link assessesEveryFinding)
+    link assessesEveryFinding ∨ₗ eventually (ev reviewFileEdit ∧ₗ link assessesEveryFinding)
 
 def classifiesMisses : Atom := ⟨"classifiesMisses",
   "Does this Coverage paragraph classify each miss as a coverage miss or an execution miss?", .edit⟩
@@ -1018,12 +1032,16 @@ def findsDefect : Atom := ⟨"findsDefect", "Does this text report a defect just
 def recordsDefect : Link := ⟨"recordsDefect",
   "Does this edit write the theory entry of the defect the anchored text reports?"⟩
 
-/-- Rule 627: a defect's theory entry written as it is found. -/
+/-- Rule 627: a defect's theory entry written as it is found: a theory edit follows the finding
+before the next implementation edit. -/
 def defectEntryAtOnce : Rule where
   number := 627
   keyword := .must
   domain := .tasks
-  formula := ev agentText ∧ₗ atom findsDefect ⟹ eventually (ev planEdit ∧ₗ link recordsDefect)
+  formula :=
+    (ev agentText ∧ₗ atom findsDefect ⟹ eventually (ev planEdit ∧ₗ link recordsDefect)) ∧ₗ
+    (ev editing ∧ₗ atom implementationEdit ⟹
+      ¬ₗ since (ev agentText ∧ₗ atom findsDefect) (ev planEdit ∧ₗ atom editsTheory))
 
 def fixesMrFinding : Atom := ⟨"fixesMrFinding", "Does this commit fix a finding of an MR review round?", .call⟩
 def testsThisFix : Link := ⟨"testsThisFix",
@@ -1167,8 +1185,11 @@ def identifiesBoundedFix : Atom := ⟨"identifiesBoundedFix",
 def commitsFixApart : Link := ⟨"commitsFixApart",
   "Does this commit hold the fix the anchored text identifies, apart from the task's work?"⟩
 
-/-- Rule 640: a bounded fix made and committed apart in the cycle; a build queued only with an
-outside `Not now:`. -/
+def commitsProcessFix : Atom := ⟨"commitsProcessFix",
+  "Does this commit hold a fix of the process, apart from the task's work?", .call⟩
+
+/-- Rule 640: a bounded fix made and committed apart in the same cycle (a commit of a process fix
+before the cycle's checkpoint); a build queued only with an outside `Not now:`. -/
 def boundedFixNow : Rule where
   number := 640
   keyword := .must
@@ -1176,20 +1197,25 @@ def boundedFixNow : Rule where
   formula :=
     (ev agentText ∧ₗ atom identifiesBoundedFix ⟹
       eventually (ev gitCommit ∧ₗ link commitsFixApart) ∨ₗ eventually (ev taskCheckpoint ∧ₗ link commitsFixApart)) ∧ₗ
+    (ev taskCheckpoint ⟹
+      ¬ₗ since (ev agentText ∧ₗ atom identifiesBoundedFix) (ev gitCommit ∧ₗ atom commitsProcessFix)) ∧ₗ
     (ev queueAddBuild ⟹ atom notNowOutside)
 
 def mistakeRecursWhileQueued : Atom := ⟨"mistakeRecursWhileQueued",
   "Does this text report a mistake recurring while the build queued against it waits?", .any⟩
-def buildsQueuedPrevention : Link := ⟨"buildsQueuedPrevention",
-  "Does this edit build the queued prevention of the mistake the anchored text reports?"⟩
+def buildsPreventionOfThis : Link := ⟨"buildsPreventionOfThis",
+  "Does the anchored edit build the queued prevention of the mistake this text reports?"⟩
 
-/-- Rule 641: a recurring mistake makes its queued build the next work. -/
+/-- Rule 641: a recurring mistake makes its queued build the next work: the first edit after the
+report builds it, and an edit follows. -/
 def recurrenceBuildsNext : Rule where
   number := 641
   keyword := .must
   domain := .tasks
-  formula := ev agentText ∧ₗ atom mistakeRecursWhileQueued ⟹
-    eventually (ev editing ∧ₗ link buildsQueuedPrevention)
+  formula :=
+    (ev agentText ∧ₗ atom mistakeRecursWhileQueued ⟹ eventually (ev editing)) ∧ₗ
+    (ev editing ⟹
+      ¬ₗ since (ev agentText ∧ₗ atom mistakeRecursWhileQueued ∧ₗ ¬ₗ link buildsPreventionOfThis) (ev editing))
 
 def tradesQualityForSpeed : Atom := ⟨"tradesQualityForSpeed",
   "Does this edit make a fix that saves time or tokens at a loss of quality?", .edit⟩
@@ -1381,13 +1407,15 @@ def leavesWorkUndone : Atom := ⟨"leavesWorkUndone",
 def queuesThatWork : Link := ⟨"queuesThatWork",
   "Does this call queue the work the anchored text leaves undone?"⟩
 
-/-- Rule 659: work left undone queued at once, a check or build with `Problem:` and `Must:`. -/
+/-- Rule 659: work left undone queued at once (a queue add before any other call), a check or
+build with `Problem:` and `Must:`. -/
 def queueUndoneWork : Rule where
   number := 659
   keyword := .must
   domain := .tasks
   formula :=
     (ev agentText ∧ₗ atom leavesWorkUndone ⟹ eventually (ev queueAdd ∧ₗ link queuesThatWork)) ∧ₗ
+    (ev anyCall ∧ₗ ¬ₗ ev queueAdd ⟹ ¬ₗ since (ev agentText ∧ₗ atom leavesWorkUndone) (ev queueAdd)) ∧ₗ
     (ev queueCheckOrBuild ⟹ ev problemAndMust)
 
 def queuesLargeBuildWhole : Atom := ⟨"queuesLargeBuildWhole",
@@ -1504,13 +1532,19 @@ def titleBreaksScopePrefix : Atom := ⟨"titleBreaksScopePrefix",
 def readsTrunkTitles : Link := ⟨"readsTrunkTitles",
   "Does this call read the trunk's commit titles of the anchored commit's repository?"⟩
 
-/-- Rule 670: the trunk's scope-prefix convention, read from its history, across the branch. -/
+def branchTitlesInconsistent : Atom := ⟨"branchTitlesInconsistent",
+  "Does this push request leave a branch with a commit title breaking the repository's scope-prefix convention or the form of its other titles?", .call⟩
+
+/-- Rule 670: the trunk's scope-prefix convention, read from its history, across the branch, the
+earlier titles fixed by the MR's preparation (before its push is requested). -/
 def scopePrefixTitles : Rule where
   number := 670
   keyword := .must
   domain := .softwareEngineering
-  formula := ev gitCommit ∧ₗ atom externalCommit ⟹
-    once (ev gitLog ∧ₗ link readsTrunkTitles) ∧ₗ ¬ₗ atom titleBreaksScopePrefix
+  formula :=
+    (ev gitCommit ∧ₗ atom externalCommit ⟹
+      once (ev gitLog ∧ₗ link readsTrunkTitles) ∧ₗ ¬ₗ atom titleBreaksScopePrefix) ∧ₗ
+    never (ev requestAdd ∧ₗ atom requestsPush ∧ₗ atom branchTitlesInconsistent)
 
 /-! Rules 671 to 676, before asking the user. -/
 

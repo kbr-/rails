@@ -903,13 +903,17 @@ def readBeforeSignatureChange : Rule where
 
 def editsProof : Atom := ⟨"editsProof",
   "Does this Lean edit change a proof?", .edit⟩
+def inspectsWithoutExactPosition : Atom := ⟨"inspectsWithoutExactPosition",
+  "Does this Lean inspection call omit the exact position (line and column) where several goals or terms share its line?", .call⟩
 
-/-- Rule 1177: the proof state inspected before a proof edit; diagnostics after each edit. -/
+/-- Rule 1177: the proof state inspected before a proof edit, at exact positions; diagnostics after
+each edit. -/
 def inspectAndDiagnose : Rule where
   number := 1177
   keyword := .should
   domain := .softwareEngineering
   formula := (ev leanEdit ∧ₗ atom editsProof ⟹ once (ev leanInspect)) ∧ₗ
+    never (ev leanInspect ∧ₗ atom inspectsWithoutExactPosition) ∧ₗ
     (ev leanEdit ⟹ eventually (ev leanDiagnostics)) ∨ₗ atom justified
 
 def appliesTacticSuggestion : Atom := ⟨"appliesTacticSuggestion",
@@ -1108,25 +1112,37 @@ def reworksReviewedBranch : Atom := ⟨"reworksReviewedBranch",
 def noteForRework : Link := ⟨"noteForRework",
   "Does this version note cover the anchored rework?"⟩
 
-/-- Rule 1194: every rework of a branch under review writes its version note in the same step. -/
+/-- Rule 1194: every rework of a branch under review writes its version note in the same step: the
+note since the commit before the rework, or after it with no commit in between (the next commit
+refused while a rework without a note since its own previous commit has no note edit after it). -/
 def versionNoteWithRework : Rule where
   number := 1194
   keyword := .must
   domain := .softwareEngineering
-  formula := ev gitCommit ∧ₗ atom reworksReviewedBranch ⟹
-    once (ev versionNoteEdit ∧ₗ link noteForRework) ∨ₗ eventually (ev versionNoteEdit ∧ₗ link noteForRework)
+  formula := (ev gitCommit ∧ₗ atom reworksReviewedBranch ⟹
+      since (ev versionNoteEdit ∧ₗ link noteForRework) (ev gitCommit) ∨ₗ
+        eventually (ev versionNoteEdit ∧ₗ link noteForRework)) ∧ₗ
+    (ev gitCommit ⟹
+      ¬ₗ since (ev gitCommit ∧ₗ atom reworksReviewedBranch ∧ₗ
+          ¬ₗ since (ev versionNoteEdit ∧ₗ link noteForRework) (ev gitCommit))
+        (ev versionNoteEdit))
 
 def updatesLetterForNote : Link := ⟨"updatesLetterForNote",
   "Does this edit update the cover letter as the whole description for the anchored version note's rework?"⟩
 
-/-- Rule 1195: a version note comes with the cover letter updated as the whole description. -/
+/-- Rule 1195: a version note comes with the cover letter updated as the whole description, when it
+is written: the update since the commit before the note, or after it with no commit in between. -/
 def letterWithNote : Rule where
   number := 1195
   keyword := .must
   domain := .softwareEngineering
-  formula := ev versionNoteEdit ⟹
-    once (ev coverLetterEdit ∧ₗ link updatesLetterForNote) ∨ₗ
-    eventually (ev coverLetterEdit ∧ₗ link updatesLetterForNote)
+  formula := (ev versionNoteEdit ⟹
+      since (ev coverLetterEdit ∧ₗ link updatesLetterForNote) (ev gitCommit) ∨ₗ
+        eventually (ev coverLetterEdit ∧ₗ link updatesLetterForNote)) ∧ₗ
+    (ev gitCommit ⟹
+      ¬ₗ since (ev versionNoteEdit ∧ₗ
+          ¬ₗ since (ev coverLetterEdit ∧ₗ link updatesLetterForNote) (ev gitCommit))
+        (ev coverLetterEdit))
 
 def noteNotFlatPerChange : Atom := ⟨"noteNotFlatPerChange",
   "Is this version note other than one flat bullet list, one bullet per review comment or change?", .edit⟩
@@ -1718,9 +1734,10 @@ def askWhatRestarts : Rule where
   formula := never (ev reviewDraftEdit ∧ₗ atom omitsSyncRestarts)
 
 def readsBeyondDiff : Link := ⟨"readsBeyondDiff",
-  "Does this read open what the anchored review's change hands its workload, beyond the diff?"⟩
+  "Does this read open, beyond the diff, what the anchored review's change hands its workload and what the change fails to do?"⟩
 
-/-- Rule 1247: the review looks beyond the diff. -/
+/-- Rule 1247: the review looks beyond the diff, at what the change hands its workload and what it
+fails to do. -/
 def lookBeyondDiff : Rule where
   number := 1247
   keyword := .must
@@ -1743,12 +1760,16 @@ def everyOccurrenceRead : Rule where
 def readsExistingInstance : Link := ⟨"readsExistingInstance",
   "Does this call read how an existing instance of the same thing does what the anchored review's change does?"⟩
 
-/-- Rule 1249: the change compared with existing instances. -/
+def leavesDifferenceUnasked : Atom := ⟨"leavesDifferenceUnasked",
+  "Does this review draft leave unasked why the change differs from how existing instances of the same thing do it?", .edit⟩
+
+/-- Rule 1249: the change compared with existing instances, and why it differs asked. -/
 def compareWithInstances : Rule where
   number := 1249
   keyword := .must
   domain := .softwareEngineering
-  formula := ev reviewDraftEdit ⟹ once ((ev reading ∨ₗ ev searchCall) ∧ₗ link readsExistingInstance)
+  formula := ev reviewDraftEdit ⟹
+    once ((ev reading ∨ₗ ev searchCall) ∧ₗ link readsExistingInstance) ∧ₗ ¬ₗ atom leavesDifferenceUnasked
 
 def readsCommitMessages : Link := ⟨"readsCommitMessages",
   "Does this call show the commit messages of the change the anchored review reviews?"⟩

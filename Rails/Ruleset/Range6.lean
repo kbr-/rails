@@ -1022,20 +1022,25 @@ def r721 : Rule where
   domain := .tasks
   formula := ev editing ∧ₗ atom aifiTaskInProgress ⟹ once (ev aifiRead)
 
-/-- Rule 722: a research cycle opens by stating its missing implication and its test. -/
+/-- Rule 722: a research cycle opens by stating its missing implication and its test: the reply
+stating them comes before the cycle's first edit. -/
 def r722 : Rule where
   number := 722
   keyword := .must
   domain := .mathematics
-  formula := ev cycleStart ∧ₗ atom startsResearchCycle ⟹ eventually (ev reply ∧ₗ link statesCycleTest)
+  formula := ev cycleStart ∧ₗ atom startsResearchCycle ⟹
+    eventually (ev reply ∧ₗ link statesCycleTest ∧ₗ since (ev cycleStart) (ev editing))
 
-/-- Rule 723: Open statements read first in the cycle; the entry names what it advances. -/
+/-- Rule 723: Open statements read first in the cycle, before its first edit; the entry names what
+it advances. -/
 def r723 : Rule where
   number := 723
   keyword := .must
   domain := .mathematics
-  formula := ev entryAppend ∧ₗ atom isResearchEntry ⟹
-    since (atom readsOpenStatements) (ev cycleStart) ∧ₗ atom namesAdvancedStatement
+  formula :=
+    (ev entryAppend ∧ₗ atom isResearchEntry ⟹
+      since (atom readsOpenStatements) (ev cycleStart) ∧ₗ atom namesAdvancedStatement) ∧ₗ
+    (ev editing ⟹ ¬ₗ since (ev cycleStart ∧ₗ atom startsResearchCycle) (atom readsOpenStatements))
 
 /-- Rule 724: obligations first, then the review's highest risk. -/
 def r724 : Rule where
@@ -1527,12 +1532,16 @@ def r786 : Rule where
   formula := ev entryAppend ∧ₗ atom developsQueueItem ⟹
     ¬ₗ since (ev entryAppend ∧ₗ atom leavesItemUnfinished ∧ₗ ¬ₗ link sameQueueItem) (ev entryAppend)
 
-/-- Rule 787: no leads or bridges sections in a research entry. -/
+def leavesUndoneOutsideSubIdeas : Atom := ⟨"leavesUndoneOutsideSubIdeas",
+  "Does the entry this call appends name undone work it means to carry out anywhere but under its Sub-ideas?", .call⟩
+
+/-- Rule 787: no leads or bridges sections in a research entry; its undone work under Sub-ideas. -/
 def r787 : Rule where
   number := 787
   keyword := .mustNot
   domain := .mathematics
-  formula := never (ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ atom hasOwnLeadsSections)
+  formula := never (ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ atom hasOwnLeadsSections) ∧ₗ
+    never (ev entryAppend ∧ₗ atom isResearchEntry ∧ₗ atom leavesUndoneOutsideSubIdeas)
 
 /-- Rule 788: a reopened item with its Reopened follow-up, appended to the tail. -/
 def r788 : Rule where
@@ -1718,12 +1727,13 @@ def r810 : Rule where
   formula := (ev worktreeAdd ⟹ ev worktreeAddTracked ∧ₗ ¬ₗ once (ev worktreeAdd)) ∧ₗ
     never (ev editing ∧ₗ atom inSharedCheckoutInBackground)
 
-/-- Rule 811: `ff-base.sh` after every worktree commit. -/
+/-- Rule 811: `ff-base.sh` after every worktree commit, before the next commit. -/
 def r811 : Rule where
   number := 811
   keyword := .must
   domain := .softwareEngineering
-  formula := ev gitCommit ∧ₗ atom inWorktree ⟹ eventually (ev ffBase)
+  formula := (ev gitCommit ∧ₗ atom inWorktree ⟹ eventually (ev ffBase)) ∧ₗ
+    (ev gitCommit ⟹ ¬ₗ since (ev gitCommit ∧ₗ atom inWorktree) (ev ffBase))
 
 /-- Rule 812: a conflict `ff-base.sh` reports, resolved. -/
 def r812 : Rule where
@@ -1750,14 +1760,14 @@ def r814 : Rule where
   formula := ev gitCommitNoEdit ⟹
     ¬ₗ since (ev mergeMain ∧ₗ atom bringsLargeFrameworkChange) (ev agentRun) ∨ₗ atom justified
 
-/-- Rule 815: a fast-forward to a pinned commit, the destination checked just before, refreshed if
-it advanced. -/
+/-- Rule 815: a fast-forward to a pinned commit, the destination checked immediately before (by the
+call right before it), refreshed if it advanced. -/
 def r815 : Rule where
   number := 815
   keyword := .must
   domain := .softwareEngineering
   formula := ev fastForward ⟹ atom ffTargetPinned ∧ₗ
-    once (ev anyCall ∧ₗ link checksDestinationHeadAndTree) ∧ₗ
+    since (ev anyCall ∧ₗ link checksDestinationHeadAndTree) (ev anyCall) ∧ₗ
     ¬ₗ since (ev anyResult ∧ₗ link showsDestinationAdvanced) (ev gitRebase)
 
 /-- Rule 816: a moved branch rebased in a temporary worktree with a backup, each stop continued

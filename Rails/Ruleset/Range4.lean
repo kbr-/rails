@@ -325,8 +325,8 @@ def spinsMoreThreadsThanQuota : Link := ⟨"spinsMoreThreadsThanQuota",
   "Does this call spin more threads than the quota the anchored reply states allows?"⟩
 def treatsPricePageAsPromise : Atom := ⟨"treatsPricePageAsPromise",
   "Does this reply treat a third-party price page as a promise of what will be delivered?", .reply⟩
-def quotesCreateResponse : Link := ⟨"quotesCreateResponse",
-  "Does this reply read back what the anchored create call's response says was delivered?"⟩
+def readsBackCreateResponse : Atom := ⟨"readsBackCreateResponse",
+  "Does this reply read back what the response of the latest Pod create call says was delivered?", .reply⟩
 def blamesMachineCapacity : Atom := ⟨"blamesMachineCapacity",
   "Does this reply blame a machine's capacity for a result?", .reply⟩
 def measuresAlone : Link := ⟨"measuresAlone",
@@ -783,8 +783,8 @@ def quotesUserOrder : Atom := ⟨"quotesUserOrder",
   "Does the Path quote the user setting another order, with (the user, DATE)?", .edit⟩
 def userStatesPlan : Atom := ⟨"userStatesPlan",
   "Does this message from the user state a plan for the task?", .user⟩
-def entersUserPlan : Link := ⟨"entersUserPlan",
-  "Does this plan edit enter the anchored message's plan into the Path?"⟩
+def entersStatedUserPlan : Atom := ⟨"entersStatedUserPlan",
+  "Does this plan edit enter into the Path the plan the user stated since the last plan edit?", .edit⟩
 def queuesTaskRun : Atom := ⟨"queuesTaskRun",
   "Does this call queue a run for a task?", .call⟩
 def namesPathStep : Atom := ⟨"namesPathStep",
@@ -982,13 +982,16 @@ def quotaProvedUnderLoad : Rule where
     once (ev toolCall ∧ₗ link spinsMoreThreadsThanQuota) ∧ₗ once (ev readsCpuacctUsage) ∧ₗ
     once (ev readsCpuStat)
 
-/-- Rule 445: no price page taken as a promise; the create response read back. -/
+/-- Rule 445: no price page taken as a promise; the create response read back at once: a reply
+reads it after the create, and no other call or reply comes between. -/
 def createResponseRead : Rule where
   number := 445
   keyword := .mustNot
   domain := .softwareEngineering
   formula := never (ev reply ∧ₗ atom treatsPricePageAsPromise) ∧ₗ
-    (ev podCreate ⟹ eventually (ev reply ∧ₗ link quotesCreateResponse))
+    (ev podCreate ⟹ eventually (ev reply ∧ₗ atom readsBackCreateResponse)) ∧ₗ
+    (ev toolCall ∨ₗ (ev reply ∧ₗ ¬ₗ atom readsBackCreateResponse) ⟹
+      ¬ₗ since (ev podCreate) (ev reply ∧ₗ atom readsBackCreateResponse))
 
 /-- Rule 446: capacity measured alone, one change per measurement, a suspected limit tested. -/
 def measureAloneBeforeBlame : Rule where
@@ -1850,12 +1853,14 @@ def stableBeforePath : Rule where
   formula := ev planEdit ∧ₗ atom writesFirstPathSteps ⟹
     since (ev stableCheck ∧ₗ link stableSucceeded) (ev planEdit ∧ₗ atom editsTheory) ∨ₗ atom quotesUserOrder
 
-/-- Rule 558: a plan the user states entered at once; each queued run names its step. -/
+/-- Rule 558: a plan the user states entered at once: a plan edit follows it, and the first plan
+edit after it enters it; each queued run names its step. -/
 def userPlanEntered : Rule where
   number := 558
   keyword := .must
   domain := .tasks
-  formula := (ev user ∧ₗ atom userStatesPlan ⟹ eventually (ev planEdit ∧ₗ link entersUserPlan)) ∧ₗ
+  formula := (ev user ∧ₗ atom userStatesPlan ⟹ eventually (ev planEdit)) ∧ₗ
+    (ev planEdit ∧ₗ since (ev user ∧ₗ atom userStatesPlan) (ev planEdit) ⟹ atom entersStatedUserPlan) ∧ₗ
     (ev computeRun ∧ₗ atom queuesTaskRun ⟹ atom namesPathStep)
 
 /-- Rule 559: the first cycle's entry has status task started. -/

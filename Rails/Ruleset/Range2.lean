@@ -54,6 +54,8 @@ def isTestRun (e : Event) : Bool :=
 def isMutationRun (e : Event) : Bool := runsAny ["mutation_batch.py"] e
 def isRealRun (e : Event) : Bool := runsAny ["real_run.py"] e
 def isEntryAppend (e : Event) : Bool := runsAny ["notebook-append.py", "task_checkpoint.py"] e
+/-- A task checkpoint, which ends a cycle (TASK_PROTOCOL.md: "A checkpoint ends a cycle"). -/
+def isCheckpoint (e : Event) : Bool := runsAny ["task_checkpoint.py"] e
 def isBrowserRender (e : Event) : Bool := commandMentions "playwright" e || commandMentions "chromium" e
 def isPlanEdit (e : Event) : Bool := writesPathWith (endsWith "PLAN.md".toList) e
 def isNotebookEdit (e : Event) : Bool := writesPathWith (endsWith "notebook.html".toList) e
@@ -84,6 +86,8 @@ def realRun : Pred := ⟨"realRun", isRealRun, [bash "python3 tools/real_run.py 
 def entryAppend : Pred := ⟨"entryAppend", isEntryAppend,
   [bash "python3 tools/notebook-append.py notebook.html e.html",
    bash "python3 tools/task_checkpoint.py --entry e.html"]⟩
+def checkpoint : Pred := ⟨"checkpoint", isCheckpoint,
+  [bash "python3 tools/task_checkpoint.py --entry e.html"]⟩
 def browserRender : Pred := ⟨"browserRender", isBrowserRender,
   [bash "npx playwright screenshot https://x p.png"]⟩
 def toolCall : Pred := ⟨"toolCall", isCall, [bash "ls"]⟩
@@ -96,7 +100,8 @@ def pipelineNoPipefail : Pred := ⟨"pipelineNoPipefail", isPipelineNoPipefail,
   [bash "make test | tee log"]⟩
 
 def preds : List Pred :=
-  [commit, testRun, mutationRun, realRun, entryAppend, browserRender, toolCall, toolResult, planEdit,
+  [commit, testRun, mutationRun, realRun, entryAppend, checkpoint, browserRender, toolCall, toolResult,
+   planEdit,
    notebookEdit, privateEdit, testEdit, pipelineNoPipefail]
 
 theorem preds_wellFormed : preds.all Pred.wellFormed = true := by decide +kernel
@@ -389,6 +394,20 @@ def countsTestsAsCheck : Atom := ⟨"countsTestsAsCheck",
   "Does this entry count the cycle's tests as the check of what it built?", .call⟩
 def realInputRun : Link := ⟨"realInputRun",
   "Is this result a run of what the cycle built on input it wasn't written against?"⟩
+def runsSkippedServiceTest : Atom := ⟨"runsSkippedServiceTest",
+  "Does this test run run, with its service, a test an earlier result showed skipped for a missing service?", .call⟩
+def entryLinksSavedOutput : Atom := ⟨"entryLinksSavedOutput",
+  "Does this entry link the saved output of the run on input the cycle's work wasn't written against?", .call⟩
+def checkHasNoMechanism : Atom := ⟨"checkHasNoMechanism",
+  "Does this check run although no mechanism was named by which the action taken could change its result?", .call⟩
+def keepsDesignAttackLanded : Atom := ⟨"keepsDesignAttackLanded",
+  "Does this commit keep a prevention's design unchanged where a reviewer's attack on it landed?", .call⟩
+def entryGivesArtifactNumbers : Link := ⟨"entryGivesArtifactNumbers",
+  "Does this entry give the numbers measuring the anchored edit's artifact against the existing ones of its kind?"⟩
+def namesSetListing : Atom := ⟨"namesSetListing",
+  "Does this reply or edit name the listing, by the set's own definition, that its whole-set claim rests on?", .any⟩
+def writersPassFindingUnhandled : Atom := ⟨"writersPassFindingUnhandled",
+  "At this reviewer run, does a finding of the writer's own pass over the diff stand neither fixed nor recorded?", .call⟩
 def writesSetReader : Atom := ⟨"writesSetReader",
   "Does this edit write a reader of a set of files?", .edit⟩
 def runsOverWholeSet : Link := ⟨"runsOverWholeSet",
@@ -1184,20 +1203,25 @@ def counterpartClient : Rule where
   formula := never (ev editing ∧ₗ atom integrationTestWithoutCounterpartClient) ∧ₗ
     (ev reply ∧ₗ atom reliesOnOtherSystemBehaviour ⟹ once (ev toolCall ∧ₗ link readsDeployedSource))
 
-/-- Rule 211: a test skipped for a missing service is run with it, or a request is filed. -/
+/-- Rule 211: a test skipped for a missing service is run with it, or a request is filed, in the
+cycle that sees the skip: before the next checkpoint, which ends the cycle. -/
 def skippedTestRunOrRequest : Rule where
   number := 211
   keyword := .must
   domain := .tasks
-  formula := ev toolResult ∧ₗ atom showsServiceSkip ⟹
-    eventually ((ev testRun ∧ₗ link runsSkippedTest) ∨ₗ ev requestAdd)
+  formula := (ev toolResult ∧ₗ atom showsServiceSkip ⟹
+      eventually ((ev testRun ∧ₗ link runsSkippedTest) ∨ₗ ev requestAdd)) ∧ₗ
+    (ev checkpoint ⟹ ¬ₗ since (ev toolResult ∧ₗ atom showsServiceSkip)
+      ((ev testRun ∧ₗ atom runsSkippedServiceTest) ∨ₗ ev requestAdd))
 
-/-- Rule 212: what a cycle builds runs on input it wasn't written against before its tests count. -/
+/-- Rule 212: what a cycle builds runs on input it wasn't written against before its tests count,
+and the entry links the saved output. -/
 def realInputBeforeTestsCount : Rule where
   number := 212
   keyword := .must
   domain := .tasks
-  formula := ev entryAppend ∧ₗ atom countsTestsAsCheck ⟹ once (ev toolResult ∧ₗ link realInputRun)
+  formula := ev entryAppend ∧ₗ atom countsTestsAsCheck ⟹
+    once (ev toolResult ∧ₗ link realInputRun) ∧ₗ atom entryLinksSavedOutput
 
 /-- Rule 213: a reader of a set of files runs on the whole set. -/
 def readerOnWholeSet : Rule where
@@ -1247,12 +1271,13 @@ def leanTestScripts : Rule where
   domain := .tasks
   formula := never (ev editing ∧ₗ atom writesNonLeanTestScript)
 
-/-- Rule 219: a check's mechanism is named before it runs. -/
+/-- Rule 219: a check's mechanism is named before it runs, and a check with none is skipped. -/
 def mechanismBeforeCheck : Rule where
   number := 219
   keyword := .must
   domain := .discipline
-  formula := ev toolCall ∧ₗ atom runsCheckOrBenchmark ⟹ once (ev reply ∧ₗ link namesCheckMechanism)
+  formula := (ev toolCall ∧ₗ atom runsCheckOrBenchmark ⟹ once (ev reply ∧ₗ link namesCheckMechanism)) ∧ₗ
+    never (ev toolCall ∧ₗ atom runsCheckOrBenchmark ∧ₗ atom checkHasNoMechanism)
 
 /-- Rule 220: a check's cheapest wrong pass found before relying on it; its verdict from an
 independent account. -/
@@ -1381,12 +1406,14 @@ def chancePreventionMeasured : Rule where
   formula := ev editing ∧ₗ atom addsChanceBasedPrevention ⟹
     once (ev toolResult ∧ₗ link measuresCatchChance) ∧ₗ atom statesCatchChanceAbove80
 
-/-- Rule 236: a prevention attacked before its commit. -/
+/-- Rule 236: a prevention attacked before its commit, and its design changed where the attack
+lands. -/
 def attackPrevention : Rule where
   number := 236
   keyword := .must
   domain := .discipline
-  formula := ev commit ∧ₗ atom commitsPrevention ⟹ once (ev reply ∧ₗ link attacksPrevention)
+  formula := (ev commit ∧ₗ atom commitsPrevention ⟹ once (ev reply ∧ₗ link attacksPrevention)) ∧ₗ
+    never (ev commit ∧ₗ atom commitsPrevention ∧ₗ atom keepsDesignAttackLanded)
 
 /-- Rule 237: the existing check run on the mistake, and its cost weighed, before a prevention. -/
 def existingCheckFirst : Rule where
@@ -1520,21 +1547,23 @@ def existingInstances : Rule where
   domain := .tasks
   formula := ev planEdit ∧ₗ atom decidesIntegrationPath ⟹ atom listsExistingInstances
 
-/-- Rule 255: a new artifact measured against all of its kind. -/
+/-- Rule 255: a new artifact measured against all of its kind, the numbers given in the entry. -/
 def measureAgainstKind : Rule where
   number := 255
   keyword := .must
   domain := .tasks
   formula := ev editing ∧ₗ atom addsArtifactOfExistingKind ⟹
-    once (ev toolResult ∧ₗ link measuresAgainstExisting)
+    once (ev toolResult ∧ₗ link measuresAgainstExisting) ∧ₗ
+      eventually (ev entryAppend ∧ₗ link entryGivesArtifactNumbers)
 
-/-- Rule 256: a whole-set claim backed by a check of every member, listed by definition. -/
+/-- Rule 256: a whole-set claim backed by a check of every member, listed by definition, and the
+listing named. -/
 def wholeSetChecked : Rule where
   number := 256
   keyword := .must
   domain := .tasks
   formula := (ev reply ∨ₗ ev editing) ∧ₗ atom makesWholeSetClaim ⟹
-    once (ev toolResult ∧ₗ link listsSetByDefinition)
+    once (ev toolResult ∧ₗ link listsSetByDefinition) ∧ₗ atom namesSetListing
 
 /-- Rule 257: an accepted wrong case is the user's trade-off and a stated limit of the change. -/
 def acceptedWrongCase : Rule where
@@ -1668,12 +1697,14 @@ def findingVerdictAndOrigin : Rule where
   domain := .tasks
   formula := never (ev editing ∧ₗ atom findingLacksVerdictOrOrigin)
 
-/-- Rule 275: each changed file's diff read against the failure-mode list before any reviewer. -/
+/-- Rule 275: each changed file's diff read against the failure-mode list before any reviewer, and
+what the pass finds fixed or recorded by then. -/
 def writersPassFirst : Rule where
   number := 275
   keyword := .must
   domain := .tasks
-  formula := ev reviewerRun ∧ₗ atom reviewsCode ⟹ once (ev toolCall ∧ₗ link readsDiffAgainstModes)
+  formula := (ev reviewerRun ∧ₗ atom reviewsCode ⟹ once (ev toolCall ∧ₗ link readsDiffAgainstModes)) ∧ₗ
+    never (ev reviewerRun ∧ₗ atom reviewsCode ∧ₗ atom writersPassFindingUnhandled)
 
 /-- Rule 276: a commit's claims checked against its tree, and again after a rewrite. -/
 def commitClaimsChecked : Rule where

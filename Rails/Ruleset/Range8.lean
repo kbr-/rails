@@ -238,6 +238,10 @@ def slowPolling : Atom := ⟨"slowPolling",
 def startsBatch : Atom := ⟨"startsBatch", "Does this call start a batch of a long procedure?", .call⟩
 def projectionExceedsAcceptable : Atom := ⟨"projectionExceedsAcceptable",
   "At this batch, does the projection of the procedure's rest exceed what the user would plausibly accept?", .call⟩
+def projectsUnacceptableRest : Atom := ⟨"projectsUnacceptableRest",
+  "Does this reply project the rest of a long procedure to exceed what the user would plausibly accept?", .reply⟩
+def bringsNumbersAndOptions : Atom := ⟨"bringsNumbersAndOptions",
+  "Does this reply stop the procedure and bring the user the projection's numbers and the options?", .reply⟩
 def thirdRoundSameClass : Atom := ⟨"thirdRoundSameClass",
   "Does this reply report a loop's third or later round finding the same defect class in one mechanism?", .reply⟩
 def bringsCountsAndDesign : Atom := ⟨"bringsCountsAndDesign",
@@ -255,6 +259,8 @@ def writesDesign : Atom := ⟨"writesDesign", "Does this edit write or change a 
 def assignsTask : Atom := ⟨"assignsTask", "Does this message from the user assign a task?", .user⟩
 def needsProductionVerification : Atom := ⟨"needsProductionVerification",
   "Does the task this message assigns need anything verified against production?", .user⟩
+def asksForProductionCredentials : Atom := ⟨"asksForProductionCredentials",
+  "Does this reply ask for a service account or credentials to verify the task against production?", .reply⟩
 def implementsChange : Atom := ⟨"implementsChange",
   "Does this edit implement the task's change (code or configuration in the target)?", .edit⟩
 def choosesTool : Atom := ⟨"choosesTool", "Does this reply choose a tool for the task's build or tests?", .reply⟩
@@ -262,6 +268,8 @@ def namesEnvVariable : Atom := ⟨"namesEnvVariable",
   "Does this edit name an environment variable the code reads?", .edit⟩
 def judgesToolExistence : Atom := ⟨"judgesToolExistence",
   "Does this reply say whether a tool for a job exists?", .reply⟩
+def weighsOnlyInstalled : Atom := ⟨"weighsOnlyInstalled",
+  "Does this reply weigh only the tools already installed, setting aside ones its search found that aren't?", .reply⟩
 def addsField : Atom := ⟨"addsField", "Does this edit add a field to a record, schema or metadata?", .edit⟩
 def citesConvention : Atom := ⟨"citesConvention",
   "Does this reply cite a file as the convention to follow?", .reply⟩
@@ -339,7 +347,13 @@ def foldsEarlierFixIntoStep : Atom := ⟨"foldsEarlierFixIntoStep",
 def realignsWithFixupPairsAtTip : Atom := ⟨"realignsWithFixupPairsAtTip",
   "Does this call realign committed changes by writing fixup pairs at the tip, rather than splitting each overfull commit in place and folding the leftovers in a second rebase?", .call⟩
 def changesDecision : Atom := ⟨"changesDecision", "Does this edit change a decision?", .edit⟩
+def updatesDependentText : Atom := ⟨"updatesDependentText",
+  "Does this edit also update the text (docs, runbooks, comments, commit messages, plan) depending on the decision it changes?", .edit⟩
 def changesCode : Atom := ⟨"changesCode", "Does this edit change code?", .edit⟩
+def changedLinesQuoted : Atom := ⟨"changedLinesQuoted",
+  "Are the lines this edit changes quoted in evidence (mutation specs, ledgers, saved replays) or prose?", .edit⟩
+def updatesQuotingText : Atom := ⟨"updatesQuotingText",
+  "Does this edit update evidence or prose quoting code lines that changed (mutation specs, ledgers, saved replays)?", .edit⟩
 def testsShapedByExisting : Atom := ⟨"testsShapedByExisting",
   "Does this edit design tests after the repository's existing tests rather than from what the checking rules require?", .edit⟩
 def writesCheckWithoutAnswerKey : Atom := ⟨"writesCheckWithoutAnswerKey",
@@ -348,6 +362,8 @@ def checksByRelations : Atom := ⟨"checksByRelations",
   "Does that check use relations (independent views agree, an inverse returns the start, a repeat changes nothing, a simpler model agrees) on inputs generated from their definition?", .edit⟩
 def standInRefusal : Atom := ⟨"standInRefusal",
   "Was this refusal caused by a check keyed on a stand-in for its property (a reader reused from another tool for another purpose included)?", .refusal⟩
+def standInRerun : Atom := ⟨"standInRerun",
+  "Is this call a rerun forced by a check keyed on a stand-in for its property (a reader reused from another tool for another purpose included)?", .call⟩
 def assertsUnworkedTime : Atom := ⟨"assertsUnworkedTime",
   "Does this reply assert a time, weekday or cursor expectation not worked out by hand?", .reply⟩
 def worstCaseMissesSteps : Atom := ⟨"worstCaseMissesSteps",
@@ -366,6 +382,8 @@ def resetRemovesMigrations : Atom := ⟨"resetRemovesMigrations",
 def editsChartValue : Atom := ⟨"editsChartValue", "Does this edit change a deployment chart's value?", .edit⟩
 def apiRecipeSucceeds : Atom := ⟨"apiRecipeSucceeds",
   "Is this result the first success of an external-API recipe (URL, identity, parameters)?", .result⟩
+def recordsApiRecipeInPlan : Atom := ⟨"recordsApiRecipeInPlan",
+  "Does this edit record in the plan an external-API recipe (URL, identity, parameters) that worked?", .edit⟩
 def listsLeftoverBranches : Atom := ⟨"listsLeftoverBranches",
   "Does this reply list leftover branches and worktrees for deletion?", .reply⟩
 def analysesDesign : Atom := ⟨"analysesDesign",
@@ -520,9 +538,7 @@ def readsTrackerIssue : Link := ⟨"readsTrackerIssue",
 def readsIssueLinks : Link := ⟨"readsIssueLinks",
   "Does this call read what that tracker issue links?"⟩
 def confirmsAccess : Link := ⟨"confirmsAccess",
-  "Does this call confirm access to the data sources and write scope the anchored task needs?"⟩
-def asksProductionCredentials : Link := ⟨"asksProductionCredentials",
-  "Does this reply ask for a service account or credentials to verify the anchored task against production?"⟩
+  "Does this call confirm access to the data sources and write scope needed by the task the anchored edit works on?"⟩
 def settlesSourceOfTruth : Link := ⟨"settlesSourceOfTruth",
   "Does this reply settle the source of truth and ownership of the anchored change with the stakeholders?"⟩
 def readsBuildConfig : Link := ⟨"readsBuildConfig",
@@ -951,13 +967,17 @@ def shortPolls : Rule where
   domain := .discipline
   formula := never (ev toolCall ∧ₗ atom slowPolling) ∨ₗ atom justified
 
-/-- Rule 1028: a batch projected from the measured rate, stopped when it exceeds what is acceptable. -/
+/-- Rule 1028: each batch projected from the measured rate since the previous batch, none started
+when the projection exceeds what is acceptable, and such a projection brought with its numbers and
+options. -/
 def projectBeforeBatch : Rule where
   number := 1028
   keyword := .must
   domain := .discipline
-  formula := ev toolCall ∧ₗ atom startsBatch ⟹
-    once (ev reply ∧ₗ link projectsFromRate) ∧ₗ ¬ₗ atom projectionExceedsAcceptable
+  formula := (ev toolCall ∧ₗ atom startsBatch ⟹
+      since (ev reply ∧ₗ link projectsFromRate) (ev toolCall ∧ₗ atom startsBatch) ∧ₗ
+        ¬ₗ atom projectionExceedsAcceptable) ∧ₗ
+    (ev reply ∧ₗ atom projectsUnacceptableRest ⟹ atom bringsNumbersAndOptions)
 
 /-- Rule 1029: a third round finding one class brings counts and a design removing it. -/
 def thirdRoundRedesign : Rule where
@@ -997,14 +1017,16 @@ def readIssueFirst : Rule where
   formula := ev editing ∧ₗ atom writesDesign ⟹
     once (ev toolCall ∧ₗ link readsTrackerIssue) ∧ₗ once (ev toolCall ∧ₗ link readsIssueLinks)
 
-/-- Rule 1034: access confirmed at the start, production credentials asked for. -/
+/-- Rule 1034: at the start, before the task's first design or implementing edit, access confirmed
+since its assignment, and production credentials asked for since an assignment needing them. -/
 def confirmAccessAtStart : Rule where
   number := 1034
   keyword := .must
   domain := .discipline
-  formula := ev user ∧ₗ atom assignsTask ⟹
-    eventually (ev toolCall ∧ₗ link confirmsAccess) ∧ₗ
-      (atom needsProductionVerification ⟹ eventually (ev reply ∧ₗ link asksProductionCredentials))
+  formula := ev editing ∧ₗ (atom writesDesign ∨ₗ atom implementsChange) ⟹
+    ¬ₗ since (ev user ∧ₗ atom assignsTask) (ev toolCall ∧ₗ link confirmsAccess) ∧ₗ
+      ¬ₗ since (ev user ∧ₗ atom assignsTask ∧ₗ atom needsProductionVerification)
+        (ev reply ∧ₗ atom asksForProductionCredentials)
 
 /-- Rule 1035: the source of truth and ownership settled before implementing. -/
 def settleSourceOfTruth : Rule where
@@ -1032,7 +1054,8 @@ def searchEcosystem : Rule where
   number := 1038
   keyword := .must
   domain := .discipline
-  formula := ev reply ∧ₗ atom judgesToolExistence ⟹ once (ev webLookup ∧ₗ link searchesForTool)
+  formula := ev reply ∧ₗ atom judgesToolExistence ⟹
+    once (ev webLookup ∧ₗ link searchesForTool) ∧ₗ ¬ₗ atom weighsOnlyInstalled
 
 /-- Rule 1039: existing fields searched before adding one. -/
 def searchFieldsFirst : Rule where
@@ -1228,12 +1251,15 @@ def aimedFixup : Rule where
   domain := .discipline
   formula := ev fixupCall ⟹ since (ev cachedStatCall) (ev commitCall) ∧ₗ ¬ₗ atom fixupMisaimed
 
-/-- Rule 1065: a change to an earlier commit's code committed as its fixup, apart from the step. -/
+/-- Rule 1065: a change to an earlier commit's code committed as its fixup at once, no other commit
+before that fixup, and apart from the step's files. -/
 def fixupAtOnce : Rule where
   number := 1065
   keyword := .must
   domain := .discipline
   formula := (ev editing ∧ₗ atom changesEarlierCommitsCode ⟹ eventually (ev fixupCall ∧ₗ link fixupOfThatChange)) ∧ₗ
+    (ev commitCall ∧ₗ ¬ₗ ev fixupCall ⟹
+      ¬ₗ since (ev editing ∧ₗ atom changesEarlierCommitsCode) (ev fixupCall)) ∧ₗ
     never (ev commitCall ∧ₗ atom foldsEarlierFixIntoStep)
 
 /-- Rule 1066: realign by splitting in place and folding, not fixup pairs at the tip. -/
@@ -1243,19 +1269,24 @@ def realignBySplitting : Rule where
   domain := .discipline
   formula := never (ev toolCall ∧ₗ atom realignsWithFixupPairsAtTip)
 
-/-- Rule 1067: a changed decision's dependent text searched for. -/
+/-- Rule 1067: a changed decision's dependent text searched for, and updated in the same edit. -/
 def grepAfterDecision : Rule where
   number := 1067
   keyword := .must
   domain := .discipline
-  formula := ev editing ∧ₗ atom changesDecision ⟹ around (ev searching ∧ₗ link searchesDependentText)
+  formula := ev editing ∧ₗ atom changesDecision ⟹
+    around (ev searching ∧ₗ link searchesDependentText) ∧ₗ atom updatesDependentText
 
-/-- Rule 1068: changed code's lines searched for in the evidence and prose quoting them. -/
+/-- Rule 1068: changed code's lines searched for in the evidence and prose quoting them, and that
+text updated in the same step: no commit while a change to quoted lines waits for its update. -/
 def grepAfterCodeChange : Rule where
   number := 1068
   keyword := .must
   domain := .discipline
-  formula := ev editing ∧ₗ atom changesCode ⟹ around (ev searching ∧ₗ link searchesQuotedLines)
+  formula := (ev editing ∧ₗ atom changesCode ⟹ around (ev searching ∧ₗ link searchesQuotedLines)) ∧ₗ
+    (ev commitCall ⟹
+      ¬ₗ since (ev editing ∧ₗ atom changesCode ∧ₗ atom changedLinesQuoted ∧ₗ ¬ₗ atom updatesQuotingText)
+        (ev editing ∧ₗ atom updatesQuotingText))
 
 /-- Rule 1069: tests designed from the checking rules. -/
 def testsFromRules : Rule where
@@ -1271,12 +1302,12 @@ def checkByRelations : Rule where
   domain := .discipline
   formula := ev editing ∧ₗ atom writesCheckWithoutAnswerKey ⟹ atom checksByRelations ∨ₗ atom justified
 
-/-- Rule 1071: the first refusal a stand-in costs is the sign. -/
+/-- Rule 1071: the first rerun or refusal a stand-in costs is the sign. -/
 def standInSign : Rule where
   number := 1071
   keyword := .should
   domain := .discipline
-  formula := ev hookRefusal ∧ₗ atom standInRefusal ⟹
+  formula := ev hookRefusal ∧ₗ atom standInRefusal ∨ₗ ev toolCall ∧ₗ atom standInRerun ⟹
     eventually (ev reply ∧ₗ link treatsAsStandInSign) ∨ₗ atom justified
 
 /-- Rule 1073: times worked out by hand; a worst case adds every blocking step. -/
@@ -1344,12 +1375,15 @@ def traceAndRenderChart : Rule where
   formula := ev editing ∧ₗ atom editsChartValue ⟹
     around (ev toolCall ∧ₗ link tracesChartValue) ∧ₗ around (ev chartRender)
 
-/-- Rule 1082: a working API recipe recorded the moment it succeeds. -/
+/-- Rule 1082: a working API recipe recorded the moment it succeeds: no other call before the edit
+recording it in the plan. -/
 def recordApiRecipe : Rule where
   number := 1082
   keyword := .must
   domain := .discipline
-  formula := ev passingResult ∧ₗ atom apiRecipeSucceeds ⟹ eventually (ev editing ∧ₗ link recordsApiRecipe)
+  formula := (ev passingResult ∧ₗ atom apiRecipeSucceeds ⟹ eventually (ev editing ∧ₗ link recordsApiRecipe)) ∧ₗ
+    (ev toolCall ∧ₗ ¬ₗ (ev editing ∧ₗ atom recordsApiRecipeInPlan) ⟹
+      ¬ₗ since (ev passingResult ∧ₗ atom apiRecipeSucceeds) (ev editing ∧ₗ atom recordsApiRecipeInPlan))
 
 /-- Rule 1083: leftover branches and worktrees listed for deletion. -/
 def listLeftovers : Rule where
