@@ -200,13 +200,24 @@ wellFormedPreds preds
    shellLoopRun, chainedStateChange, hiddenTarget]
 
 /-- The tests refuse the near misses: a dry run, a read of a memory file, a quoted push, a
-`git log` of main, a single state change, a literal target. -/
-theorem preds_refuse_near_misses :
-    !isInstall (bash "pip install --dry-run numpy") && !isMemoryWrite (read "/h/.claude/projects/p/memory/n.md") &&
-      !isGitPush (bash "grep 'git push' f") && !isMainSwitch (bash "git log main") &&
-      !isChainedStateChange (bash "git commit -m x && ls") && !isHiddenTarget (bash "rm -rf build") &&
-      !isPodStop (.call "p" (runpod "pod-action") [("id", "x"), ("body", "{\"action\":\"start\"}")]) &&
-      !isShellLoopRun (bash "./compute.sh python3 a.py") = true := by decide
+`git log` of main, a single state change, a literal target, a Pod start, one compute.sh run. Each
+refusal is a theorem of its own, since the kernel holds memory for one declaration's whole
+evaluation (task lean-build-memory). -/
+theorem dry_run_is_no_install : isInstall (bash "pip install --dry-run numpy") = false := by
+  decide +kernel
+theorem memory_read_is_no_write :
+    isMemoryWrite (read "/h/.claude/projects/p/memory/n.md") = false := by decide +kernel
+theorem quoted_push_is_no_push : isGitPush (bash "grep 'git push' f") = false := by decide +kernel
+theorem log_of_main_is_no_switch : isMainSwitch (bash "git log main") = false := by decide +kernel
+theorem single_state_change_unchained :
+    isChainedStateChange (bash "git commit -m x && ls") = false := by decide +kernel
+theorem literal_target_not_hidden : isHiddenTarget (bash "rm -rf build") = false := by
+  decide +kernel
+theorem pod_start_is_no_stop :
+    isPodStop (.call "p" (runpod "pod-action") [("id", "x"), ("body", "{\"action\":\"start\"}")]) =
+      false := by decide +kernel
+theorem one_run_is_no_shell_loop : isShellLoopRun (bash "./compute.sh python3 a.py") = false := by
+  decide +kernel
 
 /-! Atoms. -/
 

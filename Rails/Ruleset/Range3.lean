@@ -1919,17 +1919,38 @@ theorem rules_cover_range :
 /-- The mechanical predicates refuse their nearest harmless forms: a program whose name only ends in
 `rm`, compute.sh run directly or with a thread count before it, a controller with nothing beside
 it, a filtered command that is no controller, a kill by name, staging one file, listing or deleting
-branches, a dry run, a plain push, a document beside its ledger, a script outside research/. -/
-theorem preds_refuse_neighbours :
-    (!deletes.test (bash "terraform apply") && !computeViaShell.test (bash "./compute.sh python3 x.py") &&
-    !envPrefixToCompute.test (bash "OMP_NUM_THREADS=1 ./compute.sh python3 x.py") &&
-    !envPrefixToCompute.test (bash "./compute.sh env FOO=1 python3 x.py") &&
-    !controllerFiltered.test (bash "./compute.sh start t1") &&
-    !controllerFiltered.test (bash "./compute.sh python3 x.py | tail -3") &&
-    !pkillPattern.test (bash "pkill server") && !stagesWholeTree.test (bash "git add f.py") &&
-    !branchCreate.test (bash "git branch -D x") && !branchCreate.test (bash "git branch") &&
-    !installs.test (bash "pip install --dry-run --report r.json x") &&
-    !rewritesHistory.test (bash "git push origin b") && !editsLedger.test (edit "tasks/x/D.md") &&
-    !runsResearchScript.test (bash "./compute.sh python3 tools/x.py")) = true := by decide
+branches, a dry run, a plain push, a document beside its ledger, a script outside research/. Each
+refusal is a theorem of its own, since the kernel holds memory for one declaration's whole
+evaluation (task lean-build-memory). -/
+theorem name_ending_in_rm_is_no_delete :
+    deletes.test (bash "terraform apply") = false := by decide +kernel
+theorem direct_compute_is_not_via_shell :
+    computeViaShell.test (bash "./compute.sh python3 x.py") = false := by decide +kernel
+theorem thread_count_prefix_refused :
+    envPrefixToCompute.test (bash "OMP_NUM_THREADS=1 ./compute.sh python3 x.py") = false := by
+  decide +kernel
+theorem env_inside_compute_refused :
+    envPrefixToCompute.test (bash "./compute.sh env FOO=1 python3 x.py") = false := by
+  decide +kernel
+theorem unfiltered_controller_refused :
+    controllerFiltered.test (bash "./compute.sh start t1") = false := by decide +kernel
+theorem filtered_run_is_no_controller :
+    controllerFiltered.test (bash "./compute.sh python3 x.py | tail -3") = false := by
+  decide +kernel
+theorem kill_by_name_refused : pkillPattern.test (bash "pkill server") = false := by decide +kernel
+theorem one_file_staged_refused : stagesWholeTree.test (bash "git add f.py") = false := by
+  decide +kernel
+theorem branch_delete_is_no_create : branchCreate.test (bash "git branch -D x") = false := by
+  decide +kernel
+theorem branch_list_is_no_create : branchCreate.test (bash "git branch") = false := by
+  decide +kernel
+theorem dry_run_is_no_install :
+    installs.test (bash "pip install --dry-run --report r.json x") = false := by decide +kernel
+theorem plain_push_is_no_rewrite : rewritesHistory.test (bash "git push origin b") = false := by
+  decide +kernel
+theorem document_is_no_ledger : editsLedger.test (edit "tasks/x/D.md") = false := by
+  decide +kernel
+theorem tools_script_is_no_research_script :
+    runsResearchScript.test (bash "./compute.sh python3 tools/x.py") = false := by decide +kernel
 
 end Rails.Ruleset.Range3

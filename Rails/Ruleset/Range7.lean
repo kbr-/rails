@@ -295,30 +295,59 @@ wellFormedPreds preds
    loadsMoveSkill, caretMessage, cookieCopy, createsBranch, delegates, memoryWrite,
    editsTasksOrResearch, autosquashRebase, historyRewrite, forcePush, cycleEnd]
 
-/-- The mechanical predicates refuse the compliant forms beside their samples. -/
-theorem compliant_forms :
-    !bareAlgebraRun.test (bash "./compute.sh Singular x.sing") &&
-    !leanCheckOutsideCategory.test
-      (bash "./compute.sh --category formal_verification --expect 55 -- lake env lean R.lean") &&
-    !leanCheckOutsideCategory.test (bash "lake -d tools/rented exe pod watch") &&
-    !foregroundOverlong.test (bash "./compute.sh --expect 55 -- lake env lean R.lean") &&
-    !foregroundOverlong.test
-      (.call "b" "Bash" [("command", "./compute.sh --expect 300 x"), ("run_in_background", "true")]) &&
-    !longRunMissingFlags.test (bash "./compute.sh --timeout 900 --expect 700 --sized-by r1 x") &&
-    !overHalfHourUnapproved.test (bash "./compute.sh --timeout 3600 --user-approved 'ok' x") &&
-    !pythonWithoutKernelReason.test
-      (bash "./compute.sh --timeout 300 --kernel-reason 'flint rank kernel reuses one factorization' python3 x.py") &&
-    !timeoutBeyondAllowance.test (bash "./compute.sh --timeout 100 --expect 50 x") &&
-    !sshWithoutTimeout.test (bash "timeout 60 ssh pod ls") &&
-    !computePiped.test (bash "./compute.sh python3 x.py") &&
-    !rsyncWorkspaceWrongFlags.test (bash "rsync -rlpt src/ /workspace/src/") &&
-    !podAddWithShell.test (bash "lake -d tools/rented exe pod add 'j<k 1 4 python3 x.py'") &&
-    !aria2ManyConnections.test (bash "aria2c -x 1 http://h/f") &&
-    !watchFilterDropsQuiet.test
-      (.call "m" "Monitor" [("command", "lake -d tools/rented exe pod watch | grep -E 'DONE|JOB QUIET'")]) &&
-    !caretMessage.test (.user "^ why?") &&
-    !editsMainSkill.test (edit "skills/engineering-discipline-personal/SKILL.md") = true := by
-  decide
+/-! The mechanical predicates refuse the compliant forms beside their samples, each refusal a
+theorem of its own: the kernel holds memory for one declaration's whole evaluation (task
+lean-build-memory), so one theorem over all of them cost as much as all together. -/
+
+theorem algebra_run_through_compute_refused :
+    bareAlgebraRun.test (bash "./compute.sh Singular x.sing") = false := by decide +kernel
+theorem lean_check_in_category_refused :
+    leanCheckOutsideCategory.test
+      (bash "./compute.sh --category formal_verification --expect 55 -- lake env lean R.lean") =
+      false := by decide +kernel
+theorem pod_watch_is_no_lean_check :
+    leanCheckOutsideCategory.test (bash "lake -d tools/rented exe pod watch") = false := by
+  decide +kernel
+theorem short_foreground_run_refused :
+    foregroundOverlong.test (bash "./compute.sh --expect 55 -- lake env lean R.lean") = false := by
+  decide +kernel
+theorem long_background_run_refused :
+    foregroundOverlong.test
+      (.call "b" "Bash" [("command", "./compute.sh --expect 300 x"), ("run_in_background", "true")]) =
+      false := by decide +kernel
+theorem sized_long_run_refused :
+    longRunMissingFlags.test (bash "./compute.sh --timeout 900 --expect 700 --sized-by r1 x") =
+      false := by decide +kernel
+theorem approved_long_run_refused :
+    overHalfHourUnapproved.test (bash "./compute.sh --timeout 3600 --user-approved 'ok' x") =
+      false := by decide +kernel
+theorem python_with_kernel_reason_refused :
+    pythonWithoutKernelReason.test
+      (bash "./compute.sh --timeout 300 --kernel-reason 'flint rank kernel reuses one factorization' python3 x.py") =
+      false := by decide +kernel
+theorem timeout_within_allowance_refused :
+    timeoutBeyondAllowance.test (bash "./compute.sh --timeout 100 --expect 50 x") = false := by
+  decide +kernel
+theorem ssh_with_timeout_refused :
+    sshWithoutTimeout.test (bash "timeout 60 ssh pod ls") = false := by decide +kernel
+theorem unpiped_compute_refused :
+    computePiped.test (bash "./compute.sh python3 x.py") = false := by decide +kernel
+theorem rsync_right_flags_refused :
+    rsyncWorkspaceWrongFlags.test (bash "rsync -rlpt src/ /workspace/src/") = false := by
+  decide +kernel
+theorem pod_add_quoted_refused :
+    podAddWithShell.test (bash "lake -d tools/rented exe pod add 'j<k 1 4 python3 x.py'") = false := by
+  decide +kernel
+theorem aria2_one_connection_refused :
+    aria2ManyConnections.test (bash "aria2c -x 1 http://h/f") = false := by decide +kernel
+theorem watch_filter_keeping_quiet_refused :
+    watchFilterDropsQuiet.test
+      (.call "m" "Monitor" [("command", "lake -d tools/rented exe pod watch | grep -E 'DONE|JOB QUIET'")]) =
+      false := by decide +kernel
+theorem caret_with_text_refused : caretMessage.test (.user "^ why?") = false := by decide +kernel
+theorem personal_skill_is_no_main_skill_edit :
+    editsMainSkill.test (edit "skills/engineering-discipline-personal/SKILL.md") = false := by
+  decide +kernel
 
 /-! Atoms. -/
 
