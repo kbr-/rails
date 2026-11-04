@@ -12,7 +12,8 @@ inductive Event where
   | thinking (text : String)
   /-- A tool call: its id, the tool, and its input's string fields. -/
   | call (id : String) (tool : String) (input : List (String × String))
-  | result (id : String) (output : String)
+  /-- A tool's result: the call it answers, its output, and whether the harness marked it failed. -/
+  | result (id : String) (output : String) (failed : Bool := false)
   | refusal (hook : String) (text : String)
   deriving Repr, DecidableEq, Inhabited
 
@@ -78,10 +79,11 @@ def isRequestAdd (e : Event) : Bool := commandHas "task_index.py request add" e
 def isReviewerRun (e : Event) : Bool :=
   isTool "Agent" e && e.field "subagent_type" == some "medium-reviewer"
 
-/-- A tool result reporting success: no exit status other than 0 at its head. -/
+/-- A tool result reporting success: not marked failed, and no exit status other than 0 at its
+head. -/
 def isPassingResult : Event → Bool
-  | .result _ output =>
-    !hasPrefix "Exit code".toList output.toList || hasPrefix "Exit code 0".toList output.toList
+  | .result _ output failed => !failed &&
+    (!hasPrefix "Exit code".toList output.toList || hasPrefix "Exit code 0".toList output.toList)
   | _ => false
 
 /-- A file a call reads or writes. -/

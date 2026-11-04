@@ -1,6 +1,15 @@
 name = "rails"
 version = "0.1.0"
-defaultTargets = ["Rails"]
+defaultTargets = ["Rails", "rails-extract"]
+testDriver = "rails_tests"
 
 [[lean_lib]]
 name = "Rails"
+
+[[lean_exe]]
+name = "rails-extract"
+root = "RailsExtract"
+
+[[lean_exe]]
+name = "rails_tests"
+root = "RailsTests"
