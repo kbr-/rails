@@ -94,26 +94,48 @@ infixr:35 " ∧ₗ " => Formula.and
 infixr:30 " ∨ₗ " => Formula.or
 infixr:25 " ⟹ " => Formula.implies
 
-/-- A trace, whether it is complete, and the answers to its questions. -/
+/-- A trace, whether it is complete, the answers to its questions, and each position's message
+peers: the positions of the contiguous run of steps sharing its message number. -/
 structure Ctx where
   steps : Array Step
   complete : Bool
   answer : Query → Option Bool
+  peers : Nat → List Nat
 
 namespace Ctx
 def size (ctx : Ctx) : Nat := ctx.steps.size
 def step? (ctx : Ctx) (i : Nat) : Option Step := ctx.steps[i]?
 
+private def sameMsg (steps : Array Step) (i j : Nat) : Bool :=
+  (steps[i]?.map (·.message)) == (steps[j]?.map (·.message)) && (steps[i]?).isSome
+
+/-- The first position of the run of equal message numbers ending at `i`. Structural, so the
+kernel evaluates it. -/
+def runStart (steps : Array Step) : Nat → Nat
+  | 0 => 0
+  | i + 1 => if sameMsg steps i (i + 1) then runStart steps i else i + 1
+
+/-- One past the last position of the run of equal message numbers from `i`, looking at most
+`fuel` positions ahead. -/
+def runEnd (steps : Array Step) : Nat → Nat → Nat
+  | 0, i => i + 1
+  | fuel + 1, i => if sameMsg steps i (i + 1) then runEnd steps fuel (i + 1) else i + 1
+
 /-- A context answering each atom by its mechanical decider first and by `oracle` (a model's
 answers) otherwise. -/
-def build (steps : Array Step) (complete : Bool) (oracle : Query → Option Bool) : Ctx where
-  steps
-  complete
-  answer q := match q with
-    | .atom a i => match steps[i]? with
-      | some s => (Atom.decide a s.event).or (oracle q)
-      | none => oracle q
-    | .link .. => oracle q
+def build (steps : Array Step) (complete : Bool) (oracle : Query → Option Bool) : Ctx :=
+  { steps
+    complete
+    answer := fun q => match q with
+      | .atom a i => match steps[i]? with
+        | some s => (Atom.decide a s.event).or (oracle q)
+        | none => oracle q
+      | .link .. => oracle q
+    peers := fun i =>
+      if i < steps.size then
+        let a := runStart steps i
+        List.range' a (runEnd steps steps.size i - a)
+      else [] }
 end Ctx
 
 open Formula Tri
@@ -129,7 +151,7 @@ def eval (ctx : Ctx) (anchor i : Nat) : Formula → Tri
   | link l => match ctx.answer (.link l anchor i) with
     | some b => ofBool b
     | none => undecided
-  | sameMessage r => anyT (List.range ctx.size) fun j =>
+  | sameMessage r => anyT (ctx.peers i) fun j =>
     match ctx.step? i, ctx.step? j with
     | some s, some t => ofBool (j != i && s.message == t.message && r s t)
     | _, _ => broken
@@ -141,7 +163,7 @@ def eval (ctx : Ctx) (anchor i : Nat) : Formula → Tri
   | .or φ ψ => (eval ctx anchor i φ).or (eval ctx anchor i ψ)
   | once φ => anyT (List.range i) fun j => eval ctx i j φ
   | eventually φ =>
-    let found := anyT ((List.range ctx.size).filter (i < ·)) fun j => eval ctx i j φ
+    let found := anyT (List.range' (i + 1) (ctx.size - (i + 1))) fun j => eval ctx i j φ
     if found == broken && !ctx.complete then undecided else found
   | since φ χ => anyT (List.range i) fun j =>
     (eval ctx i j φ).and (allT ((List.range i).filter (j < ·)) fun k => (eval ctx i k χ).not)
@@ -151,7 +173,7 @@ def Holds (ctx : Ctx) (val : Query → Bool) (anchor i : Nat) : Formula → Prop
   | ev p => ∃ s, ctx.step? i = some s ∧ p s.event = true
   | atom a => val (.atom a i) = true
   | link l => val (.link l anchor i) = true
-  | sameMessage r => ∃ j, j < ctx.size ∧ ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧
+  | sameMessage r => ∃ j ∈ ctx.peers i, ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧
       (j != i && s.message == t.message && r s t) = true
   | gapAtMost ms => ∃ s t, ctx.step? i = some s ∧ ctx.step? (i + 1) = some t ∧ t.time ≤ s.time + ms
   | .not φ => ¬ Holds ctx val anchor i φ

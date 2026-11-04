@@ -6,3 +6,5 @@ import Rails.Examples
 import Rails.Extract
 import Rails.ExtractProofs
 import Rails.ExtractIO
+import Rails.Fast
+import Rails.Check

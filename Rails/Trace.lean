@@ -79,11 +79,10 @@ def isRequestAdd (e : Event) : Bool := commandHas "task_index.py request add" e
 def isReviewerRun (e : Event) : Bool :=
   isTool "Agent" e && e.field "subagent_type" == some "medium-reviewer"
 
-/-- A tool result reporting success: not marked failed, and no exit status other than 0 at its
-head. -/
+/-- A tool result the harness didn't mark failed. In the refusal dataset every result whose output
+starts with a non-zero `Exit code` is marked failed, so its text needn't be read. -/
 def isPassingResult : Event → Bool
-  | .result _ output failed => !failed &&
-    (!hasPrefix "Exit code".toList output.toList || hasPrefix "Exit code 0".toList output.toList)
+  | .result _ _ failed => !failed
   | _ => false
 
 /-- A file a call reads or writes. -/

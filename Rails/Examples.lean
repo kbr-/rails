@@ -125,6 +125,9 @@ is owed. -/
 theorem r1293_plain_push : run checkAfterDeploy (seq [bash "git push origin feature"])
     [(atom pushDeploys 0, false)] = .kept := by decide
 
+/-- An atom a model must answer, left unanswered, leaves the verdict undecided. -/
+theorem r97_unanswered : run noInventedProgress (seq [.reply "proved"]) [] = .undecided := by decide
+
 /-- Rule 9 (MAY): adding a request breaks no rule, at any point, with nothing asked of a model. -/
 theorem r9_request_always_allowed :
     Rules.all.all (fun r => run r (seq [bash "python3 tools/task_index.py request add x"]) [] ==
