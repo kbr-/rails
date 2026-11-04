@@ -1,5 +1,6 @@
 import Rails.Trace
 import Rails.Logic
+import Rails.Ruleset.Atoms
 import Rails.Soundness
 import Rails.Rules
 import Rails.Examples
@@ -14,3 +15,8 @@ import Rails.Label
 import Rails.LabelProofs
 import Rails.Ledger
 import Rails.LedgerCoverage
+import Rails.RuleTextParse
+import Rails.RuleTextProofs
+import Rails.RuleText
+import Rails.RuleTextFacts
+import Rails.Witness

@@ -14,42 +14,41 @@ model for the gaps between the clauses and the statements.
 -/
 
 namespace Rails.Ledger
-open Rails Rules Formula SpecTools.Ledger
+open Rails Rules Ruleset Formula SpecTools.Ledger
 
-theorem r1_formula : pushNeedsAuthorization.formula = (ev isPublish ⟹
-    (since (ev isUser ∧ₗ atom .authorizesPush) (ev isPublish) ∨ₗ atom .grantCoversPush)) := rfl
-theorem r23_formula : runningStateNeedsAsk.formula =
-    (atom .changesRunningState ⟹ since (ev isUser ∧ₗ atom .asksForThisChange) (ev isUser)) := rfl
-theorem r38_formula : noAttribution.formula = never (ev isAttributedCommit) := rfl
-theorem r56_formula : exploreBeforeEditing.formula = (ev isEdit ⟹
-    ¬ₗ since (ev isUser ∧ₗ atom .exploratoryRequest) (ev isUser ∧ₗ atom .confirmsPlan)) := rfl
-theorem r71_formula : noStoppingPrompt.formula =
-    never (ev (isTool "AskUserQuestion") ∧ₗ atom .taskInProgress) := rfl
-theorem r97_formula : noInventedProgress.formula = never (ev isReply ∧ₗ atom .inventsProgress) :=
+theorem r1_formula : pushNeedsAuthorization.formula = (ev publish ⟹
+    (since (ev user ∧ₗ atom authorizesPush) (ev publish) ∨ₗ atom grantCoversPush)) := rfl
+theorem r23_formula : runningStateNeedsAsk.formula = (atom changesRunningState ∧ₗ ¬ₗ ev requestAdd ⟹
+    since (ev user ∧ₗ atom asksForThisChange) (ev user)) := rfl
+theorem r38_formula : noAttribution.formula = never (ev attributedCommit) := rfl
+theorem r56_formula : exploreBeforeEditing.formula = (ev editing ⟹
+    ¬ₗ since (ev user ∧ₗ atom exploratoryRequest) (ev user ∧ₗ atom confirmsPlan)) := rfl
+theorem r71_formula : noStoppingPrompt.formula = never (ev promptsUser ∧ₗ atom taskInProgress) :=
   rfl
-theorem r838_formula : readAfterWrite.formula = never (sameMessage readsWhatOtherWrites) := rfl
+theorem r97_formula : noInventedProgress.formula = never (ev reply ∧ₗ atom inventsProgress) := rfl
+theorem r838_formula : readAfterWrite.formula = never (sameMessage readsWrittenFile) := rfl
 theorem r7_formula : blockedStepBecomesRequest.formula =
-    (atom .needsUserAction ⟹ eventually (ev isRequestAdd)) := rfl
-theorem r53_formula : questionIsNoGoAhead.formula =
-    (atom .changesRunningState ⟹ ¬ₗ since (ev isUser ∧ₗ atom .onlyAsks) (ev isUser)) := rfl
-theorem r110_formula : passNeedsRun.formula = (ev isReply ∧ₗ atom .claimsCheckPasses ⟹
-    once (ev isPassingResult ∧ₗ link .runOfClaimedCheck)) := rfl
+    (atom needsUserAction ⟹ eventually (ev requestAdd)) := rfl
+theorem r53_formula : questionIsNoGoAhead.formula = (atom changesRunningState ∧ₗ ¬ₗ ev requestAdd ⟹
+    ¬ₗ since (ev user ∧ₗ atom onlyAsks) (ev user)) := rfl
+theorem r110_formula : passNeedsRun.formula = (ev reply ∧ₗ atom claimsCheckPasses ⟹
+    once (ev passingResult ∧ₗ link runOfClaimedCheck)) := rfl
 theorem r170_formula : checkAfterDeploy.formula =
-    (ev isPush ∧ₗ atom .pushDeploys ⟹ eventually (atom .checksRunningSystem)) := rfl
-theorem r341_formula : readClaimFirst.formula = (ev isReply ∧ₗ atom .reliesOnClaim ⟹
-    once (ev isRead ∧ₗ link .readsReliedClaim)) := rfl
-theorem r383_formula : invariantBeforeFix.formula = (ev isEdit ∧ₗ atom .isFix ⟹
-    once (ev isReply ∧ₗ link .statesFixedInvariant)) := rfl
+    (ev push ∧ₗ atom pushDeploys ⟹ eventually (atom checksRunningSystem)) := rfl
+theorem r341_formula : readClaimFirst.formula = (ev reply ∧ₗ atom reliesOnClaim ⟹
+    once (ev reading ∧ₗ link readsReliedClaim)) := rfl
+theorem r383_formula : invariantBeforeFix.formula = (ev editing ∧ₗ atom isFix ⟹
+    once (ev reply ∧ₗ link statesFixedInvariant)) := rfl
 theorem r420_formula : exactFiniteField.formula =
-    never (ev isEdit ∧ₗ atom .floatingPointOverFiniteField) := rfl
-theorem r605_formula : oneReviewerPerRound.formula = (ev isReviewerRun ⟹
-    ¬ₗ once (ev isReviewerRun ∧ₗ link .sameRound) ∨ₗ atom .justified) := rfl
-theorem r844_formula : algebraSystemFirst.formula = (ev isEdit ∧ₗ atom .writesKernel ⟹
-    once (ev isReply ∧ₗ link .weighsAlgebraSystems) ∨ₗ atom .justified) := rfl
-theorem r677_formula : noLongWait.formula = (ev isReply ∧ₗ atom .asksUserAndStops ⟹
-    (gapAtMost 120000 ∨ₗ atom .nothingUnblocked) ∨ₗ atom .justified) := rfl
-theorem r926_formula : generalOverCases.formula = (ev isReply ∧ₗ atom .addsCaseToList ⟹
-    atom .generalClaimStated ∨ₗ atom .justified) := rfl
+    never (ev editing ∧ₗ atom floatingPointOverFiniteField) := rfl
+theorem r605_formula : oneReviewerPerRound.formula = (ev reviewerRun ⟹
+    ¬ₗ once (ev reviewerRun ∧ₗ link sameRound) ∨ₗ atom justified) := rfl
+theorem r844_formula : algebraSystemFirst.formula = (ev editing ∧ₗ atom writesKernel ⟹
+    once (ev reply ∧ₗ link weighsAlgebraSystems) ∨ₗ atom justified) := rfl
+theorem r677_formula : noLongWait.formula = (ev reply ∧ₗ atom asksUserAndStops ⟹
+    (gapAtMost 120000 ∨ₗ atom nothingUnblocked) ∨ₗ atom justified) := rfl
+theorem r926_formula : generalOverCases.formula = (ev reply ∧ₗ atom addsCaseToList ⟹
+    atom generalClaimStated ∨ₗ atom justified) := rfl
 
 /-- Each formula rule of `Rules.all`, in its order, with the statements its row claims. -/
 def formulaRows : List (Rule × List Lean.Name) := [
@@ -77,16 +76,18 @@ def formulaRows : List (Rule × List Lean.Name) := [
   (noLongWait, [``r677_formula, ``Examples.r677_kept, ``Examples.r677_broken]),
   (generalOverCases, [``r926_formula, ``Examples.r926_kept, ``Examples.r926_broken])]
 
-/-- The MAY rules, numbered and quoted from `tasks/agents-on-rails/RULES.md`, with their theorems. -/
-def mayRows : List (Nat × String × List Lean.Name) := [
-  (9, "You MAY add or resolve a request at any time and commit it freely.",
-    [``Examples.r9_request_always_allowed]),
-  (1293, "You MAY, after a plain branch push, only confirm the remote branch.",
-    [``Examples.r1293_plain_push])]
+/-- The MAY rules, numbered as in `tasks/agents-on-rails/RULES.md`, with their theorems; their
+clauses come from the generated table. -/
+def mayRows : List (Nat × List Lean.Name) := [
+  (9, [``Examples.r9_request_always_allowed]),
+  (1293, [``Examples.r1293_plain_push])]
+
+/-- A rule's text in the generated table. -/
+def textOf (n : Nat) : String := ((RuleText.entries.find? (·.number == n)).map (·.text)).getD ""
 
 def ledger : List Row :=
   formulaRows.map (fun (r, ts) => { id := s!"r{r.number}", clause := r.text, theorems := ts }) ++
-    mayRows.map fun (n, c, ts) => { id := s!"r{n}", clause := c, theorems := ts }
+    mayRows.map fun (n, ts) => { id := s!"r{n}", clause := textOf n, theorems := ts }
 
 /-- The prose `gaps` reads: the rows' clauses, one to a line. -/
 def prose : String := "\n".intercalate (ledger.map (·.clause))

@@ -23,5 +23,13 @@ name = "rails-label"
 root = "RailsLabel"
 
 [[lean_exe]]
+name = "rails-texts"
+root = "RailsTexts"
+
+[[lean_exe]]
+name = "rails-witness"
+root = "RailsWitness"
+
+[[lean_exe]]
 name = "rails_tests"
 root = "RailsTests"

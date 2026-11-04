@@ -18,11 +18,11 @@ theorem withAnswers_fills (ctx : Ctx) (ans : List (Query × Bool)) {q : Query} {
     (h : ctx.answer q = none) (hb : ans.lookup q = some b) : (withAnswers ctx ans).answer q = some b := by
   simp [withAnswers, h, hb]
 
-/-- Only queries the context leaves open are asked. -/
-theorem openQueries_open (ctx : Ctx) (φ : Formula) {q : Query} (h : q ∈ openQueries ctx φ) :
-    ctx.answer q = none := by
+/-- Only atoms that neither their decider nor the context answers are asked. -/
+theorem openQueries_open (ctx : Ctx) (φ : Formula) {a : Atom} {i : Nat}
+    (h : (a, i) ∈ openQueries ctx φ) : ctx.atomAnswer a i = none := by
   simp only [openQueries, List.mem_flatMap, List.mem_filterMap] at h
-  obtain ⟨i, _, a, _, hq⟩ := h
+  obtain ⟨j, _, b, _, hq⟩ := h
   split at hq
   · rename_i hn
     cases hq
@@ -58,14 +58,15 @@ def ctx97 : Ctx := Ctx.build (seq [.reply "proved"]) true fun _ => none
 
 example : check Rules.noInventedProgress ctx97 = .undecided := by rw [check_eq]; decide
 example : check Rules.noInventedProgress
-    (withAnswers ctx97 [(.atom .inventsProgress 0, false)]) = .kept := by rw [check_eq]; decide
+    (withAnswers ctx97 [(.atom "inventsProgress" 0, false)]) = .kept := by rw [check_eq]; decide
 example : check Rules.noInventedProgress
-    (withAnswers ctx97 [(.atom .inventsProgress 0, true)]) = .broken := by rw [check_eq]; decide
+    (withAnswers ctx97 [(.atom "inventsProgress" 0, true)]) = .broken := by rw [check_eq]; decide
 /-- A failed question gives no answer, so the verdict stays undecided. -/
 example : check Rules.noInventedProgress
-    (withAnswers ctx97 (collect [(.atom .inventsProgress 0, .error (.timedOut "m" 10))]).answers) =
+    (withAnswers ctx97 (collect [(.atom "inventsProgress" 0, .error (.timedOut "m" 10))]).answers) =
     .undecided := by rw [check_eq]; decide
 /-- The open queries of rule 97's trace: its one atom at its one position. -/
-example : openQueries ctx97 Rules.noInventedProgress.formula = [.atom .inventsProgress 0] := by decide
+example : (openQueries ctx97 Rules.noInventedProgress.formula).map (fun (a, i) => (a.name, i)) =
+    [("inventsProgress", 0)] := by decide
 
 end Rails.Atoms

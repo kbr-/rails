@@ -206,6 +206,14 @@ def isPassingResult : Event → Bool
 def readPath (e : Event) : Option String := if isRead e then e.field "file_path" else none
 def writePath (e : Event) : Option String := if isEdit e then e.field "file_path" else none
 
+/-- Events as the extractor builds them, for examples and predicates' representatives. -/
+def bash (c : String) : Event := .call "c" "Bash" [("command", c)]
+def edit (p : String) : Event := .call "e" "Edit" [("file_path", p)]
+def read (p : String) : Event := .call "r" "Read" [("file_path", p)]
+def reviewer : Event := .call "a" "Agent" [("subagent_type", "medium-reviewer")]
+/-- A Codex shell call, as the extractor reads its string input. -/
+def exec (c : String) : Event := .call "x" "exec" [("input", c)]
+
 /-- The first call reads a path the second writes. -/
 def readsWhatOtherWrites (reader writer : Step) : Bool :=
   match readPath reader.event, writePath writer.event with

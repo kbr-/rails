@@ -15,44 +15,85 @@ on it undecided. A liveness formula (`eventually`) is undecided on a trace that 
 
 namespace Rails
 
-inductive Atom where
-  | authorizesPush | asksForThisChange | changesRunningState | exploratoryRequest | confirmsPlan
-  | taskInProgress | inventsProgress | needsUserAction | onlyAsks | claimsCheckPasses | pushDeploys
-  | checksRunningSystem | reliesOnClaim | isFix | floatingPointOverFiniteField | writesKernel
-  | asksUserAndStops | nothingUnblocked | addsCaseToList | generalClaimStated | justified
-  | grantCoversPush
+/-- The kind of event an atom is about: one of the event's forms, or among calls an edit, a read, a
+push or a publish, or any event. -/
+inductive Kind where
+  | user | reply | thinking | call | result | refusal | edit | read | push | publish | any
   deriving Repr, DecidableEq
 
-inductive Link where
-  | runOfClaimedCheck | readsReliedClaim | statesFixedInvariant | sameRound | weighsAlgebraSystems
+def isCall : Event → Bool
+  | .call .. => true
+  | _ => false
+
+def isThinking : Event → Bool
+  | .thinking _ => true
+  | _ => false
+
+def isResult : Event → Bool
+  | .result .. => true
+  | _ => false
+
+def isRefusalEvent : Event → Bool
+  | .refusal .. => true
+  | _ => false
+
+def Kind.holds : Kind → Event → Bool
+  | .user, e => isUser e
+  | .reply, e => isReply e
+  | .thinking, e => isThinking e
+  | .call, e => isCall e
+  | .result, e => isResult e
+  | .refusal, e => isRefusalEvent e
+  | .edit, e => isEdit e
+  | .read, e => isRead e
+  | .push, e => isPush e
+  | .publish, e => isPublish e
+  | .any, _ => true
+
+/-- A question about one event, asked of a model: its name (the atom's identity in answers and
+listings), the question, and the kind of event it is about. -/
+structure Atom where
+  name : String
+  question : String
+  on : Kind
   deriving Repr, DecidableEq
 
-private def onUser (e : Event) : Option Bool := if isUser e then none else some false
-private def onReply (e : Event) : Option Bool := if isReply e then none else some false
-private def onEdit (e : Event) : Option Bool := if isEdit e then none else some false
+/-- A question about an event and the anchor a formula refers it back to. -/
+structure Link where
+  name : String
+  question : String
+  deriving Repr, DecidableEq
 
-/-- An atom's answer where the event's form decides it: an atom about the user's words is false at
-any other event, one about a reply false at any other, and so on. `none` leaves it to a model. -/
-def Atom.decide : Atom → Event → Option Bool
-  | .authorizesPush, e | .asksForThisChange, e | .exploratoryRequest, e | .confirmsPlan, e
-  | .onlyAsks, e => onUser e
-  | .inventsProgress, e | .needsUserAction, e | .claimsCheckPasses, e | .reliesOnClaim, e
-  | .asksUserAndStops, e | .addsCaseToList, e => onReply e
-  | .isFix, e | .floatingPointOverFiniteField, e | .writesKernel, e => onEdit e
-  | .pushDeploys, e => if isPush e then none else some false
-  | .grantCoversPush, e => if isPublish e then none else some false
-  | .changesRunningState, e => match e with
-    | .call _ _ _ => if isRequestAdd e then some false else none
-    | _ => some false
-  | .checksRunningSystem, e => match e with
-    | .call _ _ _ => none
-    | _ => some false
-  | .taskInProgress, _ | .nothingUnblocked, _ | .generalClaimStated, _ | .justified, _ => none
+/-- An event predicate a formula names: its name, its test, and representative events, on each of
+which the test holds, from which `rails-witness` builds its traces. -/
+structure Pred where
+  name : String
+  test : Event → Bool
+  samples : List Event
+
+/-- A relation between two steps of one message, with representative pairs on which it holds. -/
+structure Rel where
+  name : String
+  test : Step → Step → Bool
+  samples : List (Event × Event)
+
+/-- Every representative of a predicate passes its test, and it has one. -/
+def Pred.wellFormed (p : Pred) : Bool := !p.samples.isEmpty && p.samples.all p.test
+
+def Rel.wellFormed (r : Rel) : Bool :=
+  !r.samples.isEmpty && r.samples.all fun (a, b) =>
+    r.test { event := a, message := 0, time := 0 } { event := b, message := 0, time := 0 }
+
+/-- An atom's answer where the event's form decides it: false at an event of another kind than the
+atom is about; `none` leaves it to a model. -/
+def Atom.decide (a : Atom) (e : Event) : Option Bool := if a.on.holds e then none else some false
 
 /-- A question about the trace: an atom at a position, or a link from an anchor to a position. -/
 inductive Query where
-  | atom (a : Atom) (at_ : Nat)
-  | link (l : Link) (anchor at_ : Nat)
+  /-- The atom of that name at a position: answers are keyed by name, so comparing two queries
+  compares short names, never the questions' text. -/
+  | atom (name : String) (at_ : Nat)
+  | link (name : String) (anchor at_ : Nat)
   deriving Repr, DecidableEq
 
 inductive Tri where
@@ -74,10 +115,10 @@ def anyT {α} (l : List α) (g : α → Tri) : Tri := l.foldr (fun x acc => (g x
 def allT {α} (l : List α) (g : α → Tri) : Tri := l.foldr (fun x acc => (g x).and acc) .kept
 
 inductive Formula where
-  | ev (p : Event → Bool)
+  | ev (p : Pred)
   | atom (a : Atom)
   | link (l : Link)
-  | sameMessage (r : Step → Step → Bool)
+  | sameMessage (r : Rel)
   | gapAtMost (ms : Nat)
   | not (φ : Formula)
   | and (φ ψ : Formula)
@@ -89,6 +130,31 @@ inductive Formula where
 namespace Formula
 def implies (φ ψ : Formula) : Formula := .or (.not φ) ψ
 def never (φ : Formula) : Formula := .not φ
+
+/-- What a formula names: its atoms, links, event predicates and relations, with repeats. -/
+def atoms : Formula → List Atom
+  | atom a => [a]
+  | .not φ | once φ | eventually φ => atoms φ
+  | .and φ ψ | .or φ ψ | since φ ψ => atoms φ ++ atoms ψ
+  | _ => []
+
+def links : Formula → List Link
+  | link l => [l]
+  | .not φ | once φ | eventually φ => links φ
+  | .and φ ψ | .or φ ψ | since φ ψ => links φ ++ links ψ
+  | _ => []
+
+def preds : Formula → List Pred
+  | ev p => [p]
+  | .not φ | once φ | eventually φ => preds φ
+  | .and φ ψ | .or φ ψ | since φ ψ => preds φ ++ preds ψ
+  | _ => []
+
+def rels : Formula → List Rel
+  | sameMessage r => [r]
+  | .not φ | once φ | eventually φ => rels φ
+  | .and φ ψ | .or φ ψ | since φ ψ => rels φ ++ rels ψ
+  | _ => []
 end Formula
 
 prefix:40 "¬ₗ " => Formula.not
@@ -123,21 +189,24 @@ def runEnd (steps : Array Step) : Nat → Nat → Nat
   | 0, i => i + 1
   | fuel + 1, i => if sameMsg steps i (i + 1) then runEnd steps fuel (i + 1) else i + 1
 
-/-- A context answering each atom by its mechanical decider first and by `oracle` (a model's
-answers) otherwise. -/
+/-- A context whose questions `oracle` (a model's answers) answers; an atom's mechanical decider
+is applied where the formula is evaluated (`Ctx.atomAnswer`). -/
 def build (steps : Array Step) (complete : Bool) (oracle : Query → Option Bool) : Ctx :=
   { steps
     complete
-    answer := fun q => match q with
-      | .atom a i => match steps[i]? with
-        | some s => (Atom.decide a s.event).or (oracle q)
-        | none => oracle q
-      | .link .. => oracle q
+    answer := oracle
     peers := fun i =>
       if i < steps.size then
         let a := runStart steps i
         List.range' a (runEnd steps steps.size i - a)
       else [] }
+
+/-- The atom's answer the event's kind decides, if it does. -/
+def decided (ctx : Ctx) (a : Atom) (i : Nat) : Option Bool := (ctx.step? i).bind (a.decide ·.event)
+
+/-- The atom's answer: its decider's, else the context's. -/
+def atomAnswer (ctx : Ctx) (a : Atom) (i : Nat) : Option Bool :=
+  (ctx.decided a i).or (ctx.answer (.atom a.name i))
 end Ctx
 
 open Formula Tri
@@ -145,17 +214,17 @@ open Formula Tri
 /-- The formula's value at position `i`, with `anchor` the position a link refers back to. -/
 def eval (ctx : Ctx) (anchor i : Nat) : Formula → Tri
   | ev p => match ctx.step? i with
-    | some s => ofBool (p s.event)
+    | some s => ofBool (p.test s.event)
     | none => broken
-  | atom a => match ctx.answer (.atom a i) with
+  | atom a => match ctx.atomAnswer a i with
     | some b => ofBool b
     | none => undecided
-  | link l => match ctx.answer (.link l anchor i) with
+  | link l => match ctx.answer (.link l.name anchor i) with
     | some b => ofBool b
     | none => undecided
   | sameMessage r => anyT (ctx.peers i) fun j =>
     match ctx.step? i, ctx.step? j with
-    | some s, some t => ofBool (j != i && s.message == t.message && r s t)
+    | some s, some t => ofBool (j != i && s.message == t.message && r.test s t)
     | _, _ => broken
   | gapAtMost ms => match ctx.step? i, ctx.step? (i + 1) with
     | some s, some t => ofBool (decide (t.time ≤ s.time + ms))
@@ -172,11 +241,11 @@ def eval (ctx : Ctx) (anchor i : Nat) : Formula → Tri
 
 /-- The formula's meaning at position `i` under a reading `val` of every question. -/
 def Holds (ctx : Ctx) (val : Query → Bool) (anchor i : Nat) : Formula → Prop
-  | ev p => ∃ s, ctx.step? i = some s ∧ p s.event = true
-  | atom a => val (.atom a i) = true
-  | link l => val (.link l anchor i) = true
+  | ev p => ∃ s, ctx.step? i = some s ∧ p.test s.event = true
+  | atom a => (ctx.decided a i).getD (val (.atom a.name i)) = true
+  | link l => val (.link l.name anchor i) = true
   | sameMessage r => ∃ j ∈ ctx.peers i, ∃ s t, ctx.step? i = some s ∧ ctx.step? j = some t ∧
-      (j != i && s.message == t.message && r s t) = true
+      (j != i && s.message == t.message && r.test s t) = true
   | gapAtMost ms => ∃ s t, ctx.step? i = some s ∧ ctx.step? (i + 1) = some t ∧ t.time ≤ s.time + ms
   | .not φ => ¬ Holds ctx val anchor i φ
   | .and φ ψ => Holds ctx val anchor i φ ∧ Holds ctx val anchor i ψ

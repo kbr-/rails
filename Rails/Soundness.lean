@@ -62,16 +62,19 @@ theorem eval_sound (ctx : Ctx) (val : Query → Bool) (agrees : Agrees ctx val) 
     | some s => simp
   | atom a =>
     intro anchor i
-    simp only [eval, Holds]
-    cases ha : ctx.answer (.atom a i) with
-    | none => simp
-    | some b =>
-      have := agrees _ _ ha
-      simp [this]
+    simp only [eval, Holds, Ctx.atomAnswer]
+    cases hd : ctx.decided a i with
+    | some b => simp
+    | none =>
+      cases ha : ctx.answer (.atom a.name i) with
+      | none => simp
+      | some b =>
+        have := agrees _ _ ha
+        simp [this]
   | link l =>
     intro anchor i
     simp only [eval, Holds]
-    cases ha : ctx.answer (.link l anchor i) with
+    cases ha : ctx.answer (.link l.name anchor i) with
     | none => simp
     | some b =>
       have := agrees _ _ ha

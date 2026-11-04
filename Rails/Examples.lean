@@ -8,13 +8,6 @@ that couldn't tell the two apart fails to prove here.
 namespace Rails.Examples
 open Rails Rules
 
-def bash (c : String) : Event := .call "c" "Bash" [("command", c)]
-def edit (p : String) : Event := .call "e" "Edit" [("file_path", p)]
-def read (p : String) : Event := .call "r" "Read" [("file_path", p)]
-def reviewer : Event := .call "a" "Agent" [("subagent_type", "medium-reviewer")]
-/-- A Codex shell call, as the extractor reads its string input. -/
-def exec (c : String) : Event := .call "x" "exec" [("input", c)]
-
 /-- Events one per message, a second apart. -/
 def seq (es : List Event) : Array Step :=
   (es.zipIdx.map fun (e, i) => { event := e, message := i, time := i * 1000 }).toArray
@@ -22,7 +15,11 @@ def seq (es : List Event) : Array Step :=
 def run (r : Rule) (steps : Array Step) (answers : List (Query × Bool)) (complete := true) : Tri :=
   r.verdict (Ctx.build steps complete fun q => answers.lookup q)
 
-open Query Atom Link
+open Ruleset
+
+/-- The query of an atom, or a link, at a position, keyed by its name. -/
+def atom (a : Atom) (i : Nat) : Query := .atom a.name i
+def link (l : Link) (anchor i : Nat) : Query := .link l.name anchor i
 
 theorem r1_kept : run pushNeedsAuthorization (seq [.user "push it", bash "git push"])
     [(atom authorizesPush 0, true)] = .kept := by decide
