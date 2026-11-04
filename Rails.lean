@@ -8,3 +8,5 @@ import Rails.ExtractProofs
 import Rails.ExtractIO
 import Rails.Fast
 import Rails.Check
+import Rails.Atoms
+import Rails.AtomsProofs

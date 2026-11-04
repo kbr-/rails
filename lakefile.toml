@@ -3,6 +3,10 @@ version = "0.1.0"
 defaultTargets = ["Rails", "rails-extract", "rails-check"]
 testDriver = "rails_tests"
 
+[[require]]
+name = "lean-spec-tools"
+path = "../lean-spec-tools"
+
 [[lean_lib]]
 name = "Rails"
 

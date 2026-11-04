@@ -1,6 +1,13 @@
 {"version": "1.2.0",
  "packagesDir": ".lake/packages",
- "packages": [],
+ "packages":
+ [{"type": "path",
+   "scope": "",
+   "name": "«lean-spec-tools»",
+   "manifestFile": "lake-manifest.json",
+   "inherited": false,
+   "dir": "../lean-spec-tools",
+   "configFile": "lakefile.toml"}],
  "name": "rails",
  "lakeDir": ".lake",
  "fixedToolchain": false}
