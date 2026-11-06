@@ -101,7 +101,7 @@ theorem latest_mem_ge (ts : List String) (t : String) (h : latest ts = some t) :
         | nil => rfl
         | cons y ys => simp [latest] at hn; split at hn <;> simp at hn
       subst this
-      simp
+      simp [Std.lt_irrefl]
     · rename_i u hu
       obtain ⟨mem, ge⟩ := ih u hu
       cases h
