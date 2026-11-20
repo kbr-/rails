@@ -3,7 +3,7 @@
  "packages":
  [{"type": "path",
    "scope": "",
-   "name": "«lean-spec-tools»",
+   "name": "«Elenxis»",
    "manifestFile": "lake-manifest.json",
    "inherited": false,
    "dir": "../lean-spec-tools",

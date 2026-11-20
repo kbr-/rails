@@ -4,7 +4,7 @@ defaultTargets = ["Rails", "rails-extract", "rails-check", "rails-label"]
 testDriver = "rails_tests"
 
 [[require]]
-name = "lean-spec-tools"
+name = "Elenxis"
 path = "../lean-spec-tools"
 
 [[lean_lib]]
